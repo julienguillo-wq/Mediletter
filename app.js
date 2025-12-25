@@ -12,6 +12,10 @@ let currentTheme = 'dark';
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Pré-configure la clé API
+    if (!localStorage.getItem('mediletter_apikey')) {
+        localStorage.setItem('mediletter_apikey', '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');
+    }
     loadSettings();
     initSpeechRecognition();
     setupTextareaAutoResize();
