@@ -166,6 +166,38 @@
             padding: 1.5rem 2rem;
             display: flex;
             justify-content: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 42px;
+            background: var(--bg-glass-strong);
+            border: var(--border-glass);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-muted);
+        }
+
+        .back-btn:hover {
+            background: var(--bg-card);
+            color: var(--accent-cyan);
+            border-color: rgba(0, 245, 255, 0.3);
+            transform: translateY(-50%) translateX(-2px);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
         }
 
         .logo {
@@ -927,6 +959,11 @@
 
     <div class="app">
         <header class="header">
+            <a href="../index.html" class="back-btn" title="Retour au hub">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </a>
             <div class="logo">
                 <div class="logo-mark">
                     <div class="logo-icon">
