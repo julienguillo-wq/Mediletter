@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#7C3AED">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>GeriaQuest - Cas Cliniques Gériatrie</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7C3AED;
+            --primary-light: #8B5CF6;
+            --primary-lighter: #A78BFA;
+            --primary-dark: #6D28D9;
+            --primary-glow: rgba(124, 58, 237, 0.25);
+
+            --accent-teal: #0D9488;
+            --accent-blue: #2563EB;
+            --accent-rose: #E11D48;
+
+            --success: #10B981;
+            --success-light: #34D399;
+            --success-bg: rgba(16, 185, 129, 0.12);
+            --warning: #F59E0B;
+            --warning-bg: rgba(245, 158, 11, 0.12);
+            --danger: #EF4444;
+            --danger-bg: rgba(239, 68, 68, 0.12);
+
+            --bg-primary: #F8FAFC;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F1F5F9;
+            --bg-glass: rgba(255, 255, 255, 0.8);
+
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+
+            --border: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.05);
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-xl: 0 25px 60px rgba(0,0,0,0.12), 0 10px 24px rgba(0,0,0,0.08);
+
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Background */
+        .bg-decoration {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(139, 92, 246, 0.15));
+            top: -150px;
+            right: -150px;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(52, 211, 153, 0.1));
+            bottom: -100px;
+            left: -100px;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-20px, 20px) scale(1.05); }
+        }
+
+        /* App Container */
+        .app {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-secondary);
+        }
+
+        .back-btn:hover {
+            background: var(--bg-tertiary);
+            transform: translateX(-2px);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .header-center {
+            text-align: center;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .streak-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.5rem 0.875rem;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            border-radius: 100px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        /* XP Progress */
+        .xp-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .xp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .level-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .level-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-md), 0 0 20px var(--primary-glow);
+        }
+
+        .level-info h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .level-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .xp-count {
+            text-align: right;
+        }
+
+        .xp-count .current {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .xp-count .total {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .xp-bar {
+            height: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 100px;
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .xp-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Badges Section */
+        .badges-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badges-grid {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: none;
+        }
+
+        .badges-grid::-webkit-scrollbar { display: none; }
+
+        .badge-item {
+            flex-shrink: 0;
+            width: 70px;
+            text-align: center;
+        }
+
+        .badge-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.375rem;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .badge-item.unlocked .badge-icon {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px var(--primary-glow);
+        }
+
+        .badge-item.locked .badge-icon {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+
+        .badge-name {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .badge-item.unlocked .badge-name {
+            color: var(--text-primary);
+        }
+
+        /* Quiz Card */
+        .quiz-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 1.25rem;
+            color: white;
+        }
+
+        .quiz-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .quiz-progress {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .quiz-body {
+            padding: 1.5rem;
+        }
+
+        /* Case Presentation */
+        .case-presentation {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .case-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .case-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .case-text strong {
+            color: var(--primary-dark);
+        }
+
+        /* Question */
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            line-height: 1.4;
+        }
+
+        /* Options */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option-btn {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            text-align: left;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary-lighter);
+            background: rgba(124, 58, 237, 0.05);
+            transform: translateX(4px);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .option-letter {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) .option-letter {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .option-btn.correct {
+            border-color: var(--success);
+            background: var(--success-bg);
+        }
+
+        .option-btn.correct .option-letter {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .option-btn.wrong {
+            border-color: var(--danger);
+            background: var(--danger-bg);
+        }
+
+        .option-btn.wrong .option-letter {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        /* Explanation */
+        .explanation {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background: var(--success-bg);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-md);
+            animation: slideIn 0.3s ease;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .explanation.wrong-answer {
+            background: var(--danger-bg);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .explanation-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .explanation-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .explanation.wrong-answer .explanation-icon {
+            background: var(--danger);
+        }
+
+        .explanation-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .explanation.wrong-answer .explanation-title {
+            color: var(--danger);
+        }
+
+        .explanation-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .xp-gained {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Next Button */
+        .next-btn {
+            display: none;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: var(--shadow-md), 0 0 30px var(--primary-glow);
+        }
+
+        .next-btn.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), 0 0 40px var(--primary-glow);
+        }
+
+        .next-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .start-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+            box-shadow: var(--shadow-xl), 0 0 60px var(--primary-glow);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .start-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .start-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .start-btn {
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg), 0 0 40px var(--primary-glow);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-xl), 0 0 60px var(--primary-glow);
+        }
+
+        /* Complete Screen */
+        .complete-screen {
+            display: none;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .complete-screen.show {
+            display: block;
+        }
+
+        .complete-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3.5rem;
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3);
+            animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .complete-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .complete-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .complete-stat {
+            text-align: center;
+        }
+
+        .complete-stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .complete-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .restart-btn {
+            padding: 1rem 2rem;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .restart-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            box-shadow: var(--shadow-xl);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .toast.badge-toast {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .app {
+                padding: 0.75rem;
+            }
+
+            .stats-bar {
+                gap: 0.5rem;
+            }
+
+            .stat-card {
+                padding: 0.75rem;
+            }
+
+            .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .quiz-body {
+                padding: 1.25rem;
+            }
+
+            .case-text {
+                font-size: 0.9rem;
+            }
+
+            .question-text {
+                font-size: 1rem;
+            }
+
+            .option-btn {
+                padding: 0.875rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .quiz-card {
+            animation: fadeIn 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="bg-decoration">
+        <div class="bg-gradient-orb orb-1"></div>
+        <div class="bg-gradient-orb orb-2"></div>
+    </div>
+
+    <div class="app">
+        <!-- Header -->
+        <header>
+            <a href="../hub.html" class="back-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div class="header-center">
+                <h1 class="logo-text">GeriaQuest</h1>
+                <p class="header-subtitle">Cas cliniques gériatrie</p>
+            </div>
+            <div class="streak-badge" id="streakBadge">
+                <span>🔥</span>
+                <span id="streakCount">0</span>
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="totalXP">0</div>
+                <div class="stat-label">XP Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="correctAnswers">0</div>
+                <div class="stat-label">Bonnes rép.</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">Précision</div>
+            </div>
+        </div>
+
+        <!-- XP Progress -->
+        <div class="xp-section">
+            <div class="xp-header">
+                <div class="level-badge">
+                    <div class="level-icon" id="levelIcon">🩺</div>
+                    <div class="level-info">
+                        <h3 id="levelName">Interne</h3>
+                        <p id="levelSubtitle">Niveau 1</p>
+                    </div>
+                </div>
+                <div class="xp-count">
+                    <span class="current" id="currentXP">0</span>
+                    <span class="total">/ <span id="nextLevelXP">100</span> XP</span>
+                </div>
+            </div>
+            <div class="xp-bar">
+                <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Badges Section -->
+        <div class="badges-section">
+            <h2 class="section-title">
+                <span>🏆</span> Badges
+            </h2>
+            <div class="badges-grid" id="badgesGrid">
+                <!-- Badges will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <div class="start-icon">🎯</div>
+            <h2 class="start-title">Prêt pour le défi ?</h2>
+            <p class="start-subtitle">10 cas cliniques vous attendent</p>
+            <button class="start-btn" onclick="startQuiz()">
+                Commencer la session
+            </button>
+        </div>
+
+        <!-- Quiz Card -->
+        <div class="quiz-card" id="quizCard" style="display: none;">
+            <div class="quiz-header">
+                <div class="quiz-category" id="quizCategory">
+                    <span>🏥</span>
+                    <span id="categoryName">Chargement...</span>
+                </div>
+                <div class="quiz-progress">
+                    Question <span id="currentQuestion">1</span>/<span id="totalQuestions">10</span>
+                </div>
+            </div>
+            <div class="quiz-body">
+                <div class="case-presentation">
+                    <div class="case-title">📋 Cas clinique</div>
+                    <div class="case-text" id="caseText">
+                        Chargement...
+                    </div>
+                </div>
+
+                <div class="question-text" id="questionText">
+                    Chargement...
+                </div>
+
+                <div class="options-list" id="optionsList">
+                    <!-- Options will be populated by JS -->
+                </div>
+
+                <div class="explanation" id="explanation">
+                    <div class="explanation-header">
+                        <div class="explanation-icon" id="explanationIcon">✓</div>
+                        <span class="explanation-title" id="explanationTitle">Bonne réponse !</span>
+                    </div>
+                    <div class="explanation-text" id="explanationText">
+                        Explication...
+                    </div>
+                    <div class="xp-gained" id="xpGained">
+                        +10 XP
+                    </div>
+                </div>
+
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+                    Question suivante
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Complete Screen -->
+        <div class="complete-screen" id="completeScreen">
+            <div class="complete-icon">🎉</div>
+            <h2 class="complete-title">Session terminée !</h2>
+            <div class="complete-stats">
+                <div class="complete-stat">
+                    <div class="complete-stat-value" id="finalCorrect">0</div>
+                    <div class="complete-stat-label">Bonnes réponses</div>
+                </div>
+                <div class="complete-stat">
+                    <div class="complete-stat-value" id="finalXP">+0</div>
+                    <div class="complete-stat-label">XP gagnés</div>
+                </div>
+            </div>
+            <button class="restart-btn" onclick="restartQuiz()">
+                🔄 Nouvelle session
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // =============================================
+        // GERIAQUEST - Clinical Cases Quiz System
+        // =============================================
+
+        // Levels Configuration
+        const LEVELS = [
+            { name: "Interne", icon: "🩺", minXP: 0, maxXP: 100 },
+            { name: "Assistant", icon: "👨‍⚕️", minXP: 100, maxXP: 250 },
+            { name: "Chef de clinique", icon: "🏥", minXP: 250, maxXP: 500 },
+            { name: "PH", icon: "⭐", minXP: 500, maxXP: 1000 },
+            { name: "PU-PH", icon: "🎓", minXP: 1000, maxXP: 2000 },
+            { name: "Expert Gériatre", icon: "👑", minXP: 2000, maxXP: Infinity }
+        ];
+
+        // Badges Configuration
+        const BADGES = [
+            { id: "first", name: "Premier pas", icon: "🌟", condition: (s) => s.totalAnswers >= 1 },
+            { id: "streak3", name: "Série de 3", icon: "🔥", condition: (s) => s.currentStreak >= 3 },
+            { id: "streak5", name: "En feu !", icon: "💥", condition: (s) => s.currentStreak >= 5 },
+            { id: "perfect", name: "Sans faute", icon: "💎", condition: (s) => s.perfectSessions >= 1 },
+            { id: "xp100", name: "100 XP", icon: "💪", condition: (s) => s.totalXP >= 100 },
+            { id: "xp500", name: "500 XP", icon: "🚀", condition: (s) => s.totalXP >= 500 },
+            { id: "cases10", name: "10 cas", icon: "📚", condition: (s) => s.totalAnswers >= 10 },
+            { id: "cases50", name: "50 cas", icon: "🏆", condition: (s) => s.totalAnswers >= 50 }
+        ];
+
+        // Clinical Cases Database
+        const CASES = [
+            {
+                id: 1,
+                category: "Chutes",
+                case: "Mme Martin, <strong>82 ans</strong>, est adressée aux urgences pour une chute à domicile. Elle vit seule, a chuté en se levant la nuit pour aller aux toilettes. Antécédents : HTA traitée par amlodipine 10mg, diabète type 2 sous metformine. PA couché 145/85, debout 110/70 mmHg.",
+                question: "Quel est le diagnostic le plus probable pour expliquer cette chute ?",
+                options: [
+                    "Hypoglycémie nocturne",
+                    "Hypotension orthostatique",
+                    "AVC ischémique",
+                    "Trouble du rythme cardiaque"
+                ],
+                correct: 1,
+                explanation: "La différence de PA > 20 mmHg systolique entre la position couchée et debout définit l'hypotension orthostatique. L'amlodipine (inhibiteur calcique) est un facteur favorisant classique. Le lever nocturne est un moment à risque typique chez le sujet âgé."
+            },
+            {
+                id: 2,
+                category: "Confusion",
+                case: "M. Dupont, <strong>78 ans</strong>, est hospitalisé pour pneumopathie. À J3, l'infirmière vous appelle car il est agité, désorienté, essaie d'arracher sa perfusion. Il était parfaitement orienté à l'admission. Température 38.2°C.",
+                question: "Quelle est la première hypothèse à évoquer ?",
+                options: [
+                    "Démence débutante",
+                    "Syndrome confusionnel aigu (délirium)",
+                    "Accident vasculaire cérébral",
+                    "Trouble psychiatrique"
+                ],
+                correct: 1,
+                explanation: "Le caractère aigu et fluctuant, survenant chez un patient antérieurement orienté, dans un contexte infectieux, définit le syndrome confusionnel aigu (délirium). La démence est chronique et progressive. L'infection est un facteur déclenchant majeur chez le sujet âgé."
+            },
+            {
+                id: 3,
+                category: "Dénutrition",
+                case: "Mme Bernard, <strong>85 ans</strong>, consulte pour asthénie. Elle vit seule depuis le décès de son mari il y a 6 mois. Poids actuel 48 kg pour 1m60, perte de 6 kg en 3 mois. Albumine : 28 g/L.",
+                question: "Selon les critères HAS 2021, quel est le diagnostic nutritionnel ?",
+                options: [
+                    "Pas de dénutrition",
+                    "Dénutrition modérée",
+                    "Dénutrition sévère",
+                    "Risque de dénutrition"
+                ],
+                correct: 2,
+                explanation: "Critères HAS 2021 de dénutrition sévère chez > 70 ans : perte de poids ≥ 10% en 6 mois OU IMC < 20 OU albumine < 30 g/L. Ici : perte de 11% en 3 mois, IMC = 18.8, albumine = 28 g/L. Plusieurs critères de sévérité sont présents."
+            },
+            {
+                id: 4,
+                category: "Iatrogénie",
+                case: "M. Lambert, <strong>88 ans</strong>, est hospitalisé pour malaise avec bradycardie à 42/min. Traitement habituel : bisoprolol 10mg, verapamil 240mg LP, digoxine 0.25mg, périndopril 4mg.",
+                question: "Quelle association médicamenteuse est particulièrement à risque ici ?",
+                options: [
+                    "Périndopril + bisoprolol",
+                    "Bisoprolol + verapamil",
+                    "Digoxine + périndopril",
+                    "Verapamil + digoxine"
+                ],
+                correct: 1,
+                explanation: "L'association bêta-bloquant + inhibiteur calcique bradycardisant (verapamil/diltiazem) est contre-indiquée car elle majore le risque de bradycardie sévère et de BAV. La digoxine ajoute un risque supplémentaire. Cette association est une cause classique d'hospitalisation iatrogène chez le sujet âgé."
+            },
+            {
+                id: 5,
+                category: "IRC",
+                case: "Mme Petit, <strong>80 ans</strong>, est suivie pour HTA et diabète. Créatinine : 142 µmol/L, DFG selon CKD-EPI : 32 mL/min/1.73m². Elle prend metformine 1000mg x2, ramipril 5mg, furosémide 40mg.",
+                question: "Quelle adaptation thérapeutique est nécessaire ?",
+                options: [
+                    "Arrêt du ramipril",
+                    "Arrêt de la metformine",
+                    "Réduction de la metformine à 500mg x2",
+                    "Doublement du furosémide"
+                ],
+                correct: 2,
+                explanation: "Pour un DFG entre 30-45 mL/min, la metformine doit être réduite de moitié (max 1000mg/j). En dessous de 30 mL/min, elle doit être arrêtée. Le ramipril est néphroprotecteur et doit être maintenu sauf hyperkaliémie ou dégradation aiguë de la fonction rénale."
+            },
+            {
+                id: 6,
+                category: "Troubles cognitifs",
+                case: "M. Moreau, <strong>76 ans</strong>, est amené par sa femme qui rapporte des oublis progressifs depuis 2 ans : il répète les mêmes questions, a perdu sa carte bancaire 3 fois. MMS : 22/30, horloge perturbée. Pas de troubles de la marche, pas d'incontinence.",
+                question: "Quel diagnostic évoquez-vous en premier lieu ?",
+                options: [
+                    "Hydrocéphalie à pression normale",
+                    "Maladie d'Alzheimer",
+                    "Démence vasculaire",
+                    "Dépression du sujet âgé"
+                ],
+                correct: 1,
+                explanation: "L'installation progressive des troubles mnésiques (oubli des faits récents, répétition des questions), l'atteinte des fonctions exécutives (horloge), sans troubles moteurs ni sphinctériens, oriente vers une maladie d'Alzheimer. La triade de Hakim (troubles cognitifs, marche, sphincters) évoquerait une HPN."
+            },
+            {
+                id: 7,
+                category: "Anémie",
+                case: "Mme Durand, <strong>84 ans</strong>, consulte pour fatigue. Hb : 9.8 g/dL, VGM : 72 fL, ferritine : 8 µg/L, CRP : 5 mg/L. Elle prend oméprazole 20mg depuis 10 ans pour RGO.",
+                question: "Quelle est l'étiologie la plus probable de cette anémie ?",
+                options: [
+                    "Carence martiale par saignement digestif occulte",
+                    "Anémie inflammatoire",
+                    "Carence en B12 par IPP au long cours",
+                    "Syndrome myélodysplasique"
+                ],
+                correct: 0,
+                explanation: "Anémie microcytaire (VGM < 80) + ferritine basse = carence martiale. Chez le sujet âgé, la cause principale est le saignement digestif occulte (cancer colorectal à rechercher ++). L'IPP favorise la malabsorption du fer mais aussi de la B12 (qui donne une anémie macrocytaire)."
+            },
+            {
+                id: 8,
+                category: "Fragilité",
+                case: "M. Garcia, <strong>79 ans</strong>, vient pour bilan. Il rapporte une fatigue, une perte de poids de 4kg en 1 an, une diminution de sa vitesse de marche. Il sort peu de chez lui. Pas de comorbidité connue.",
+                question: "Combien de critères de Fried sont présents ici ?",
+                options: [
+                    "1 critère - Robuste",
+                    "2 critères - Pré-fragile",
+                    "3 critères - Fragile",
+                    "4 critères - Très fragile"
+                ],
+                correct: 2,
+                explanation: "Critères de Fried : 1) Perte de poids involontaire ✓, 2) Fatigue subjective ✓, 3) Vitesse de marche lente ✓, 4) Faible activité physique (sort peu) ✓, 5) Force de préhension diminuée (?). Avec au moins 3 critères, il est considéré comme fragile. 1-2 critères = pré-fragile."
+            },
+            {
+                id: 9,
+                category: "Douleur",
+                case: "Mme Rousseau, <strong>91 ans</strong>, EHPAD, démence modérée (MMS 16), ne verbalise plus. L'équipe note qu'elle grimace lors de la toilette, a les poings serrés, refuse de s'alimenter depuis 2 jours.",
+                question: "Quel outil d'évaluation de la douleur est le plus approprié ?",
+                options: [
+                    "Échelle Numérique (EN)",
+                    "Échelle Visuelle Analogique (EVA)",
+                    "Échelle ALGOPLUS",
+                    "Échelle verbale simple"
+                ],
+                correct: 2,
+                explanation: "Chez un patient non communicant (démence avancée), l'auto-évaluation (EN, EVA, EVS) est impossible. ALGOPLUS est une échelle d'hétéro-évaluation validée pour la douleur aiguë, observant 5 items comportementaux : visage, regard, plaintes, corps, comportements. Score ≥ 2 = douleur présente."
+            },
+            {
+                id: 10,
+                category: "Polymédication",
+                case: "M. Leroy, <strong>86 ans</strong>, prend 12 médicaments quotidiens. Vous révisez son ordonnance. Parmi ses traitements : IPP depuis 15 ans \"pour protéger l'estomac\", zopiclone depuis 8 ans, hydroxyzine si besoin.",
+                question: "Quel médicament est le plus urgent à déprescrire ?",
+                options: [
+                    "L'IPP (risque fracturaire, infections)",
+                    "Le zopiclone (risque de chute, dépendance)",
+                    "L'hydroxyzine (effets anticholinergiques)",
+                    "Les trois sont équivalents en termes de risque"
+                ],
+                correct: 1,
+                explanation: "Le zopiclone (benzodiazépine-like) est prioritaire car il cumule : risque de chute majeur, troubles cognitifs, dépendance, efficacité diminuée au long cours. L'hydroxyzine a des effets anticholinergiques (confusion, rétention urinaire). L'IPP au long cours a des risques mais moins immédiats."
+            }
+        ];
+
+        // State
+        let state = {
+            totalXP: 0,
+            currentStreak: 0,
+            bestStreak: 0,
+            totalAnswers: 0,
+            correctAnswersCount: 0,
+            perfectSessions: 0,
+            unlockedBadges: [],
+            lastPlayDate: null,
+            currentQuestionIndex: 0,
+            sessionXP: 0,
+            sessionCorrect: 0,
+            answered: false,
+            shuffledCases: []
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            updateUI();
+            renderBadges();
+        });
+
+        // Load/Save State
+        function loadState() {
+            const saved = localStorage.getItem('geriaquest-state');
+            if (saved) {
+                state = { ...state, ...JSON.parse(saved) };
+            }
+            checkDailyStreak();
+        }
+
+        function saveState() {
+            localStorage.setItem('geriaquest-state', JSON.stringify(state));
+        }
+
+        function checkDailyStreak() {
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+            if (state.lastPlayDate === yesterday) {
+                // Streak continues
+            } else if (state.lastPlayDate !== today) {
+                // Streak broken
+                state.currentStreak = 0;
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            // Stats
+            document.getElementById('totalXP').textContent = state.totalXP;
+            document.getElementById('correctAnswers').textContent = state.correctAnswersCount;
+            const accuracy = state.totalAnswers > 0
+                ? Math.round((state.correctAnswersCount / state.totalAnswers) * 100)
+                : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            document.getElementById('streakCount').textContent = state.currentStreak;
+
+            // Level
+            const level = getCurrentLevel();
+            document.getElementById('levelIcon').textContent = level.icon;
+            document.getElementById('levelName').textContent = level.name;
+            document.getElementById('levelSubtitle').textContent = `Niveau ${LEVELS.indexOf(level) + 1}`;
+            document.getElementById('currentXP').textContent = state.totalXP;
+            document.getElementById('nextLevelXP').textContent = level.maxXP === Infinity ? '∞' : level.maxXP;
+
+            // XP Bar
+            const progress = level.maxXP === Infinity
+                ? 100
+                : ((state.totalXP - level.minXP) / (level.maxXP - level.minXP)) * 100;
+            document.getElementById('xpFill').style.width = Math.min(progress, 100) + '%';
+        }
+
+        function getCurrentLevel() {
+            return LEVELS.find(l => state.totalXP >= l.minXP && state.totalXP < l.maxXP) || LEVELS[LEVELS.length - 1];
+        }
+
+        // Badges
+        function renderBadges() {
+            const grid = document.getElementById('badgesGrid');
+            grid.innerHTML = BADGES.map(badge => {
+                const unlocked = state.unlockedBadges.includes(badge.id);
+                return `
+                    <div class="badge-item ${unlocked ? 'unlocked' : 'locked'}">
+                        <div class="badge-icon">${badge.icon}</div>
+                        <div class="badge-name">${badge.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function checkBadges() {
+            BADGES.forEach(badge => {
+                if (!state.unlockedBadges.includes(badge.id) && badge.condition(state)) {
+                    state.unlockedBadges.push(badge.id);
+                    showToast(`🏆 Badge débloqué : ${badge.name}`, 'badge-toast');
+                    renderBadges();
+                }
+            });
+        }
+
+        // Quiz Functions
+        function startQuiz() {
+            state.currentQuestionIndex = 0;
+            state.sessionXP = 0;
+            state.sessionCorrect = 0;
+            state.answered = false;
+            state.shuffledCases = shuffleArray([...CASES]);
+
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizCard').style.display = 'block';
+            document.getElementById('completeScreen').classList.remove('show');
+            document.getElementById('totalQuestions').textContent = state.shuffledCases.length;
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentCase = state.shuffledCases[state.currentQuestionIndex];
+            state.answered = false;
+
+            document.getElementById('currentQuestion').textContent = state.currentQuestionIndex + 1;
+            document.getElementById('categoryName').textContent = currentCase.category;
+            document.getElementById('caseText').innerHTML = currentCase.case;
+            document.getElementById('questionText').textContent = currentCase.question;
+
+            // Shuffle options but remember correct index
+            const optionsWithIndex = currentCase.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
+            const shuffledOptions = shuffleArray(optionsWithIndex);
+            const newCorrectIndex = shuffledOptions.findIndex(o => o.originalIndex === currentCase.correct);
+
+            const optionsList = document.getElementById('optionsList');
+            optionsList.innerHTML = shuffledOptions.map((opt, idx) => `
+                <button class="option-btn" onclick="selectAnswer(${idx}, ${newCorrectIndex})" data-index="${idx}">
+                    <span class="option-letter">${String.fromCharCode(65 + idx)}</span>
+                    <span class="option-text">${opt.text}</span>
+                </button>
+            `).join('');
+
+            // Store explanation for later
+            document.getElementById('explanationText').textContent = currentCase.explanation;
+
+            // Hide explanation and next button
+            document.getElementById('explanation').classList.remove('show', 'wrong-answer');
+            document.getElementById('nextBtn').classList.remove('show');
+        }
+
+        function selectAnswer(selectedIdx, correctIdx) {
+            if (state.answered) return;
+            state.answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const isCorrect = selectedIdx === correctIdx;
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === correctIdx) {
+                    btn.classList.add('correct');
+                } else if (idx === selectedIdx && !isCorrect) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            // Update state
+            state.totalAnswers++;
+            let xpGained = 0;
+
+            if (isCorrect) {
+                state.correctAnswersCount++;
+                state.sessionCorrect++;
+                state.currentStreak++;
+                if (state.currentStreak > state.bestStreak) {
+                    state.bestStreak = state.currentStreak;
+                }
+                xpGained = 10 + (state.currentStreak >= 3 ? 5 : 0); // Bonus streak
+                state.totalXP += xpGained;
+                state.sessionXP += xpGained;
+            } else {
+                state.currentStreak = 0;
+            }
+
+            // Show explanation
+            const explanation = document.getElementById('explanation');
+            const explanationIcon = document.getElementById('explanationIcon');
+            const explanationTitle = document.getElementById('explanationTitle');
+            const xpGainedEl = document.getElementById('xpGained');
+
+            if (isCorrect) {
+                explanation.classList.remove('wrong-answer');
+                explanationIcon.textContent = '✓';
+                explanationTitle.textContent = 'Bonne réponse !';
+                xpGainedEl.innerHTML = `+${xpGained} XP ${state.currentStreak >= 3 ? '🔥' : ''}`;
+                xpGainedEl.style.display = 'inline-flex';
+            } else {
+                explanation.classList.add('wrong-answer');
+                explanationIcon.textContent = '✗';
+                explanationTitle.textContent = 'Mauvaise réponse';
+                xpGainedEl.style.display = 'none';
+            }
+
+            explanation.classList.add('show');
+            document.getElementById('nextBtn').classList.add('show');
+
+            // Update date
+            state.lastPlayDate = new Date().toDateString();
+
+            // Check badges and save
+            checkBadges();
+            saveState();
+            updateUI();
+        }
+
+        function nextQuestion() {
+            state.currentQuestionIndex++;
+
+            if (state.currentQuestionIndex >= state.shuffledCases.length) {
+                endQuiz();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function endQuiz() {
+            // Check for perfect session
+            if (state.sessionCorrect === state.shuffledCases.length) {
+                state.perfectSessions++;
+                checkBadges();
+                saveState();
+            }
+
+            document.getElementById('quizCard').style.display = 'none';
+            document.getElementById('finalCorrect').textContent = state.sessionCorrect + '/' + state.shuffledCases.length;
+            document.getElementById('finalXP').textContent = '+' + state.sessionXP;
+            document.getElementById('completeScreen').classList.add('show');
+
+            if (state.sessionCorrect === state.shuffledCases.length) {
+                showToast('🎯 Session parfaite !', 'success');
+            }
+        }
+
+        function restartQuiz() {
+            document.getElementById('completeScreen').classList.remove('show');
+            document.getElementById('startScreen').style.display = 'block';
+        }
+
+        // Utilities
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function showToast(message, type = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
