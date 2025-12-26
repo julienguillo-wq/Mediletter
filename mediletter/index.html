@@ -345,7 +345,6 @@
             width: 100%;
             min-height: 140px;
             padding: 1.25rem;
-            padding-right: 5rem;
             background: var(--bg-glass);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: var(--radius-sm);
@@ -353,8 +352,16 @@
             font-family: 'Outfit', sans-serif;
             font-size: 1rem;
             line-height: 1.75;
-            resize: none;
+            resize: vertical;
             transition: all 0.3s ease;
+        }
+
+        .input-field.large {
+            min-height: 280px;
+        }
+
+        .input-field.small {
+            min-height: 100px;
         }
 
         .input-field::placeholder {
@@ -364,9 +371,29 @@
         .input-field:focus {
             outline: none;
             border-color: rgba(0, 245, 255, 0.3);
-            box-shadow: 
+            box-shadow:
                 0 0 0 4px rgba(0, 245, 255, 0.1),
                 inset 0 0 30px rgba(0, 245, 255, 0.03);
+        }
+
+        .field-group {
+            margin-bottom: 1rem;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .field-hint {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.35rem;
         }
 
         /* ==================== Mic Button ==================== */
@@ -991,27 +1018,33 @@
                 </div>
                 
                 <div class="input-area">
-                    <div class="textarea-wrapper">
-                        <textarea 
-                            class="input-field" 
-                            id="inputText" 
-                            placeholder="Dictez ou tapez les informations...
+                    <!-- Notes de suite -->
+                    <div class="field-group">
+                        <label class="field-label">Notes de suite</label>
+                        <textarea
+                            class="input-field large"
+                            id="notesText"
+                            placeholder="Collez ici les notes de suite (plusieurs jours)...
 
-Ex: Mme Dupont 85 ans, chutes, regarde le bilan labo joint pour l'anémie, transfert CTR"
+Ex:
+J1: Entrée pour AEG, chutes à répétition. TA 145/85, FC 78. Bilan demandé.
+J2: Résultats labo: Hb 98, créat 145, CRP 45. Hydratation IV.
+J3: Amélioration clinique. Reprise alimentation. Physio débutée."
                         ></textarea>
-                        <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
-                            <span class="mic-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                    <path d="M12 1a4 4 0 0 0-4 4v7a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/>
-                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                                    <line x1="12" y1="19" x2="12" y2="23"/>
-                                    <line x1="8" y1="23" x2="16" y2="23"/>
-                                </svg>
-                            </span>
-                            <span class="mic-waves">
-                                <span></span><span></span><span></span>
-                            </span>
-                        </button>
+                        <div class="field-hint">Données principales extraites du dossier patient</div>
+                    </div>
+
+                    <!-- Informations complémentaires -->
+                    <div class="field-group">
+                        <label class="field-label">Informations complémentaires</label>
+                        <textarea
+                            class="input-field small"
+                            id="extraInfo"
+                            placeholder="Précisions, contexte, demandes spécifiques...
+
+Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suivi cardio prévu"
+                        ></textarea>
+                        <div class="field-hint">Vos précisions pour orienter la rédaction</div>
                     </div>
                 </div>
 
@@ -1027,19 +1060,9 @@ Ex: Mme Dupont 85 ans, chutes, regarde le bilan labo joint pour l'anémie, trans
                             </svg>
                         </div>
                         <div class="upload-text"><strong>Cliquez</strong> ou glissez des images</div>
-                        <div class="upload-hint">Screenshots de bilans labo, comptes-rendus...</div>
+                        <div class="upload-hint">Bilans labo, ECG, radios, comptes-rendus...</div>
                         <div class="files-preview" id="filesPreview"></div>
                     </div>
-                </div>
-
-                <div class="tags-section">
-                    <button class="tag" onclick="addTag('chutes à répétition')">Chutes</button>
-                    <button class="tag" onclick="addTag('anémie normochrome')">Anémie</button>
-                    <button class="tag" onclick="addTag('IRC')">IRC</button>
-                    <button class="tag" onclick="addTag('troubles cognitifs')">Tr. cognitifs</button>
-                    <button class="tag" onclick="addTag('dénutrition')">Dénutrition</button>
-                    <button class="tag" onclick="addTag('HTA')">HTA</button>
-                    <button class="tag" onclick="addTag('constipation')">Constipation</button>
                 </div>
             </div>
 
@@ -1271,22 +1294,14 @@ Ex: Mme Dupont 85 ans, chutes, regarde le bilan labo joint pour l'anémie, trans
             document.getElementById('micBtn').classList.remove('recording');
         }
 
-        // ==================== Tags ====================
-
-        function addTag(text) {
-            const textarea = document.getElementById('inputText');
-            const current = textarea.value.trim();
-            textarea.value = current ? current + ', ' + text : text;
-            textarea.focus();
-        }
-
         // ==================== Generate Letter ====================
 
         async function generateLetter() {
-            const inputText = document.getElementById('inputText').value.trim();
+            const notesText = document.getElementById('notesText').value.trim();
+            const extraInfo = document.getElementById('extraInfo').value.trim();
 
-            if (!inputText && uploadedImages.length === 0) {
-                alert('Veuillez entrer des informations ou ajouter des images.');
+            if (!notesText && uploadedImages.length === 0) {
+                alert('Veuillez entrer les notes de suite ou ajouter des images.');
                 return;
             }
 
@@ -1310,22 +1325,47 @@ Ex: Mme Dupont 85 ans, chutes, regarde le bilan labo joint pour l'anémie, trans
                     });
                 });
 
-                // Ajouter le texte
-                content.push({
-                    type: "text",
-                    text: `Voici les informations du patient. Génère la section "Discussion et propositions" de la lettre médicale pour chaque problème identifié.
+                // Construire le message utilisateur
+                let userMessage = `Génère la lettre médicale structurée pour ce patient.
 
-${uploadedImages.length > 0 ? `⚠️ IMPORTANT : J'ai joint ${uploadedImages.length} image(s) (bilans labo, résultats d'examens, rapports...). 
+## NOTES DE SUITE DU DOSSIER
+${notesText || '(Pas de notes - analyser les images jointes)'}
+`;
+
+                if (extraInfo) {
+                    userMessage += `
+## INFORMATIONS COMPLÉMENTAIRES DU MÉDECIN
+${extraInfo}
+`;
+                }
+
+                if (uploadedImages.length > 0) {
+                    userMessage += `
+## IMAGES JOINTES (${uploadedImages.length})
+⚠️ IMPORTANT : J'ai joint des images (bilans labo, ECG, radios...).
 Tu DOIS :
 - LIRE chaque image attentivement
 - EXTRAIRE toutes les valeurs et résultats
 - INTÉGRER ces données PRÉCISES dans la lettre (jamais "cf rapport" ou "cf annexe")
-- Citer les valeurs exactes avec leurs unités` : ''}
+- Citer les valeurs exactes avec leurs unités
+`;
+                }
 
-Informations du médecin :
-${inputText || 'Analyser les images jointes et rédiger la lettre en fonction.'}
+                userMessage += `
+## INSTRUCTIONS
+Pour chaque problème identifié, génère une section structurée avec :
+- **Titre du problème** en gras
+- Contexte
+- Investigations (avec valeurs PRÉCISES extraites des notes et images)
+- Discussion
+- Propositions
 
-Génère uniquement le contenu médical structuré. Pour chaque problème : titre en gras, puis Contexte, Investigations (avec valeurs PRÉCISES), Discussion, Propositions.`
+Utilise les templates UGA comme base et adapte-les au cas clinique.`;
+
+                // Ajouter le texte
+                content.push({
+                    type: "text",
+                    text: userMessage
                 });
 
                 const response = await fetch('https://api.anthropic.com/v1/messages', {
