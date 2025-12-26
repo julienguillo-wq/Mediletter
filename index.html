@@ -283,7 +283,14 @@
 
         @media (min-width: 768px) {
             .cards-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .cards-grid {
+                grid-template-columns: repeat(4, 1fr);
                 gap: 1.5rem;
             }
         }
@@ -364,6 +371,12 @@
             --card-accent: var(--accent-purple);
             --card-glow: rgba(124, 58, 237, 0.15);
             --card-bg: linear-gradient(135deg, #7C3AED, #6D28D9);
+        }
+
+        .card-medentry {
+            --card-accent: #F59E0B;
+            --card-glow: rgba(245, 158, 11, 0.15);
+            --card-bg: linear-gradient(135deg, #F59E0B, #D97706);
         }
 
         /* Card Icon */
@@ -615,6 +628,10 @@
             animation: fadeInUp 0.6s ease-out 0.3s both;
         }
 
+        .app-card:nth-child(4) {
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
         /* Pulse animation for GeriaQuest badge */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -719,6 +736,27 @@
                     <div class="card-content">
                         <h2 class="card-title">GeriaQuest</h2>
                         <p class="card-description">Cas cliniques gamifiés pour progresser en gériatrie</p>
+                        <span class="card-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                            Accéder
+                        </span>
+                    </div>
+                </a>
+
+                <!-- MedEntry Card -->
+                <a href="./medentry/index.html" class="app-card card-medentry">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11H3v10h6V11z"/>
+                            <path d="M21 3h-6v18h6V3z"/>
+                            <path d="M15 7H9v14h6V7z"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h2 class="card-title">MedEntry</h2>
+                        <p class="card-description">Bilan d'entrée gériatrique complet avec scores</p>
                         <span class="card-badge">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M5 12h14M12 5l7 7-7 7"/>
