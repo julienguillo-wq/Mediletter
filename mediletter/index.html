@@ -1018,6 +1018,16 @@
                 </div>
                 
                 <div class="input-area">
+                    <!-- Type de lettre -->
+                    <div class="field-group">
+                        <label class="field-label">Type de lettre</label>
+                        <select class="input-field" id="letterType" style="padding: 0.875rem 1rem; font-size: 0.95rem;">
+                            <option value="sortie">Lettre de sortie</option>
+                            <option value="transfert">Lettre de transfert</option>
+                        </select>
+                        <div class="field-hint">Adapte le format et les recommandations selon la destination</div>
+                    </div>
+
                     <!-- Notes de suite -->
                     <div class="field-group">
                         <label class="field-label">Notes de suite</label>
@@ -1299,6 +1309,8 @@ Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suiv
         async function generateLetter() {
             const notesText = document.getElementById('notesText').value.trim();
             const extraInfo = document.getElementById('extraInfo').value.trim();
+            const letterType = document.getElementById('letterType').value;
+            const letterTypeLabel = letterType === 'transfert' ? 'TRANSFERT' : 'SORTIE';
 
             if (!notesText && uploadedImages.length === 0) {
                 alert('Veuillez entrer les notes de suite ou ajouter des images.');
@@ -1326,7 +1338,14 @@ Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suiv
                 });
 
                 // Construire le message utilisateur
-                let userMessage = `Génère la lettre médicale structurée pour ce patient.
+                let userMessage = `Génère une LETTRE DE ${letterTypeLabel} structurée pour ce patient.
+
+## TYPE DE LETTRE : ${letterTypeLabel}
+${letterType === 'transfert' ?
+`Cette lettre est destinée à un établissement de soins (CTR, EMS, autre service).
+Inclure : résumé du séjour, état actuel, traitements en cours, objectifs de réadaptation, points de vigilance pour l'équipe.` :
+`Cette lettre est destinée au médecin traitant et au patient rentrant à domicile.
+Inclure : résumé du séjour, diagnostics, traitements de sortie, propositions de suivi ambulatoire.`}
 
 ## NOTES DE SUITE DU DOSSIER
 ${notesText || '(Pas de notes - analyser les images jointes)'}
@@ -1378,7 +1397,7 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
                     },
                     body: JSON.stringify({
                         model: 'claude-sonnet-4-20250514',
-                        max_tokens: 4096,
+                        max_tokens: 16000,
                         system: SYSTEM_PROMPT,
                         messages: [{
                             role: 'user',
