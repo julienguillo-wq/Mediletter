@@ -556,6 +556,32 @@
             object-fit: cover;
         }
 
+        .file-item.pdf-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-glass-strong);
+            padding: 0.5rem;
+        }
+
+        .file-item.pdf-item svg {
+            width: 28px;
+            height: 28px;
+            color: var(--accent-pink);
+            margin-bottom: 0.25rem;
+        }
+
+        .file-item.pdf-item .pdf-name {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            white-space: nowrap;
+        }
+
         .file-remove {
             position: absolute;
             top: 4px;
@@ -581,6 +607,26 @@
         .file-remove svg {
             width: 14px;
             height: 14px;
+        }
+
+        /* PDF Zone styling */
+        .pdf-zone .upload-icon {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+        }
+
+        .pdf-zone .upload-icon svg {
+            color: var(--accent-pink);
+        }
+
+        .pdf-zone:hover,
+        .pdf-zone.dragover {
+            border-color: var(--accent-pink);
+            background: rgba(236, 72, 153, 0.05);
+            box-shadow: inset 0 0 30px rgba(236, 72, 153, 0.05);
+        }
+
+        .pdf-zone.has-files {
+            border-color: rgba(236, 72, 153, 0.3);
         }
 
         /* ==================== Tags ==================== */
@@ -1036,6 +1082,32 @@
                         </div>
                     </div>
 
+                    <!-- Contexte / Lettre d'entrée -->
+                    <div class="field-group">
+                        <label class="field-label">Contexte / Lettre d'entrée</label>
+                        <textarea
+                            class="input-field"
+                            id="contextText"
+                            placeholder="Collez ici la lettre d'entrée ou le contexte d'admission...
+
+Ex: Patient de 82 ans, adressé par les urgences pour AEG et chutes à répétition depuis 1 semaine. ATCD: HTA, diabète type 2, IRC stade 3. TTT habituel: Amlodipine 5mg, Metformine 850mg..."
+                        ></textarea>
+                        <div class="field-hint">Lettre d'entrée, motif d'admission, antécédents</div>
+                    </div>
+
+                    <!-- Informations complémentaires -->
+                    <div class="field-group">
+                        <label class="field-label">Informations complémentaires</label>
+                        <textarea
+                            class="input-field small"
+                            id="extraInfo"
+                            placeholder="Précisions, demandes spécifiques...
+
+Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suivi cardio prévu"
+                        ></textarea>
+                        <div class="field-hint">Vos précisions pour orienter la rédaction</div>
+                    </div>
+
                     <!-- Notes de suite -->
                     <div class="field-group">
                         <label class="field-label">Notes de suite</label>
@@ -1045,41 +1117,60 @@
                             placeholder="Collez ici les notes de suite (plusieurs jours)...
 
 Ex:
-J1: Entrée pour AEG, chutes à répétition. TA 145/85, FC 78. Bilan demandé.
+J1: Entrée pour AEG. TA 145/85, FC 78. Bilan demandé.
 J2: Résultats labo: Hb 98, créat 145, CRP 45. Hydratation IV.
 J3: Amélioration clinique. Reprise alimentation. Physio débutée."
                         ></textarea>
-                        <div class="field-hint">Données principales extraites du dossier patient</div>
+                        <div class="field-hint">Notes de suite quotidiennes du dossier patient</div>
                     </div>
 
-                    <!-- Informations complémentaires -->
+                    <!-- Comptes rendus -->
                     <div class="field-group">
-                        <label class="field-label">Informations complémentaires</label>
+                        <label class="field-label">Comptes rendus</label>
                         <textarea
-                            class="input-field small"
-                            id="extraInfo"
-                            placeholder="Précisions, contexte, demandes spécifiques...
+                            class="input-field"
+                            id="crText"
+                            placeholder="Collez ici les comptes rendus (imagerie, avis spécialisés, etc.)...
 
-Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suivi cardio prévu"
+Ex:
+CT-TAP (15.01): Condensation basale droite compatible avec pneumopathie. Pas d'EP.
+Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                         ></textarea>
-                        <div class="field-hint">Vos précisions pour orienter la rédaction</div>
+                        <div class="field-hint">Comptes rendus d'examens, avis spécialisés</div>
                     </div>
                 </div>
 
-                <!-- Upload Zone -->
+                <!-- Upload Zones -->
                 <div class="upload-section">
+                    <!-- Images Upload -->
                     <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
                         <input type="file" id="fileInput" class="upload-input" accept="image/*" multiple onchange="handleFiles(this.files)">
                         <div class="upload-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
                             </svg>
                         </div>
                         <div class="upload-text"><strong>Cliquez</strong> ou glissez des images</div>
-                        <div class="upload-hint">Bilans labo, ECG, radios, comptes-rendus...</div>
+                        <div class="upload-hint">ECG, radios, screenshots de bilans...</div>
                         <div class="files-preview" id="filesPreview"></div>
+                    </div>
+
+                    <!-- PDF Lab Results Upload -->
+                    <div class="upload-zone pdf-zone" id="pdfUploadZone" onclick="document.getElementById('pdfInput').click()" style="margin-top: 1rem;">
+                        <input type="file" id="pdfInput" class="upload-input" accept=".pdf,application/pdf" multiple onchange="handlePdfFiles(this.files)">
+                        <div class="upload-icon pdf-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                        </div>
+                        <div class="upload-text"><strong>Cliquez</strong> ou glissez des PDF</div>
+                        <div class="upload-hint">Résultats de laboratoire (PDF)</div>
+                        <div class="files-preview pdf-preview" id="pdfPreview"></div>
                     </div>
                 </div>
             </div>
@@ -1163,6 +1254,7 @@ Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suiv
         let isRecording = false;
         let recognition = null;
         let uploadedImages = []; // Stocke les images en base64
+        let uploadedPdfs = []; // Stocke les PDFs en base64
 
         // Pré-configure la clé API
         if (!localStorage.getItem('mediletter_apikey')) {
@@ -1261,6 +1353,70 @@ Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suiv
             renderPreviews();
         }
 
+        // ==================== PDF Upload ====================
+
+        const pdfUploadZone = document.getElementById('pdfUploadZone');
+
+        // Drag & Drop for PDF
+        pdfUploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            pdfUploadZone.classList.add('dragover');
+        });
+
+        pdfUploadZone.addEventListener('dragleave', () => {
+            pdfUploadZone.classList.remove('dragover');
+        });
+
+        pdfUploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            pdfUploadZone.classList.remove('dragover');
+            handlePdfFiles(e.dataTransfer.files);
+        });
+
+        function handlePdfFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/pdf') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        uploadedPdfs.push({
+                            name: file.name,
+                            data: e.target.result,
+                            type: 'application/pdf'
+                        });
+                        renderPdfPreviews();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function renderPdfPreviews() {
+            const preview = document.getElementById('pdfPreview');
+            preview.innerHTML = uploadedPdfs.map((pdf, idx) => `
+                <div class="file-item pdf-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span class="pdf-name">${pdf.name}</span>
+                    <button class="file-remove" onclick="removePdf(event, ${idx})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+
+            pdfUploadZone.classList.toggle('has-files', uploadedPdfs.length > 0);
+        }
+
+        function removePdf(event, idx) {
+            event.stopPropagation();
+            uploadedPdfs.splice(idx, 1);
+            renderPdfPreviews();
+        }
+
         // ==================== Speech Recognition ====================
 
         function initSpeechRecognition() {
@@ -1315,14 +1471,18 @@ Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suiv
         // ==================== Generate Letter ====================
 
         async function generateLetter() {
-            const notesText = document.getElementById('notesText').value.trim();
+            const contextText = document.getElementById('contextText').value.trim();
             const extraInfo = document.getElementById('extraInfo').value.trim();
+            const notesText = document.getElementById('notesText').value.trim();
+            const crText = document.getElementById('crText').value.trim();
             const letterType = document.getElementById('letterType').value;
             const letterTypeLabel = letterType === 'transfert' ? 'TRANSFERT' : 'SORTIE';
             const selectedModel = document.getElementById('modelSelect').value;
 
-            if (!notesText && uploadedImages.length === 0) {
-                alert('Veuillez entrer les notes de suite ou ajouter des images.');
+            // Vérifier qu'il y a au moins une source d'information
+            const hasContent = contextText || notesText || crText || uploadedImages.length > 0 || uploadedPdfs.length > 0;
+            if (!hasContent) {
+                alert('Veuillez entrer au moins une information (contexte, notes, comptes rendus) ou ajouter des fichiers.');
                 return;
             }
 
@@ -1346,7 +1506,19 @@ Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suiv
                     });
                 });
 
-                // Construire le message utilisateur
+                // Ajouter les PDFs (Claude peut les lire nativement)
+                uploadedPdfs.forEach((pdf, idx) => {
+                    content.push({
+                        type: "document",
+                        source: {
+                            type: "base64",
+                            media_type: "application/pdf",
+                            data: pdf.data.split(',')[1] // Enlever le préfixe data:application/pdf;base64,
+                        }
+                    });
+                });
+
+                // Construire le message utilisateur avec les 4 sections structurées
                 let userMessage = `Génère une LETTRE DE ${letterTypeLabel} structurée pour ce patient.
 
 ## TYPE DE LETTRE : ${letterTypeLabel}
@@ -1356,35 +1528,64 @@ Inclure : résumé du séjour, état actuel, traitements en cours, objectifs de 
 `Cette lettre est destinée au médecin traitant et au patient rentrant à domicile.
 Inclure : résumé du séjour, diagnostics, traitements de sortie, propositions de suivi ambulatoire.`}
 
-## NOTES DE SUITE DU DOSSIER
-${notesText || '(Pas de notes - analyser les images jointes)'}
+---
+
+## 1. CONTEXTE / LETTRE D'ENTRÉE
+${contextText || '(Non renseigné)'}
+
+---
+
+## 2. INFORMATIONS COMPLÉMENTAIRES DU MÉDECIN
+${extraInfo || '(Non renseigné)'}
+
+---
+
+## 3. NOTES DE SUITE
+${notesText || '(Non renseigné)'}
+
+---
+
+## 4. COMPTES RENDUS
+${crText || '(Non renseigné)'}
 `;
 
-                if (extraInfo) {
+                // Ajouter les instructions pour les fichiers joints
+                if (uploadedImages.length > 0 || uploadedPdfs.length > 0) {
                     userMessage += `
-## INFORMATIONS COMPLÉMENTAIRES DU MÉDECIN
-${extraInfo}
-`;
-                }
+---
 
-                if (uploadedImages.length > 0) {
+## FICHIERS JOINTS`;
+
+                    if (uploadedImages.length > 0) {
+                        userMessage += `
+### Images (${uploadedImages.length})
+ECG, radios, screenshots de bilans...`;
+                    }
+
+                    if (uploadedPdfs.length > 0) {
+                        userMessage += `
+### PDF Laboratoire (${uploadedPdfs.length})
+Résultats de laboratoire à analyser.`;
+                    }
+
                     userMessage += `
-## IMAGES JOINTES (${uploadedImages.length})
-⚠️ IMPORTANT : J'ai joint des images (bilans labo, ECG, radios...).
-Tu DOIS :
-- LIRE chaque image attentivement
-- EXTRAIRE toutes les valeurs et résultats
+
+⚠️ IMPORTANT pour les fichiers joints :
+- LIRE attentivement CHAQUE image et PDF
+- EXTRAIRE toutes les valeurs et résultats pertinents
 - INTÉGRER ces données PRÉCISES dans la lettre (jamais "cf rapport" ou "cf annexe")
-- Citer les valeurs exactes avec leurs unités
+- Citer les valeurs exactes avec leurs unités (ex: "Hb à 112 g/l", "CRP à 45 mg/l")
 `;
                 }
 
                 userMessage += `
-## INSTRUCTIONS
+---
+
+## INSTRUCTIONS DE RÉDACTION
 Pour chaque problème identifié, génère une section structurée avec :
 - **Titre du problème** en gras
 - Contexte
-- Investigations (avec valeurs PRÉCISES extraites des notes et images)
+- Investigations (avec valeurs PRÉCISES extraites des notes, images et PDF)
 - Discussion
 - Propositions
 
@@ -1463,10 +1664,16 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
             const output = document.getElementById('outputContent');
             output.classList.remove('visible');
             output.innerHTML = '';
-            // Aussi vider les images
+            // Vider les images et PDFs
             uploadedImages = [];
+            uploadedPdfs = [];
             renderPreviews();
-            document.getElementById('inputText').value = '';
+            renderPdfPreviews();
+            // Vider les champs texte
+            document.getElementById('contextText').value = '';
+            document.getElementById('extraInfo').value = '';
+            document.getElementById('notesText').value = '';
+            document.getElementById('crText').value = '';
         }
 
         // Init
