@@ -380,7 +380,8 @@ Votre patiente susnommée a séjourné en Unité de Gériatrie Aiguë, du 17.11.
 
 **ECG d'entrée** : Rythme sinusal à 68 bpm, onde P de spike intervalle PR à 229 ms, BAV 1er degré, QRS la limite haute à 102ms, axe cardiaque à gauche, ondes T ample et positif, QTc 449ms.
 
-**Laboratoires d'entrée et de sortie** : Cf copies des bilans.
+**Laboratoires d'entrée** : Créatinine 85 µmol/l, GFR 53 ml/min, Urée 17.3 mmol/l, Hb 126 g/l.
+**Laboratoires de sortie** : Créatinine 75 µmol/l, GFR 62 ml/min, Hb 117 g/l, Na 141 mmol/l, K 3.6 mmol/l. Frottis SARS-CoV-2 positif (CT 34.8).
 
 **CT colonne lombaire** : Fracture tassement d'allure récente de L1, L2 et de L3. Sous réserve d'un examen non dédié, on suspecte un rétrécissement canalaire et foraminal pluriétagé surtout d'origine disco-ostéophytique.
 
@@ -404,11 +405,11 @@ Général : fatigue en raison des douleurs, sommeil (sous Zolpidem 1/2mg), appé
 Général : état général conservé, afébrile, non-algique, hémodynamiquement stable afébrile, GCS 15/15, anictérique, non cyanosée. ORL : gorge non inflammatoire, absence d'adénopathies cervicales. Cardiovasculaire : B1 B2 bien frappés avec souffle audible en foyer aortique à 3/6 avec irradiation dans les autres foyer, pouls régulier, bien perfusée, mollets souples et indolores, Homans négatif, pouls périphériques palpables, oedèmes des membres inf au niveau des chevilles, plus importants à D > G, ne prenant pas le godet, temps de recoloration capillaire < 3 sec. Respiratoire : ampliation symétrique, murmure vésiculaire symétrique sans bruit surajouté. Digestif : bruits normaux en tonalité et en fréquence, abdomen souple et indolore, sans défense ni détente, Murphy nég, McBurney nég. Urologique : loges rénales indolores à la palpation et à la percussion, palpation sus pubienne indolore. Ostéoarticulaire : percussion de la colonne vertébrale indolore. Compression du bassin indolore. Cutané : escarres stade 1 des talons ddc. Neurologique : bonne orientation dans le temps et l'espace, pupilles isochores isoréactives, champs visuels conservés, sensibilité tactile, thermique et algique conservée, motricité conservée aux 4 membres avec une force M5/5 aux MS et MI, ROTs vifs et symétriques aux membres supérieurs et hypovif aux membres inférieurs, RCP en indifférent ddc.
 
 *Investigations :*
-Laboratoire : cf. annexe
+Laboratoire : Créatinine 85 µmol/l à l'entrée (GFR 53 ml/min), évoluant à 75 µmol/l à la sortie (GFR 62 ml/min). Hb 126 g/l à l'entrée, 117 g/l à la sortie. VGM 105-107 fl (macrocytaire). Ferritine 52.1 µg/l, B9 10.6 nmol/l (limite basse), B12 239 pmol/l. 25-OH-Vitamine D3 33.7 nmol/l (insuffisance). Albumine 26 g/l, Protéines sériques 53 g/l.
 ECG : Rythme sinusal à 68 bpm, onde P de spike intervalle PR à 229 ms, BAV 1er degré, QRS la limite haute à 102ms, axe cardiaque à gauche, ondes T ample et positif, QTc 449ms.
-CT colonne lombaire : cf rapport ci-dessus.
-IRM dorso-lombaire : cf rapport ci-dessus.
-Angio-CT : cf rapport ci-dessus.
+CT colonne lombaire : Fracture tassement d'allure récente de L1, L2 et de L3. Rétrécissement canalaire et foraminal pluriétagé d'origine disco-ostéophytique.
+IRM dorso-lombaire : Fracture ostéoporotique d'allure subaiguë non consolidées D10, L1, L2 et L3. Pas de rétrécissement canalaire significatif.
+Angio-CT : Anévrisme fusiforme de l'aorte abdominale infra-rénale mesurant 45 x 44 x 44 mm (majoration depuis 2021). Dilatation anévrismale stable de l'aorte thoracique ascendante à 42 mm.
 
 *Discussion :*
 Au vu de l'incapacité à contrôler les douleurs, malgré une optimisation du traitement antalgique, un avis orthopédique a été sollicité. Notre collègue orthopédiste a préconisé la réalisation d'une cimentoplastie, après la réalisation d'une IRM et l'obtention d'un avis de chirurgie cardiovasculaire en raison de la mise en évidence d'un anévrisme au CT. L'avis du Dr B. ainsi que celui des cardiologues ont été sollicités et confirmé la possibilité d'une prise en charge chirurgicale.
@@ -423,7 +424,7 @@ Un transfert en chirurgie orthopédique est prévu pour la réalisation de la ci
 Découverte fortuite au CT d'un anévrisme de l'aorte abdominale.
 
 *Investigations :*
-Angio-CT : cf rapport ci-dessus.
+Angio-CT : Majoration depuis 2021 de l'anévrisme fusiforme de l'aorte abdominale infra-rénale mesurant 45 x 44 x 44 mm (contre 32 x 35 x 31 mm en 2021). Stabilité de la dilatation anévrismale de l'aorte thoracique ascendante à 42 mm.
 
 *Discussion :*
 Nous sollicitons l'avis du Dr B. qui nous préconise de bilanter l'anévrisme par un angio-CT. L'avis spécialisé confirme l'absence de contre-indication opératoire dans le contexte de la cimentoplastie. Un avis cardiologique nous confirme l'opérabilité de Madame.
@@ -927,7 +928,7 @@ Depuis la titration de la morphine, la patiente présente une sécheresse buccal
 A priori pas de perte pondérale sur poids sec.
 
 *Investigations :*
-Laboratoire : cf. annexes
+Laboratoire : Albumine et protéines sériques non dosées. Ferritine 82.5 µg/l, HbA1c 42 mmol/mol (6.0%).
 Mini MNA à 9/14
 NRS à 3/7
 BMI à 21,5 kg/m²
