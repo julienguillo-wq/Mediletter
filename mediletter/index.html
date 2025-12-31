@@ -1801,7 +1801,9 @@ ${crText || '(Non renseigné)'}
 `;
 
                 // Ajouter les instructions pour les fichiers joints
-                if (uploadedImages.length > 0 || uploadedPdfs.length > 0) {
+                const hasFiles = uploadedImages.length > 0 || uploadedPdfs.length > 0;
+
+                if (hasFiles) {
                     userMessage += `
 ---
 
@@ -1818,20 +1820,41 @@ ECG, radios, screenshots de bilans...`;
 ### PDF Laboratoire (${uploadedPdfs.length})
 Résultats de laboratoire à analyser.`;
                     }
-
-                    userMessage += `
-
-⚠️ IMPORTANT pour les fichiers joints :
-- LIRE attentivement CHAQUE image et PDF
-- EXTRAIRE toutes les valeurs et résultats pertinents
-- INTÉGRER ces données PRÉCISES dans la lettre (jamais "cf rapport" ou "cf annexe")
-- Citer les valeurs exactes avec leurs unités (ex: "Hb à 112 g/l", "CRP à 45 mg/l")
-`;
                 }
 
                 userMessage += `
 ---
 
+## FORMAT DE RÉPONSE OBLIGATOIRE
+`;
+
+                if (hasFiles) {
+                    userMessage += `
+⚠️ Tu DOIS structurer ta réponse EXACTEMENT comme suit :
+
+\`\`\`EXTRACTION_DEBUT\`\`\`
+[Pour chaque image/PDF, liste ici TOUTES les données extraites de manière structurée]
+- Image 1 (ECG/Radio/Labo/etc.) : [description et valeurs]
+- Image 2 : [description et valeurs]
+- PDF Labo : [toutes les valeurs extraites avec unités]
+\`\`\`EXTRACTION_FIN\`\`\`
+
+\`\`\`LETTRE_DEBUT\`\`\`
+[La lettre médicale complète]
+\`\`\`LETTRE_FIN\`\`\`
+
+IMPORTANT :
+- Dans la section EXTRACTION : liste TOUTES les valeurs lues dans les fichiers
+- Dans la section LETTRE : intègre ces valeurs (jamais "cf rapport" ou "cf annexe")
+- Cite les valeurs exactes avec leurs unités (ex: "Hb à 112 g/l", "CRP à 45 mg/l")
+`;
+                } else {
+                    userMessage += `
+Génère directement la lettre structurée.
+`;
+                }
+
+                userMessage += `
 ## INSTRUCTIONS DE RÉDACTION
 Pour chaque problème identifié, génère une section structurée avec :
 - **Titre du problème** en gras
@@ -1874,17 +1897,23 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
 
                 const data = await response.json();
                 const outputText = data.content[0].text;
-                displayOutput(outputText);
 
-                // Sauvegarder dans l'historique
+                // Parser la réponse pour extraire les données des fichiers et la lettre
+                const parsed = parseResponse(outputText, hasFiles);
+
+                // Afficher seulement la lettre (sans les marqueurs)
+                displayOutput(parsed.letter);
+
+                // Sauvegarder dans l'historique avec les données extraites
                 saveToHistory({
                     context: contextText,
                     extraInfo: extraInfo,
                     notes: notesText,
                     cr: crText,
                     imagesCount: uploadedImages.length,
-                    pdfsCount: uploadedPdfs.length
-                }, outputText);
+                    pdfsCount: uploadedPdfs.length,
+                    extractedData: parsed.extraction
+                }, parsed.letter);
 
             } catch (error) {
                 console.error('Error:', error);
@@ -1906,6 +1935,40 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
                 .replace(/\n/g, '<br>');
 
             output.innerHTML = formatted;
+        }
+
+        function parseResponse(text, hasFiles) {
+            // Si pas de fichiers, retourner le texte tel quel
+            if (!hasFiles) {
+                return { extraction: null, letter: text };
+            }
+
+            // Essayer d'extraire les sections avec les marqueurs
+            const extractionMatch = text.match(/```EXTRACTION_DEBUT```([\s\S]*?)```EXTRACTION_FIN```/);
+            const letterMatch = text.match(/```LETTRE_DEBUT```([\s\S]*?)```LETTRE_FIN```/);
+
+            if (extractionMatch && letterMatch) {
+                return {
+                    extraction: extractionMatch[1].trim(),
+                    letter: letterMatch[1].trim()
+                };
+            }
+
+            // Fallback : essayer avec des variantes de marqueurs (Claude peut varier)
+            const extractionMatch2 = text.match(/EXTRACTION_DEBUT([\s\S]*?)EXTRACTION_FIN/);
+            const letterMatch2 = text.match(/LETTRE_DEBUT([\s\S]*?)LETTRE_FIN/);
+
+            if (extractionMatch2 && letterMatch2) {
+                return {
+                    extraction: extractionMatch2[1].trim(),
+                    letter: letterMatch2[1].trim()
+                };
+            }
+
+            // Si les marqueurs ne sont pas trouvés, retourner tout comme lettre
+            // (Claude n'a peut-être pas suivi le format)
+            console.warn('Marqueurs non trouvés dans la réponse, utilisation du texte complet');
+            return { extraction: null, letter: text };
         }
 
         // ==================== Copy & Clear ====================
@@ -1964,7 +2027,8 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
                     notes: input.notes,
                     cr: input.cr,
                     imagesCount: input.imagesCount,
-                    pdfsCount: input.pdfsCount
+                    pdfsCount: input.pdfsCount,
+                    extractedData: input.extractedData || null
                 },
                 output: output
             };
@@ -2060,6 +2124,11 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
                 if (item.input.imagesCount > 0) filesInfo += `${item.input.imagesCount} image(s)`;
                 if (item.input.pdfsCount > 0) filesInfo += `${filesInfo ? ', ' : ''}${item.input.pdfsCount} PDF(s)`;
                 bodyHtml += `<div class="history-modal-section"><h4>Fichiers joints</h4><pre>${filesInfo}</pre></div>`;
+            }
+
+            // Extracted data from files (if any)
+            if (item.input.extractedData) {
+                bodyHtml += `<div class="history-modal-section"><h4>Données extraites des fichiers</h4><pre>${escapeHtml(item.input.extractedData)}</pre></div>`;
             }
 
             // Output
