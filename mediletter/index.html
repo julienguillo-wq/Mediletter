@@ -691,6 +691,25 @@
             letter-spacing: 0.05em;
         }
 
+        .history-item-status {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .history-item-status.valide {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .history-item-status.corrige {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
         .history-item-preview {
             font-size: 0.85rem;
             color: var(--text-muted);
@@ -1091,6 +1110,101 @@
             font-weight: 600;
         }
 
+        /* ==================== Validation Actions ==================== */
+
+        .validation-actions {
+            display: none;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .validation-actions.visible {
+            display: flex;
+        }
+
+        .validate-btn, .correct-btn, .validate-correction-btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.25s ease;
+        }
+
+        .validate-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(16, 185, 129, 0.4);
+        }
+
+        .correct-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .correct-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(245, 158, 11, 0.4);
+        }
+
+        .validate-correction-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .validate-correction-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Correction Mode */
+        .correction-container {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .correction-container.visible {
+            display: flex;
+        }
+
+        .correction-textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 0.9375rem;
+            line-height: 1.8;
+            resize: vertical;
+            transition: border-color 0.25s ease;
+        }
+
+        .correction-textarea:focus {
+            outline: none;
+            border-color: rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+        }
+
         /* ==================== Toast ==================== */
 
         .toast {
@@ -1417,6 +1531,34 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                         <p>Entrez les infos, ajoutez des images si besoin, et cliquez sur "Générer"</p>
                     </div>
                     <div class="output-content" id="outputContent"></div>
+
+                    <!-- Boutons de validation après génération -->
+                    <div class="validation-actions" id="validationActions">
+                        <button class="validate-btn" onclick="validateLetter()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Valider
+                        </button>
+                        <button class="correct-btn" onclick="showCorrectionMode()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Corriger
+                        </button>
+                    </div>
+
+                    <!-- Mode correction -->
+                    <div class="correction-container" id="correctionContainer">
+                        <textarea class="correction-textarea" id="correctionTextarea" placeholder="Modifiez la lettre ici..."></textarea>
+                        <button class="validate-correction-btn" onclick="validateCorrection()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Valider la correction
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1904,16 +2046,22 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
                 // Afficher seulement la lettre (sans les marqueurs)
                 displayOutput(parsed.letter);
 
-                // Sauvegarder dans l'historique avec les données extraites
-                saveToHistory({
-                    context: contextText,
-                    extraInfo: extraInfo,
-                    notes: notesText,
-                    cr: crText,
-                    imagesCount: uploadedImages.length,
-                    pdfsCount: uploadedPdfs.length,
-                    extractedData: parsed.extraction
-                }, parsed.letter);
+                // Stocker les données pour validation ultérieure (ne pas sauvegarder dans l'historique)
+                pendingValidation = {
+                    input: {
+                        context: contextText,
+                        extraInfo: extraInfo,
+                        notes: notesText,
+                        cr: crText,
+                        imagesCount: uploadedImages.length,
+                        pdfsCount: uploadedPdfs.length,
+                        extractedData: parsed.extraction
+                    },
+                    output: parsed.letter
+                };
+
+                // Afficher les boutons de validation
+                showValidationActions();
 
             } catch (error) {
                 console.error('Error:', error);
@@ -1999,6 +2147,79 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
             document.getElementById('extraInfo').value = '';
             document.getElementById('notesText').value = '';
             document.getElementById('crText').value = '';
+            // Réinitialiser le mode validation
+            hideValidationActions();
+        }
+
+        // ==================== Validation & Correction ====================
+
+        let pendingValidation = null;
+
+        function showValidationActions() {
+            document.getElementById('validationActions').classList.add('visible');
+            document.getElementById('correctionContainer').classList.remove('visible');
+        }
+
+        function hideValidationActions() {
+            document.getElementById('validationActions').classList.remove('visible');
+            document.getElementById('correctionContainer').classList.remove('visible');
+            pendingValidation = null;
+        }
+
+        function validateLetter() {
+            if (!pendingValidation) return;
+
+            // Sauvegarder dans l'historique avec statut "valide"
+            saveToHistoryWithStatus(pendingValidation.input, pendingValidation.output, 'valide');
+
+            hideValidationActions();
+            showToast('Lettre validée et sauvegardée');
+        }
+
+        function showCorrectionMode() {
+            if (!pendingValidation) return;
+
+            // Cacher les boutons de validation
+            document.getElementById('validationActions').classList.remove('visible');
+
+            // Afficher le textarea avec le texte généré
+            const textarea = document.getElementById('correctionTextarea');
+            textarea.value = pendingValidation.output;
+            document.getElementById('correctionContainer').classList.add('visible');
+
+            // Cacher l'output formaté
+            document.getElementById('outputContent').classList.remove('visible');
+
+            // Focus sur le textarea
+            textarea.focus();
+        }
+
+        function validateCorrection() {
+            if (!pendingValidation) return;
+
+            const correctedText = document.getElementById('correctionTextarea').value.trim();
+            if (!correctedText) {
+                alert('La lettre corrigée ne peut pas être vide');
+                return;
+            }
+
+            // Sauvegarder dans l'historique avec statut "corrige"
+            saveToHistoryWithStatus(
+                pendingValidation.input,
+                pendingValidation.output,
+                'corrige',
+                correctedText
+            );
+
+            // Afficher la version corrigée
+            displayOutput(correctedText);
+
+            // Cacher le mode correction
+            document.getElementById('correctionContainer').classList.remove('visible');
+            document.getElementById('outputContent').classList.add('visible');
+
+            hideValidationActions();
+            showToast('Correction validée et sauvegardée');
         }
 
         // ==================== History Management ====================
@@ -2014,13 +2235,16 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
             }
         }
 
-        function saveToHistory(input, output) {
+        function saveToHistoryWithStatus(input, outputGenere, statut, outputCorrige = null) {
             const history = getHistory();
+
+            // Structure de base
             const item = {
                 id: Date.now(),
                 date: new Date().toISOString(),
                 letterType: document.getElementById('letterType').value,
                 model: document.getElementById('modelSelect').value,
+                statut: statut,
                 input: {
                     context: input.context,
                     extraInfo: input.extraInfo,
@@ -2029,9 +2253,16 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
                     imagesCount: input.imagesCount,
                     pdfsCount: input.pdfsCount,
                     extractedData: input.extractedData || null
-                },
-                output: output
+                }
             };
+
+            // Ajouter les champs output selon le statut
+            if (statut === 'valide') {
+                item.output = outputGenere;
+            } else if (statut === 'corrige') {
+                item.output_genere = outputGenere;
+                item.output_corrige = outputCorrige;
+            }
 
             // Garder max 50 entrées pour ne pas surcharger localStorage
             history.unshift(item);
@@ -2070,13 +2301,21 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
                     minute: '2-digit'
                 });
                 const typeLabel = item.letterType === 'transfert' ? 'Transfert' : 'Sortie';
-                const preview = item.output.substring(0, 150).replace(/[#*]/g, '') + '...';
+
+                // Gérer les deux formats (ancien et nouveau)
+                const outputText = item.output_corrige || item.output || item.output_genere || '';
+                const preview = outputText.substring(0, 150).replace(/[#*]/g, '') + '...';
+
+                // Statut de validation
+                const statut = item.statut || 'valide'; // Rétrocompatibilité
+                const statutLabel = statut === 'corrige' ? 'Corrigé' : 'Validé';
 
                 return `
                     <div class="history-item" onclick="openHistoryItem(${item.id})">
                         <div class="history-item-header">
                             <span class="history-item-date">${dateStr}</span>
                             <span class="history-item-type">${typeLabel}</span>
+                            <span class="history-item-status ${statut}">${statutLabel}</span>
                         </div>
                         <div class="history-item-preview">${preview}</div>
                     </div>
@@ -2131,8 +2370,18 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
                 bodyHtml += `<div class="history-modal-section"><h4>Données extraites des fichiers</h4><pre>${escapeHtml(item.input.extractedData)}</pre></div>`;
             }
 
-            // Output
-            bodyHtml += `<div class="history-modal-section"><h4>Lettre générée</h4><pre>${escapeHtml(item.output)}</pre></div>`;
+            // Output selon le statut
+            const statut = item.statut || 'valide'; // Rétrocompatibilité
+
+            if (statut === 'corrige' && item.output_genere && item.output_corrige) {
+                // Afficher les deux versions pour une lettre corrigée
+                bodyHtml += `<div class="history-modal-section"><h4>Lettre générée (originale)</h4><pre style="opacity: 0.7; border-left: 3px solid rgba(245, 158, 11, 0.5); padding-left: 1rem;">${escapeHtml(item.output_genere)}</pre></div>`;
+                bodyHtml += `<div class="history-modal-section"><h4>Lettre corrigée (finale)</h4><pre style="border-left: 3px solid #10b981; padding-left: 1rem;">${escapeHtml(item.output_corrige)}</pre></div>`;
+            } else {
+                // Lettre validée directement (ou ancien format)
+                const outputText = item.output || item.output_genere || '';
+                bodyHtml += `<div class="history-modal-section"><h4>Lettre générée</h4><pre>${escapeHtml(outputText)}</pre></div>`;
+            }
 
             document.getElementById('historyModalBody').innerHTML = bodyHtml;
             document.getElementById('historyModal').classList.add('show');
@@ -2145,7 +2394,9 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
 
         function copyHistoryLetter() {
             if (!currentHistoryItem) return;
-            navigator.clipboard.writeText(currentHistoryItem.output).then(() => {
+            // Copier la version finale (corrigée si elle existe, sinon l'originale)
+            const textToCopy = currentHistoryItem.output_corrige || currentHistoryItem.output || currentHistoryItem.output_genere || '';
+            navigator.clipboard.writeText(textToCopy).then(() => {
                 showToast('Lettre copiée dans le presse-papier');
             });
         }
@@ -2175,7 +2426,9 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
             }
 
             const dataStr = JSON.stringify(history, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
+            // Ajouter le BOM UTF-8 pour garantir l'encodage correct des caractères accentués
+            const bom = '\uFEFF';
+            const blob = new Blob([bom + dataStr], { type: 'application/json;charset=utf-8' });
             const url = URL.createObjectURL(blob);
 
             const a = document.createElement('a');
