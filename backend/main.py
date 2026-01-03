@@ -254,13 +254,29 @@ async def generer(request: GenererRequest):
         # Construire le contexte avec les problèmes VALIDÉS par l'utilisateur
         problemes_formated = "\n".join([f"{i+1}. {p}" for i, p in enumerate(request.problemes_valides)])
 
+        # Construire les sections de texte original
+        textes_originaux = []
+        if session_data.get('context'):
+            textes_originaux.append(f"### Contexte / Lettre d'entrée\n{session_data['context']}")
+        if session_data.get('extra_info'):
+            textes_originaux.append(f"### Informations complémentaires du médecin\n{session_data['extra_info']}")
+        if session_data.get('notes'):
+            textes_originaux.append(f"### Notes de suite\n{session_data['notes']}")
+        if session_data.get('cr'):
+            textes_originaux.append(f"### Comptes rendus\n{session_data['cr']}")
+
+        textes_section = "\n\n".join(textes_originaux) if textes_originaux else "Aucun texte fourni"
+
         generation_context = f"""## DIAGNOSTIC PRINCIPAL (validé par le médecin)
 {request.diagnostic_principal}
 
 ## LISTE DES PROBLÈMES À TRAITER (validée et ordonnée par le médecin)
 {problemes_formated}
 
-## DONNÉES EXTRAITES
+## TEXTES ORIGINAUX DU DOSSIER
+{textes_section}
+
+## DONNÉES EXTRAITES (structurées)
 {json.dumps(session_data['donnees_extraites'], ensure_ascii=False, indent=2)}"""
 
         # --- Étape 2a : Génération des sections ---
