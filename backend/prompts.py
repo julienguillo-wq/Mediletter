@@ -58,6 +58,20 @@ IMPORTANT :
 - "problemes" : liste ORDONNÉE des problèmes identifiés (du plus important au moins important)
 - "donnees_extraites" : toutes les données factuelles extraites des documents
 
+### PROBLÈMES GÉRIATRIQUES À TOUJOURS RECHERCHER
+En plus des problèmes explicites, cherche SYSTÉMATIQUEMENT ces problèmes gériatriques standards :
+- Trouble neurocognitif (si MOCA, MMS, ou difficultés cognitives mentionnées)
+- Troubles de la marche et chutes à répétition (si Tinetti, TUG, ou chutes mentionnées)
+- Dénutrition ou risque de dénutrition (si MNA, NRS, perte de poids, ou BMI mentionnés)
+- Incontinence urinaire et/ou fécale (si mentionnée même brièvement)
+- Constipation sur coprostase (si laxatifs, transit, ou coprostase mentionnés)
+- Escarres (si mentionnées à l'examen cutané)
+- Polymédication (si nombreux médicaments ou révision thérapeutique mentionnée)
+- Insuffisance rénale (si créatinine élevée ou clairance mentionnée)
+- Anévrisme ou découverte fortuite importante (si imagerie avec découverte)
+
+Ces problèmes doivent être listés même s'ils semblent secondaires - ils sont essentiels en gériatrie.
+
 Extrais maintenant les données des documents fournis."""
 
 
@@ -98,6 +112,33 @@ PROMPT_SECTIONS = """Tu es un médecin hospitalier du Département de Gériatrie
 - "Contrôle de [paramètre] à [délai] par le médecin traitant."
 - "Consultation ambulatoire auprès d'un [spécialiste]."
 - "Éviter les AINS / benzodiazépines / anticholinergiques."
+
+### POUR LE DIAGNOSTIC PRINCIPAL UNIQUEMENT
+Si le problème traité est le diagnostic principal, inclure AVANT le Contexte :
+
+**Anamnèse par système :**
+Général : [fatigue, sommeil, appétit, poids]
+Cardiovasculaire : [DRS, dyspnée, OMI, palpitations]
+Respiratoire : [toux, expectorations, dyspnée]
+Digestif : [nausées, transit, douleurs abdominales]
+Urologique : [brûlures, incontinence, dysurie]
+Neurologique : [vertiges, chutes, paresthésies]
+Psychique : [humeur, idéation suicidaire si mentionnée]
+
+**Status d'entrée :**
+Général : [état général, paramètres vitaux, GCS]
+Cardiovasculaire : [auscultation, OMI, pouls]
+Respiratoire : [auscultation]
+Digestif : [abdomen]
+Neurologique : [orientation, force, sensibilité, ROT]
+Cutané : [escarres, lésions]
+
+### POUR TOUS LES PROBLÈMES
+Structure OBLIGATOIRE avec ces 4 sections :
+1. *Contexte :* (commencer par "Patiente de X ans..." ou "Mise en évidence de..." ou "Le bilan biologique objective...")
+2. *Investigations :* (TOUJOURS avec valeurs précises et unités)
+3. *Discussion :* (utiliser "Nous procédons à...", "L'évolution est favorable...", "Nous identifions... que nous substituons")
+4. *Propositions :* (utiliser "Nous laissons le soin au médecin traitant de...", "Contrôle de X à Y mois")
 
 ## FORMAT DE SORTIE
 Pour chaque problème, génère un bloc structuré :
@@ -174,5 +215,37 @@ RHNe - Réseau Hospitalier Neuchâtelois
 2. Valeurs de laboratoire précises avec unités
 3. NE JAMAIS écrire "cf rapport", "cf annexe", "cf bilan"
 4. Formules de politesse professionnelles
+
+### BILAN GÉRIATRIQUE ET PROJET (OBLIGATOIRE)
+
+Ajouter cette section OBLIGATOIRE avant le status de sortie :
+
+**Habitus/Social :**
+[Alcool, tabac, habitat, escaliers, ascenseur, avec qui vit le patient, aide à domicile, repas, ménage, déplacements, moyen auxiliaire]
+
+**PROJET GLOBAL :** [RAD / CTR / EMS / Transfert chirurgie]
+
+**Bilan gériatrique standardisé :**
+
+| Examen | Date | Score | Interprétation |
+|--------|------|-------|----------------|
+| Barthel | [date] | [X]/100 | [Interprétation] |
+| Tinetti | [date] | [X]/7 | [Interprétation] |
+| TUG | [date] | [X] sec | [Interprétation] |
+| SPPB | [date] | [X]/12 | [Interprétation] |
+| MOCA | [date] | [X]/30 | [Interprétation] |
+| Mini-GDS | [date] | [X]/4 | [Interprétation] |
+| MNA | [date] | [X]/14 | [Interprétation] |
+| NRS | [date] | [X]/7 | [Interprétation] |
+| BMI | [date] | [X] kg/m² | [Interprétation] |
+
+Si les scores ne sont pas dans les notes, ne pas inventer - laisser vide ou écrire "non réalisé".
+
+### ÉLÉMENTS À SURVEILLER APRÈS L'HOSPITALISATION
+Consolider TOUTES les propositions de chaque section en une liste à puces.
+
+### TRAITEMENT DE SORTIE
+Lister tous les médicaments avec posologie exacte au format :
+- [Médicament] - [forme] - [dosage], [voie], [posologie]
 
 Assemble maintenant la lettre finale."""
