@@ -1205,6 +1205,331 @@
             box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
         }
 
+        /* ==================== Problem Validation Section ==================== */
+
+        .validation-section {
+            display: none;
+        }
+
+        .validation-section.visible {
+            display: block;
+        }
+
+        .validation-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .validation-header .section-icon {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
+        }
+
+        .validation-header .section-icon svg {
+            color: #10b981;
+        }
+
+        .diagnostic-input-group {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+        }
+
+        .diagnostic-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .diagnostic-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--text-white);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+        }
+
+        .diagnostic-input:focus {
+            outline: none;
+            border-color: rgba(16, 185, 129, 0.6);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .problems-list {
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .problems-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .problems-list-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .add-problem-btn {
+            padding: 0.5rem 0.875rem;
+            background: var(--bg-glass);
+            border: 1px dashed rgba(0, 245, 255, 0.4);
+            border-radius: var(--radius-sm);
+            color: var(--accent-cyan);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            transition: all 0.25s ease;
+        }
+
+        .add-problem-btn:hover {
+            background: rgba(0, 245, 255, 0.1);
+            border-style: solid;
+        }
+
+        .add-problem-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .problem-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-sm);
+            transition: all 0.25s ease;
+        }
+
+        .problem-item:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            background: var(--bg-glass-strong);
+        }
+
+        .problem-item.unchecked {
+            opacity: 0.5;
+        }
+
+        .problem-item.unchecked .problem-text {
+            text-decoration: line-through;
+            color: var(--text-dim);
+        }
+
+        .problem-drag-handle {
+            cursor: grab;
+            color: var(--text-dim);
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .problem-drag-handle:hover {
+            color: var(--text-muted);
+        }
+
+        .problem-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .problem-drag-handle svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .problem-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .problem-checkbox:hover {
+            border-color: #10b981;
+        }
+
+        .problem-checkbox.checked {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .problem-checkbox svg {
+            width: 12px;
+            height: 12px;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .problem-checkbox.checked svg {
+            opacity: 1;
+        }
+
+        .problem-number {
+            min-width: 24px;
+            height: 24px;
+            background: var(--gradient-subtle);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            flex-shrink: 0;
+        }
+
+        .problem-text {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 0.9375rem;
+            outline: none;
+        }
+
+        .problem-text:focus {
+            color: var(--text-white);
+        }
+
+        .problem-delete-btn {
+            width: 28px;
+            height: 28px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-dim);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            opacity: 0;
+        }
+
+        .problem-item:hover .problem-delete-btn {
+            opacity: 1;
+        }
+
+        .problem-delete-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .problem-delete-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .validation-actions-bottom {
+            padding: 1.25rem 1.5rem;
+            border-top: var(--border-glass);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .generate-validated-btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .generate-validated-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(16, 185, 129, 0.4);
+        }
+
+        .generate-validated-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-validated-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .generate-validated-btn .spinner {
+            display: none;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .generate-validated-btn.loading .btn-text { display: none; }
+        .generate-validated-btn.loading .spinner { display: block; }
+
+        .cancel-validation-btn {
+            padding: 1rem 1.5rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .cancel-validation-btn:hover {
+            background: var(--bg-glass-strong);
+            color: var(--text-light);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Drag and drop styles */
+        .problem-item.dragging {
+            opacity: 0.5;
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .problem-item.drag-over {
+            border-color: var(--accent-cyan);
+            transform: translateY(2px);
+        }
+
         /* ==================== Toast ==================== */
 
         .toast {
@@ -1473,9 +1798,9 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                 </div>
             </div>
 
-            <button class="generate-btn" id="generateBtn" onclick="generateLetter()">
+            <button class="generate-btn" id="generateBtn" onclick="analyzeDocuments()">
                 <span class="btn-content">
-                    <span>Générer la lettre</span>
+                    <span>Analyser les documents</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
@@ -1485,6 +1810,49 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                     <path d="M12 2a10 10 0 0 1 10 10"/>
                 </svg>
             </button>
+
+            <!-- Problem Validation Section -->
+            <div class="glass-card validation-section" id="validationSection">
+                <div class="validation-header">
+                    <div class="section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M9 11l3 3L22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                    </div>
+                    <span class="section-title">Validation des problèmes identifiés</span>
+                </div>
+
+                <div class="diagnostic-input-group">
+                    <label class="diagnostic-label">Diagnostic principal</label>
+                    <input type="text" class="diagnostic-input" id="diagnosticInput" placeholder="Diagnostic principal...">
+                </div>
+
+                <div class="problems-list" id="problemsList">
+                    <div class="problems-list-header">
+                        <span class="problems-list-title">Problèmes à traiter</span>
+                        <button class="add-problem-btn" onclick="addNewProblem()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Ajouter
+                        </button>
+                    </div>
+                    <div id="problemsContainer"></div>
+                </div>
+
+                <div class="validation-actions-bottom">
+                    <button class="cancel-validation-btn" onclick="cancelValidation()">Annuler</button>
+                    <button class="generate-validated-btn" id="generateValidatedBtn" onclick="generateWithValidatedProblems()">
+                        <span class="btn-text">Générer la lettre</span>
+                        <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                            <path d="M12 2a10 10 0 0 1 10 10"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
 
             <!-- Output Section -->
             <div class="glass-card output-section">
@@ -1638,7 +2006,6 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
         </div>
     </div>
 
-    <script src="prompt.js"></script>
     <script>
         // ==========================================
         // MediLetter V4 - App Logic with Image Upload
@@ -1648,6 +2015,15 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
         let recognition = null;
         let uploadedImages = []; // Stocke les images en base64
         let uploadedPdfs = []; // Stocke les PDFs en base64
+
+        // Backend API URL
+        const BACKEND_URL = 'http://localhost:8000';
+
+        // État de la session et des problèmes
+        let currentSessionId = null;
+        let extractedProblems = [];
+        let extractedDiagnostic = '';
+        let extractedData = {};
 
         // Pré-configure la clé API
         if (!localStorage.getItem('mediletter_apikey')) {
@@ -1861,16 +2237,13 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             document.getElementById('micBtn').classList.remove('recording');
         }
 
-        // ==================== Generate Letter ====================
+        // ==================== Analyze Documents (Step 1) ====================
 
-        async function generateLetter() {
+        async function analyzeDocuments() {
             const contextText = document.getElementById('contextText').value.trim();
             const extraInfo = document.getElementById('extraInfo').value.trim();
             const notesText = document.getElementById('notesText').value.trim();
             const crText = document.getElementById('crText').value.trim();
-            const letterType = document.getElementById('letterType').value;
-            const letterTypeLabel = letterType === 'transfert' ? 'TRANSFERT' : 'SORTIE';
-            const selectedModel = document.getElementById('modelSelect').value;
 
             // Vérifier qu'il y a au moins une source d'information
             const hasContent = contextText || notesText || crText || uploadedImages.length > 0 || uploadedPdfs.length > 0;
@@ -1884,183 +2257,276 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             btn.disabled = true;
 
             try {
-                // Construire le contenu du message
-                let content = [];
+                // Générer un ID de session unique
+                currentSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-                // Ajouter les images
-                uploadedImages.forEach((img, idx) => {
-                    content.push({
-                        type: "image",
-                        source: {
-                            type: "base64",
-                            media_type: img.type,
-                            data: img.data.split(',')[1] // Enlever le préfixe data:image/...
-                        }
-                    });
-                });
+                // Préparer les images en base64
+                const imagesBase64 = uploadedImages.map(img => img.data);
+                const pdfsBase64 = uploadedPdfs.map(pdf => pdf.data);
 
-                // Ajouter les PDFs (Claude peut les lire nativement)
-                uploadedPdfs.forEach((pdf, idx) => {
-                    content.push({
-                        type: "document",
-                        source: {
-                            type: "base64",
-                            media_type: "application/pdf",
-                            data: pdf.data.split(',')[1] // Enlever le préfixe data:application/pdf;base64,
-                        }
-                    });
-                });
-
-                // Construire le message utilisateur avec les 4 sections structurées
-                let userMessage = `Génère une LETTRE DE ${letterTypeLabel} structurée pour ce patient.
-
-## TYPE DE LETTRE : ${letterTypeLabel}
-${letterType === 'transfert' ?
-`Cette lettre est destinée à un établissement de soins (CTR, EMS, autre service).
-Inclure : résumé du séjour, état actuel, traitements en cours, objectifs de réadaptation, points de vigilance pour l'équipe.` :
-`Cette lettre est destinée au médecin traitant et au patient rentrant à domicile.
-Inclure : résumé du séjour, diagnostics, traitements de sortie, propositions de suivi ambulatoire.`}
-
----
-
-## 1. CONTEXTE / LETTRE D'ENTRÉE
-${contextText || '(Non renseigné)'}
-
----
-
-## 2. INFORMATIONS COMPLÉMENTAIRES DU MÉDECIN
-${extraInfo || '(Non renseigné)'}
-
----
-
-## 3. NOTES DE SUITE
-${notesText || '(Non renseigné)'}
-
----
-
-## 4. COMPTES RENDUS
-${crText || '(Non renseigné)'}
-`;
-
-                // Ajouter les instructions pour les fichiers joints
-                const hasFiles = uploadedImages.length > 0 || uploadedPdfs.length > 0;
-
-                if (hasFiles) {
-                    userMessage += `
----
-
-## FICHIERS JOINTS`;
-
-                    if (uploadedImages.length > 0) {
-                        userMessage += `
-### Images (${uploadedImages.length})
-ECG, radios, screenshots de bilans...`;
-                    }
-
-                    if (uploadedPdfs.length > 0) {
-                        userMessage += `
-### PDF Laboratoire (${uploadedPdfs.length})
-Résultats de laboratoire à analyser.`;
-                    }
-                }
-
-                userMessage += `
----
-
-## FORMAT DE RÉPONSE OBLIGATOIRE
-`;
-
-                if (hasFiles) {
-                    userMessage += `
-⚠️ Tu DOIS structurer ta réponse EXACTEMENT comme suit :
-
-\`\`\`EXTRACTION_DEBUT\`\`\`
-[Pour chaque image/PDF, liste ici TOUTES les données extraites de manière structurée]
-- Image 1 (ECG/Radio/Labo/etc.) : [description et valeurs]
-- Image 2 : [description et valeurs]
-- PDF Labo : [toutes les valeurs extraites avec unités]
-\`\`\`EXTRACTION_FIN\`\`\`
-
-\`\`\`LETTRE_DEBUT\`\`\`
-[La lettre médicale complète]
-\`\`\`LETTRE_FIN\`\`\`
-
-IMPORTANT :
-- Dans la section EXTRACTION : liste TOUTES les valeurs lues dans les fichiers
-- Dans la section LETTRE : intègre ces valeurs (jamais "cf rapport" ou "cf annexe")
-- Cite les valeurs exactes avec leurs unités (ex: "Hb à 112 g/l", "CRP à 45 mg/l")
-`;
-                } else {
-                    userMessage += `
-Génère directement la lettre structurée.
-`;
-                }
-
-                userMessage += `
-## INSTRUCTIONS DE RÉDACTION
-Pour chaque problème identifié, génère une section structurée avec :
-- **Titre du problème** en gras
-- Contexte
-- Investigations (avec valeurs PRÉCISES extraites des notes, images et PDF)
-- Discussion
-- Propositions
-
-Utilise les templates UGA comme base et adapte-les au cas clinique.`;
-
-                // Ajouter le texte
-                content.push({
-                    type: "text",
-                    text: userMessage
-                });
-
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                // Appeler le backend /analyser
+                const response = await fetch(`${BACKEND_URL}/analyser`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': API_KEY,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: selectedModel,
-                        max_tokens: 16000,
-                        system: SYSTEM_PROMPT,
-                        messages: [{
-                            role: 'user',
-                            content: content
-                        }]
+                        session_id: currentSessionId,
+                        context: contextText || null,
+                        extra_info: extraInfo || null,
+                        notes: notesText || null,
+                        cr: crText || null,
+                        images_base64: imagesBase64.length > 0 ? imagesBase64 : null,
+                        pdfs_base64: pdfsBase64.length > 0 ? pdfsBase64 : null
                     })
                 });
 
                 if (!response.ok) {
                     const err = await response.json();
-                    throw new Error(err.error?.message || `Erreur API: ${response.status}`);
+                    throw new Error(err.detail || `Erreur API: ${response.status}`);
                 }
 
                 const data = await response.json();
-                const outputText = data.content[0].text;
 
-                // Parser la réponse pour extraire les données des fichiers et la lettre
-                const parsed = parseResponse(outputText, hasFiles);
+                // Stocker les données extraites
+                extractedDiagnostic = data.diagnostic_principal;
+                extractedProblems = data.problemes.map((p, idx) => ({
+                    id: idx,
+                    text: p,
+                    checked: true
+                }));
+                extractedData = data.donnees_extraites;
 
-                // Afficher seulement la lettre (sans les marqueurs)
-                displayOutput(parsed.letter);
+                // Afficher la section de validation
+                showValidationSection();
 
-                // Stocker les données pour validation ultérieure (ne pas sauvegarder dans l'historique)
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur: ' + error.message);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // ==================== Problem Validation UI ====================
+
+        function showValidationSection() {
+            document.getElementById('validationSection').classList.add('visible');
+            document.getElementById('diagnosticInput').value = extractedDiagnostic;
+            renderProblems();
+        }
+
+        function hideValidationSection() {
+            document.getElementById('validationSection').classList.remove('visible');
+        }
+
+        function renderProblems() {
+            const container = document.getElementById('problemsContainer');
+            container.innerHTML = extractedProblems.map((problem, idx) => `
+                <div class="problem-item ${problem.checked ? '' : 'unchecked'}" data-id="${problem.id}" draggable="true">
+                    <div class="problem-drag-handle" title="Réordonner">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="12" x2="21" y2="12"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    </div>
+                    <div class="problem-checkbox ${problem.checked ? 'checked' : ''}" onclick="toggleProblem(${problem.id})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <span class="problem-number">${idx + 1}</span>
+                    <input type="text" class="problem-text" value="${problem.text}" onchange="updateProblemText(${problem.id}, this.value)">
+                    <button class="problem-delete-btn" onclick="deleteProblem(${problem.id})" title="Supprimer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+
+            // Ajouter le drag & drop
+            initDragAndDrop();
+        }
+
+        function toggleProblem(id) {
+            const problem = extractedProblems.find(p => p.id === id);
+            if (problem) {
+                problem.checked = !problem.checked;
+                renderProblems();
+            }
+        }
+
+        function updateProblemText(id, text) {
+            const problem = extractedProblems.find(p => p.id === id);
+            if (problem) {
+                problem.text = text;
+            }
+        }
+
+        function deleteProblem(id) {
+            extractedProblems = extractedProblems.filter(p => p.id !== id);
+            renderProblems();
+        }
+
+        function addNewProblem() {
+            const newId = extractedProblems.length > 0
+                ? Math.max(...extractedProblems.map(p => p.id)) + 1
+                : 0;
+            extractedProblems.push({
+                id: newId,
+                text: 'Nouveau problème',
+                checked: true
+            });
+            renderProblems();
+            // Focus sur le nouveau champ
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('.problem-text');
+                if (inputs.length > 0) {
+                    inputs[inputs.length - 1].focus();
+                    inputs[inputs.length - 1].select();
+                }
+            }, 100);
+        }
+
+        function cancelValidation() {
+            hideValidationSection();
+            currentSessionId = null;
+            extractedProblems = [];
+            extractedDiagnostic = '';
+            extractedData = {};
+        }
+
+        // ==================== Drag & Drop for Problems ====================
+
+        function initDragAndDrop() {
+            const container = document.getElementById('problemsContainer');
+            const items = container.querySelectorAll('.problem-item');
+
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        let draggedItem = null;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.problem-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (this !== draggedItem) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            if (this !== draggedItem) {
+                const fromId = parseInt(draggedItem.dataset.id);
+                const toId = parseInt(this.dataset.id);
+
+                const fromIndex = extractedProblems.findIndex(p => p.id === fromId);
+                const toIndex = extractedProblems.findIndex(p => p.id === toId);
+
+                if (fromIndex !== -1 && toIndex !== -1) {
+                    const [removed] = extractedProblems.splice(fromIndex, 1);
+                    extractedProblems.splice(toIndex, 0, removed);
+                    renderProblems();
+                }
+            }
+            this.classList.remove('drag-over');
+        }
+
+        // ==================== Generate with Validated Problems (Step 2) ====================
+
+        async function generateWithValidatedProblems() {
+            const validatedProblems = extractedProblems
+                .filter(p => p.checked)
+                .map(p => p.text);
+
+            if (validatedProblems.length === 0) {
+                alert('Veuillez sélectionner au moins un problème.');
+                return;
+            }
+
+            const diagnosticPrincipal = document.getElementById('diagnosticInput').value.trim();
+            if (!diagnosticPrincipal) {
+                alert('Veuillez entrer un diagnostic principal.');
+                return;
+            }
+
+            const letterType = document.getElementById('letterType').value;
+
+            const btn = document.getElementById('generateValidatedBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/generer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        letter_type: letterType,
+                        diagnostic_principal: diagnosticPrincipal,
+                        problemes_valides: validatedProblems
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || `Erreur API: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Cacher la section de validation
+                hideValidationSection();
+
+                // Afficher la lettre générée
+                displayOutput(data.letter);
+
+                // Stocker pour validation ultérieure
                 pendingValidation = {
                     input: {
-                        context: contextText,
-                        extraInfo: extraInfo,
-                        notes: notesText,
-                        cr: crText,
+                        context: document.getElementById('contextText').value.trim(),
+                        extraInfo: document.getElementById('extraInfo').value.trim(),
+                        notes: document.getElementById('notesText').value.trim(),
+                        cr: document.getElementById('crText').value.trim(),
                         imagesCount: uploadedImages.length,
                         pdfsCount: uploadedPdfs.length,
-                        extractedData: parsed.extraction
+                        diagnostic: diagnosticPrincipal,
+                        problemes: validatedProblems
                     },
-                    output: parsed.letter
+                    output: data.letter
                 };
 
-                // Afficher les boutons de validation
+                // Afficher les boutons de validation finale
                 showValidationActions();
 
             } catch (error) {
@@ -2149,6 +2615,13 @@ Utilise les templates UGA comme base et adapte-les au cas clinique.`;
             document.getElementById('crText').value = '';
             // Réinitialiser le mode validation
             hideValidationActions();
+            // Cacher la section de validation des problèmes
+            hideValidationSection();
+            // Réinitialiser les états
+            currentSessionId = null;
+            extractedProblems = [];
+            extractedDiagnostic = '';
+            extractedData = {};
         }
 
         // ==================== Validation & Correction ====================
