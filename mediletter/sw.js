@@ -1,8 +1,7 @@
-const CACHE_NAME = 'medhub-v11';
+const CACHE_NAME = 'medhub-v12';
 const ASSETS = [
     './',
     './index.html',
-    './prompt.js',
     './manifest.json'
 ];
 
