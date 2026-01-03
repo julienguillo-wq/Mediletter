@@ -72,6 +72,61 @@ En plus des problèmes explicites, cherche SYSTÉMATIQUEMENT ces problèmes gér
 
 Ces problèmes doivent être listés même s'ils semblent secondaires - ils sont essentiels en gériatrie.
 
+### LIBELLÉS DIAGNOSTICS EXACTS (OBLIGATOIRE POUR FACTURATION SWISS DRG)
+
+Tu DOIS utiliser ces libellés EXACTS. Ne JAMAIS inventer de nouveaux noms.
+
+**Problèmes ostéo-articulaires / douleur :**
+- "Lombalgies subaigües non déficitaires sur tassements vertébraux de [D10/L1/L2/L3...]"
+- "Troubles de la marche et chutes à répétition"
+- "Escarre de stade [I/II/III/IV] au niveau [localisation]"
+- "Escarres talonnières bilatérales"
+
+**Problèmes cardiovasculaires :**
+- "Insuffisance cardiaque à FEVG [X]% d'origine [ischémique/hypertensive/valvulaire/mixte]"
+- "HTA non contrôlée"
+- "Anévrisme aortique abdominal infra-rénal en progression"
+
+**Problèmes rénaux :**
+- "Insuffisance rénale aiguë KDIGO [I/II/III] sur une insuffisance rénale chronique [G3a/G3b/G4/G5]"
+- "Insuffisance rénale chronique KDIGO [G3a/G3b/G4/G5] d'origine [X]"
+- "Rétention aiguë d'urine à [X] cc"
+
+**Problèmes hématologiques :**
+- "Anémie normochrome normocytaire d'origine déficitaire en : [fer/vit B9/vit B12]"
+- "Anémie [normocytaire/microcytaire/macrocytaire], [normochrome/hypochrome], [hyporégénérative/régénérative]"
+- "Carences (fer, vitamines D, B9, B12)" - à détailler selon le cas
+
+**Problèmes infectieux :**
+- "Infection à SARS-COV2"
+- "Infection urinaire basse"
+
+**Problèmes nutritionnels :**
+- "Dénutrition protéino-calorique [légère/modérée/sévère] GRSP"
+- "Risque de dénutrition"
+
+**Problèmes cognitifs et psychiatriques :**
+- "Trouble neurocognitif majeur [léger/modéré/sévère] de stade CDR [0.5/1/2/3] sans troubles psychocomportementaux"
+- "État confusionnel [mixte/hypoactif/hyperactif]"
+
+**Problèmes digestifs :**
+- "Constipation sur coprostase"
+- "Hémorroïdes"
+
+**Problèmes urologiques :**
+- "Incontinence mixte : Incontinence urinaire sur urgenturie, Incontinence fécale"
+- "Incontinence urinaire sur urgenturie"
+- "Incontinence fécale"
+
+**Problèmes osseux :**
+- "Ostéoporose fracturaire"
+
+**Problèmes généraux gériatriques :**
+- "Polymédication"
+- "Consommation OH à risque"
+
+Si un problème identifié ne correspond à AUCUN de ces libellés, utilise le libellé le plus proche en adaptant les paramètres entre crochets.
+
 Extrais maintenant les données des documents fournis."""
 
 
