@@ -1,6 +1,7 @@
 """
 Backend FastAPI pour MediLetter
 Pipeline multi-étapes pour la génération de lettres médicales
+Version améliorée : 1 requête par problème pour une meilleure qualité
 """
 
 from fastapi import FastAPI, HTTPException
@@ -10,8 +11,7 @@ from typing import Optional
 import anthropic
 import os
 import json
-import base64
-from io import BytesIO
+import asyncio
 from dotenv import load_dotenv
 
 # Charger les variables d'environnement depuis .env
@@ -26,7 +26,7 @@ from prompts import PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
 app = FastAPI(
     title="MediLetter API",
     description="API pour la génération de lettres médicales via pipeline multi-étapes",
-    version="1.0.0"
+    version="2.0.0"
 )
 
 app.add_middleware(
@@ -42,6 +42,13 @@ client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 # Stockage temporaire des sessions (en mémoire)
 sessions: dict = {}
+
+# Modèles disponibles
+MODELS = {
+    "standard": "claude-sonnet-4-20250514",
+    "haute_qualite": "claude-sonnet-4-20250514",
+    "ultra_haute_qualite": "claude-opus-4-20250514"
+}
 
 
 # ==============================================================================
@@ -71,6 +78,7 @@ class GenererRequest(BaseModel):
     letter_type: str = "sortie"  # "sortie" ou "transfert"
     diagnostic_principal: str  # Possiblement modifié par l'utilisateur
     problemes_valides: list[str]  # Liste validée/modifiée par l'utilisateur
+    qualite: str = "haute_qualite"  # "standard", "haute_qualite", "ultra_haute_qualite"
 
 
 class GenererResponse(BaseModel):
@@ -93,11 +101,9 @@ def build_content_blocks(request: AnalyserRequest) -> list:
         for img_b64 in request.images_base64:
             # Détecter le type MIME
             if img_b64.startswith("data:"):
-                # Format data URL
                 header, data = img_b64.split(",", 1)
                 media_type = header.split(":")[1].split(";")[0]
             else:
-                # Assume JPEG par défaut
                 media_type = "image/jpeg"
                 data = img_b64
 
@@ -110,7 +116,7 @@ def build_content_blocks(request: AnalyserRequest) -> list:
                 }
             })
 
-    # Ajouter les PDFs en base64 (Claude supporte les PDFs)
+    # Ajouter les PDFs en base64
     if request.pdfs_base64:
         for pdf_b64 in request.pdfs_base64:
             if pdf_b64.startswith("data:"):
@@ -147,6 +153,117 @@ def build_content_blocks(request: AnalyserRequest) -> list:
     return content
 
 
+def identifier_type_probleme(probleme: str) -> str:
+    """Identifie le type de problème pour sélectionner le bon template."""
+    probleme_lower = probleme.lower()
+    
+    # Mapping des mots-clés vers les types de templates
+    mappings = [
+        (["anémie", "anemie"], "ANEMIE"),
+        (["carence", "vitamine d", "b9", "b12", "fer"], "CARENCES"),
+        (["insuffisance rénale aiguë", "insuffisance renale aigue", "ira ", "kdigo i", "kdigo ii", "kdigo iii"], "IRA"),
+        (["insuffisance rénale chronique", "insuffisance renale chronique", "irc", "g3a", "g3b", "g4", "g5"], "IRC"),
+        (["insuffisance cardiaque", "fevg", "décompensation cardiaque"], "INSUFFISANCE_CARDIAQUE"),
+        (["hta", "hypertension"], "HTA"),
+        (["trouble neurocognitif", "démence", "demence", "cdr", "moca"], "TROUBLE_NEUROCOGNITIF"),
+        (["état confusionnel", "etat confusionnel", "confusion", "delirium"], "ETAT_CONFUSIONNEL"),
+        (["chute", "marche", "équilibre", "equilibre", "tinetti"], "CHUTES"),
+        (["dénutrition", "denutrition", "malnutrition", "mna", "nrs"], "DENUTRITION"),
+        (["constipation", "coprostase"], "CONSTIPATION"),
+        (["incontinence urinaire", "urgenturie"], "INCONTINENCE"),
+        (["rétention", "retention", "globe", "sonde urinaire"], "RETENTION"),
+        (["escarre"], "ESCARRE"),
+        (["sars", "covid", "cov2"], "COVID"),
+        (["alcool", "oh à risque", "oh a risque", "consommation oh"], "ALCOOL"),
+        (["isolement", "social"], "ISOLEMENT"),
+        (["ostéoporose", "osteoporose", "tassement"], "OSTEOPOROSE"),
+        (["polymédication", "polymedication"], "POLYMEDICATION"),
+        (["presbyacousie"], "PRESBYACOUSIE"),
+    ]
+    
+    for keywords, type_template in mappings:
+        if any(kw in probleme_lower for kw in keywords):
+            return type_template
+    
+    return "GENERIQUE"
+
+
+def generer_section_probleme(
+    probleme: str,
+    numero: int,
+    donnees_extraites: dict,
+    textes_originaux: str,
+    model: str,
+    est_diagnostic_principal: bool = False
+) -> str:
+    """Génère la section pour UN problème spécifique."""
+    
+    type_probleme = identifier_type_probleme(probleme)
+    
+    # Construire le prompt spécifique pour ce problème
+    prompt_user = f"""## PROBLÈME À RÉDIGER
+Numéro : {numero}
+Titre : {probleme}
+Est le diagnostic principal : {"OUI" if est_diagnostic_principal else "NON"}
+Type de template à utiliser : {type_probleme}
+
+## DONNÉES DU PATIENT (utilise ces valeurs EXACTES)
+
+### Biologie
+{json.dumps(donnees_extraites.get('biologie', {}), ensure_ascii=False, indent=2)}
+
+### ECG
+{json.dumps(donnees_extraites.get('ecg', {}), ensure_ascii=False, indent=2)}
+
+### Examens gériatriques
+{json.dumps(donnees_extraites.get('examens_geriatriques', {}), ensure_ascii=False, indent=2)}
+
+### Examens spécifiques
+{json.dumps(donnees_extraites.get('examens_specifiques', {}), ensure_ascii=False, indent=2)}
+
+### Imagerie
+{json.dumps(donnees_extraites.get('imagerie', {}), ensure_ascii=False, indent=2)}
+
+### Données patient
+{json.dumps(donnees_extraites.get('donnees_patient', donnees_extraites.get('patient', {})), ensure_ascii=False, indent=2)}
+
+### Évolution
+{json.dumps(donnees_extraites.get('evolution', {}), ensure_ascii=False, indent=2)}
+
+### Antécédents
+{json.dumps(donnees_extraites.get('antecedents', []), ensure_ascii=False, indent=2)}
+
+### Traitement d'entrée
+{json.dumps(donnees_extraites.get('traitement_entree', donnees_extraites.get('traitements_entree', [])), ensure_ascii=False, indent=2)}
+
+### Traitement de sortie
+{json.dumps(donnees_extraites.get('traitement_sortie', []), ensure_ascii=False, indent=2)}
+
+## TEXTES ORIGINAUX DU DOSSIER (pour contexte supplémentaire)
+{textes_originaux}
+
+---
+
+## INSTRUCTIONS CRITIQUES
+1. Utilise le template "{type_probleme}" du prompt système
+2. REMPLACE tous les [X] par les valeurs RÉELLES ci-dessus
+3. Si une valeur n'est pas disponible, écris "non disponible" - NE SUPPRIME PAS la ligne
+4. Inclus TOUTES les valeurs de laboratoire pertinentes pour ce problème
+5. Inclus l'ECG si c'est pertinent (chutes, HTA, insuffisance cardiaque, confusion)
+6. N'ajoute AUCUNE introduction ni conclusion
+
+Génère maintenant la section pour ce problème uniquement."""
+
+    response = client.messages.create(
+        model=model,
+        max_tokens=4000,
+        system=PROMPT_SECTIONS,
+        messages=[{"role": "user", "content": prompt_user}]
+    )
+    
+    return response.content[0].text
+
+
 # ==============================================================================
 # Routes
 # ==============================================================================
@@ -154,7 +271,7 @@ def build_content_blocks(request: AnalyserRequest) -> list:
 @app.get("/")
 async def root():
     """Health check."""
-    return {"message": "MediLetter API v1.0.0", "status": "ok"}
+    return {"message": "MediLetter API v2.0.0", "status": "ok"}
 
 
 @app.post("/analyser", response_model=AnalyserResponse)
@@ -184,7 +301,6 @@ async def analyser(request: AnalyserRequest):
 
         # Parser le JSON de la réponse
         try:
-            # Chercher le JSON dans la réponse
             if "```json" in extraction_text:
                 json_str = extraction_text.split("```json")[1].split("```")[0]
             elif "```" in extraction_text:
@@ -194,7 +310,6 @@ async def analyser(request: AnalyserRequest):
 
             extraction = json.loads(json_str.strip())
         except json.JSONDecodeError:
-            # Si pas de JSON valide, créer une structure par défaut
             extraction = {
                 "diagnostic_principal": "À déterminer",
                 "problemes": ["Problème principal à définir"],
@@ -204,7 +319,15 @@ async def analyser(request: AnalyserRequest):
         # Extraire les champs structurés
         diagnostic_principal = extraction.get("diagnostic_principal", "À déterminer")
         problemes = extraction.get("problemes", ["Problème principal à définir"])
-        donnees_extraites = extraction.get("donnees_extraites", extraction)
+        
+        # Les données extraites peuvent être à la racine ou dans "donnees_extraites"
+        donnees_extraites = extraction.get("donnees_extraites", {})
+        
+        # Fusionner les données de la racine si présentes
+        for key in ["biologie", "ecg", "imagerie", "examens_geriatriques", "examens_specifiques", 
+                    "donnees_patient", "evolution", "antecedents", "traitement_entree", "traitement_sortie"]:
+            if key in extraction and key not in donnees_extraites:
+                donnees_extraites[key] = extraction[key]
 
         # Stocker en session
         sessions[request.session_id] = {
@@ -238,7 +361,7 @@ async def generer(request: GenererRequest):
     """
     Étape 2 : Génération de la lettre.
     - Récupère les données extraites de la session
-    - Appelle Claude pour générer les sections
+    - Appelle Claude pour CHAQUE problème (1 requête par problème)
     - Appelle Claude pour assembler la lettre finale
     """
     # Vérifier que la session existe
@@ -249,12 +372,12 @@ async def generer(request: GenererRequest):
         )
 
     session_data = sessions[request.session_id]
+    
+    # Sélectionner le modèle selon la qualité demandée
+    model = MODELS.get(request.qualite, MODELS["haute_qualite"])
 
     try:
-        # Construire le contexte avec les problèmes VALIDÉS par l'utilisateur
-        problemes_formated = "\n".join([f"{i+1}. {p}" for i, p in enumerate(request.problemes_valides)])
-
-        # Construire les sections de texte original
+        # Construire les textes originaux
         textes_originaux = []
         if session_data.get('context'):
             textes_originaux.append(f"### Contexte / Lettre d'entrée\n{session_data['context']}")
@@ -267,40 +390,70 @@ async def generer(request: GenererRequest):
 
         textes_section = "\n\n".join(textes_originaux) if textes_originaux else "Aucun texte fourni"
 
-        generation_context = f"""## DIAGNOSTIC PRINCIPAL (validé par le médecin)
+        # =====================================================================
+        # ÉTAPE 2a : Génération des sections - 1 REQUÊTE PAR PROBLÈME
+        # =====================================================================
+        
+        sections_generees = []
+        donnees_extraites = session_data['donnees_extraites']
+        
+        for i, probleme in enumerate(request.problemes_valides):
+            est_diagnostic_principal = (i == 0)  # Le premier problème est le diagnostic principal
+            
+            section = generer_section_probleme(
+                probleme=probleme,
+                numero=i + 1,
+                donnees_extraites=donnees_extraites,
+                textes_originaux=textes_section,
+                model=model,
+                est_diagnostic_principal=est_diagnostic_principal
+            )
+            
+            sections_generees.append(f"## Problème {i + 1} : {probleme}\n\n{section}")
+        
+        # Assembler toutes les sections
+        sections_text = "\n\n---\n\n".join(sections_generees)
+
+        # =====================================================================
+        # ÉTAPE 2b : Assemblage final
+        # =====================================================================
+        
+        assemblage_context = f"""## TYPE DE LETTRE
+{request.letter_type}
+
+## DIAGNOSTIC PRINCIPAL
 {request.diagnostic_principal}
 
-## LISTE DES PROBLÈMES À TRAITER (validée et ordonnée par le médecin)
-{problemes_formated}
+## DONNÉES DU PATIENT
+{json.dumps(donnees_extraites.get('donnees_patient', donnees_extraites.get('patient', {})), ensure_ascii=False, indent=2)}
 
-## TEXTES ORIGINAUX DU DOSSIER
-{textes_section}
+## EXAMENS GÉRIATRIQUES (pour le tableau)
+{json.dumps(donnees_extraites.get('examens_geriatriques', {}), ensure_ascii=False, indent=2)}
 
-## DONNÉES EXTRAITES (structurées)
-{json.dumps(session_data['donnees_extraites'], ensure_ascii=False, indent=2)}"""
+## TRAITEMENT DE SORTIE
+{json.dumps(donnees_extraites.get('traitement_sortie', []), ensure_ascii=False, indent=2)}
 
-        # --- Étape 2a : Génération des sections ---
-        sections_response = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=8000,
-            system=PROMPT_SECTIONS,
-            messages=[{
-                "role": "user",
-                "content": generation_context
-            }]
-        )
-        sections_text = sections_response.content[0].text
+## SECTIONS DES PROBLÈMES (à insérer SANS MODIFICATION)
 
-        # --- Étape 2b : Assemblage final ---
+{sections_text}
+
+---
+
+## INSTRUCTIONS
+1. Assemble ces sections dans la lettre finale
+2. NE MODIFIE PAS le contenu des sections
+3. Ajoute le tableau gériatrique avec les scores ci-dessus
+4. Consolide les propositions en "Éléments à surveiller"
+5. Liste le traitement de sortie
+6. PAS d'introduction ni conclusion superflue"""
+
         assemblage_response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=model,
             max_tokens=8000,
             system=PROMPT_ASSEMBLAGE,
-            messages=[{
-                "role": "user",
-                "content": f"Type de lettre : {request.letter_type}\n\nDiagnostic principal : {request.diagnostic_principal}\n\nSections à assembler :\n{sections_text}"
-            }]
+            messages=[{"role": "user", "content": assemblage_context}]
         )
+        
         letter = assemblage_response.content[0].text
 
         return GenererResponse(
