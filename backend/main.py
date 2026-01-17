@@ -1,7 +1,7 @@
 """
 Backend FastAPI pour MediLetter
 Pipeline multi-étapes pour la génération de lettres médicales
-Version améliorée : 1 requête par problème pour une meilleure qualité
+Version 2.1 : Requêtes parallélisées pour performance optimale
 """
 
 from fastapi import FastAPI, HTTPException
@@ -12,6 +12,7 @@ import anthropic
 import os
 import json
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 
 # Charger les variables d'environnement depuis .env
@@ -26,7 +27,7 @@ from prompts import PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
 app = FastAPI(
     title="MediLetter API",
     description="API pour la génération de lettres médicales via pipeline multi-étapes",
-    version="2.0.0"
+    version="2.1.0"
 )
 
 app.add_middleware(
@@ -49,6 +50,9 @@ MODELS = {
     "haute_qualite": "claude-sonnet-4-20250514",
     "ultra_haute_qualite": "claude-opus-4-20250514"
 }
+
+# Thread pool pour parallélisation des appels API
+executor = ThreadPoolExecutor(max_workers=10)
 
 
 # ==============================================================================
@@ -188,15 +192,18 @@ def identifier_type_probleme(probleme: str) -> str:
     return "GENERIQUE"
 
 
-def generer_section_probleme(
+def generer_section_probleme_sync(
     probleme: str,
     numero: int,
     donnees_extraites: dict,
     textes_originaux: str,
     model: str,
     est_diagnostic_principal: bool = False
-) -> str:
-    """Génère la section pour UN problème spécifique."""
+) -> dict:
+    """
+    Génère la section pour UN problème spécifique (version synchrone).
+    Retourne un dict avec le numéro et le contenu pour réordonner après.
+    """
     
     type_probleme = identifier_type_probleme(probleme)
     
@@ -261,7 +268,36 @@ Génère maintenant la section pour ce problème uniquement."""
         messages=[{"role": "user", "content": prompt_user}]
     )
     
-    return response.content[0].text
+    return {
+        "numero": numero,
+        "probleme": probleme,
+        "contenu": response.content[0].text
+    }
+
+
+async def generer_section_probleme_async(
+    probleme: str,
+    numero: int,
+    donnees_extraites: dict,
+    textes_originaux: str,
+    model: str,
+    est_diagnostic_principal: bool = False
+) -> dict:
+    """
+    Version async qui exécute la fonction sync dans un thread pool.
+    Permet la parallélisation des appels API.
+    """
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(
+        executor,
+        generer_section_probleme_sync,
+        probleme,
+        numero,
+        donnees_extraites,
+        textes_originaux,
+        model,
+        est_diagnostic_principal
+    )
 
 
 # ==============================================================================
@@ -271,7 +307,7 @@ Génère maintenant la section pour ce problème uniquement."""
 @app.get("/")
 async def root():
     """Health check."""
-    return {"message": "MediLetter API v2.0.0", "status": "ok"}
+    return {"message": "MediLetter API v2.1.0 - Parallélisé", "status": "ok"}
 
 
 @app.post("/analyser", response_model=AnalyserResponse)
@@ -361,7 +397,7 @@ async def generer(request: GenererRequest):
     """
     Étape 2 : Génération de la lettre.
     - Récupère les données extraites de la session
-    - Appelle Claude pour CHAQUE problème (1 requête par problème)
+    - Appelle Claude pour CHAQUE problème EN PARALLÈLE
     - Appelle Claude pour assembler la lettre finale
     """
     # Vérifier que la session existe
@@ -391,16 +427,17 @@ async def generer(request: GenererRequest):
         textes_section = "\n\n".join(textes_originaux) if textes_originaux else "Aucun texte fourni"
 
         # =====================================================================
-        # ÉTAPE 2a : Génération des sections - 1 REQUÊTE PAR PROBLÈME
+        # ÉTAPE 2a : Génération des sections - EN PARALLÈLE
         # =====================================================================
         
-        sections_generees = []
         donnees_extraites = session_data['donnees_extraites']
         
+        # Créer toutes les tâches async pour les problèmes
+        tasks = []
         for i, probleme in enumerate(request.problemes_valides):
-            est_diagnostic_principal = (i == 0)  # Le premier problème est le diagnostic principal
+            est_diagnostic_principal = (i == 0)
             
-            section = generer_section_probleme(
+            task = generer_section_probleme_async(
                 probleme=probleme,
                 numero=i + 1,
                 donnees_extraites=donnees_extraites,
@@ -408,10 +445,21 @@ async def generer(request: GenererRequest):
                 model=model,
                 est_diagnostic_principal=est_diagnostic_principal
             )
-            
-            sections_generees.append(f"## Problème {i + 1} : {probleme}\n\n{section}")
+            tasks.append(task)
         
-        # Assembler toutes les sections
+        # Exécuter toutes les tâches en parallèle
+        resultats = await asyncio.gather(*tasks)
+        
+        # Trier les résultats par numéro (au cas où ils reviennent dans le désordre)
+        resultats_tries = sorted(resultats, key=lambda x: x["numero"])
+        
+        # Assembler les sections dans l'ordre
+        sections_generees = []
+        for resultat in resultats_tries:
+            sections_generees.append(
+                f"## Problème {resultat['numero']} : {resultat['probleme']}\n\n{resultat['contenu']}"
+            )
+        
         sections_text = "\n\n---\n\n".join(sections_generees)
 
         # =====================================================================
