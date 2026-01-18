@@ -92,6 +92,44 @@ class GenererResponse(BaseModel):
     status: str
 
 
+# === Nouveaux modèles pour génération parallèle par section ===
+
+class GenererSectionRequest(BaseModel):
+    session_id: str
+    probleme: str  # Un seul problème
+    probleme_index: int  # Index du problème (1-based)
+    is_diagnostic_principal: bool = False  # Si c'est le diagnostic principal
+
+
+class GenererSectionResponse(BaseModel):
+    session_id: str
+    probleme_index: int
+    section: str
+    status: str
+
+
+class RegenerationSectionRequest(BaseModel):
+    session_id: str
+    probleme: str
+    probleme_index: int
+    section_actuelle: str
+    instruction: str  # Instruction de modification
+    is_diagnostic_principal: bool = False
+
+
+class AssemblerRequest(BaseModel):
+    session_id: str
+    letter_type: str = "sortie"
+    diagnostic_principal: str
+    sections: list[str]  # Liste des sections déjà générées dans l'ordre
+
+
+class AssemblerResponse(BaseModel):
+    session_id: str
+    letter: str
+    status: str
+
+
 # ==============================================================================
 # Helpers
 # ==============================================================================
@@ -509,6 +547,191 @@ async def generer(request: GenererRequest):
             letter=letter,
             sections=sections_text,
             status="generated"
+        )
+
+    except anthropic.APIError as e:
+        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+
+# ==============================================================================
+# NOUVEAUX ENDPOINTS pour génération parallèle et review des sections
+# ==============================================================================
+
+@app.post("/generer-section", response_model=GenererSectionResponse)
+async def generer_section(request: GenererSectionRequest):
+    """
+    Génère UNE SEULE section pour un problème donné.
+    Permet la parallélisation côté frontend.
+    """
+    if request.session_id not in sessions:
+        raise HTTPException(
+            status_code=404,
+            detail="Session non trouvée. Appelez /analyser d'abord."
+        )
+
+    session_data = sessions[request.session_id]
+
+    try:
+        # Construire les sections de texte original
+        textes_originaux = []
+        if session_data.get('context'):
+            textes_originaux.append(f"### Contexte / Lettre d'entrée\n{session_data['context']}")
+        if session_data.get('extra_info'):
+            textes_originaux.append(f"### Informations complémentaires du médecin\n{session_data['extra_info']}")
+        if session_data.get('notes'):
+            textes_originaux.append(f"### Notes de suite\n{session_data['notes']}")
+        if session_data.get('cr'):
+            textes_originaux.append(f"### Comptes rendus\n{session_data['cr']}")
+
+        textes_section = "\n\n".join(textes_originaux) if textes_originaux else "Aucun texte fourni"
+
+        # Contexte de génération pour UN SEUL problème
+        generation_context = f"""## DIAGNOSTIC PRINCIPAL
+{session_data.get('diagnostic_principal', 'Non spécifié')}
+
+## PROBLÈME À TRAITER (numéro {request.probleme_index})
+{request.probleme_index}. {request.probleme}
+
+{"IMPORTANT: Ce problème EST le diagnostic principal. Inclure l'anamnèse par système et le status d'entrée." if request.is_diagnostic_principal else ""}
+
+## TEXTES ORIGINAUX DU DOSSIER
+{textes_section}
+
+## DONNÉES EXTRAITES (structurées)
+{json.dumps(session_data['donnees_extraites'], ensure_ascii=False, indent=2)}"""
+
+        # Appel à Claude pour générer cette section
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=4000,
+            system=PROMPT_SECTIONS,
+            messages=[{
+                "role": "user",
+                "content": generation_context
+            }]
+        )
+        section_text = response.content[0].text
+
+        return GenererSectionResponse(
+            session_id=request.session_id,
+            probleme_index=request.probleme_index,
+            section=section_text,
+            status="generated"
+        )
+
+    except anthropic.APIError as e:
+        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+
+@app.post("/regenerer-section", response_model=GenererSectionResponse)
+async def regenerer_section(request: RegenerationSectionRequest):
+    """
+    Régénère une section avec une instruction de modification.
+    """
+    if request.session_id not in sessions:
+        raise HTTPException(
+            status_code=404,
+            detail="Session non trouvée."
+        )
+
+    session_data = sessions[request.session_id]
+
+    try:
+        # Construire les sections de texte original
+        textes_originaux = []
+        if session_data.get('context'):
+            textes_originaux.append(f"### Contexte / Lettre d'entrée\n{session_data['context']}")
+        if session_data.get('extra_info'):
+            textes_originaux.append(f"### Informations complémentaires du médecin\n{session_data['extra_info']}")
+        if session_data.get('notes'):
+            textes_originaux.append(f"### Notes de suite\n{session_data['notes']}")
+        if session_data.get('cr'):
+            textes_originaux.append(f"### Comptes rendus\n{session_data['cr']}")
+
+        textes_section = "\n\n".join(textes_originaux) if textes_originaux else "Aucun texte fourni"
+
+        # Contexte de régénération avec l'instruction
+        regeneration_context = f"""## DIAGNOSTIC PRINCIPAL
+{session_data.get('diagnostic_principal', 'Non spécifié')}
+
+## PROBLÈME À TRAITER (numéro {request.probleme_index})
+{request.probleme_index}. {request.probleme}
+
+{"IMPORTANT: Ce problème EST le diagnostic principal. Inclure l'anamnèse par système et le status d'entrée." if request.is_diagnostic_principal else ""}
+
+## TEXTES ORIGINAUX DU DOSSIER
+{textes_section}
+
+## DONNÉES EXTRAITES (structurées)
+{json.dumps(session_data['donnees_extraites'], ensure_ascii=False, indent=2)}
+
+## SECTION ACTUELLE (à modifier)
+{request.section_actuelle}
+
+## INSTRUCTION DE MODIFICATION DU MÉDECIN
+{request.instruction}
+
+IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Conserve la même structure (Contexte, Investigations, Discussion, Propositions) mais modifie le contenu selon l'instruction."""
+
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=4000,
+            system=PROMPT_SECTIONS,
+            messages=[{
+                "role": "user",
+                "content": regeneration_context
+            }]
+        )
+        section_text = response.content[0].text
+
+        return GenererSectionResponse(
+            session_id=request.session_id,
+            probleme_index=request.probleme_index,
+            section=section_text,
+            status="regenerated"
+        )
+
+    except anthropic.APIError as e:
+        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+
+@app.post("/assembler", response_model=AssemblerResponse)
+async def assembler(request: AssemblerRequest):
+    """
+    Assemble les sections validées en une lettre finale.
+    """
+    if request.session_id not in sessions:
+        raise HTTPException(
+            status_code=404,
+            detail="Session non trouvée."
+        )
+
+    try:
+        # Joindre toutes les sections
+        sections_text = "\n\n".join(request.sections)
+
+        # Appel à Claude pour assemblage final
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=8000,
+            system=PROMPT_ASSEMBLAGE,
+            messages=[{
+                "role": "user",
+                "content": f"Type de lettre : {request.letter_type}\n\nDiagnostic principal : {request.diagnostic_principal}\n\nSections à assembler :\n{sections_text}"
+            }]
+        )
+        letter = response.content[0].text
+
+        return AssemblerResponse(
+            session_id=request.session_id,
+            letter=letter,
+            status="assembled"
         )
 
     except anthropic.APIError as e:
