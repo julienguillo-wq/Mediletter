@@ -1863,53 +1863,38 @@
             height: 16px;
         }
 
-        /* Mini-chat pour modification */
-        .section-modify-chat {
-            display: none;
+        /* Textarea éditable pour modification directe */
+        .section-edit-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
             margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px dashed rgba(245, 158, 11, 0.3);
-        }
-
-        .section-modify-chat.visible {
-            display: block;
-        }
-
-        .modify-chat-label {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #f59e0b;
-            margin-bottom: 0.5rem;
-        }
-
-        .modify-chat-input-wrapper {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .modify-chat-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            border: 1px solid rgba(0, 245, 255, 0.3);
             border-radius: var(--radius-sm);
             color: var(--text-white);
             font-family: inherit;
             font-size: 0.9rem;
+            line-height: 1.6;
+            resize: vertical;
         }
 
-        .modify-chat-input::placeholder {
-            color: var(--text-dim);
-        }
-
-        .modify-chat-input:focus {
+        .section-edit-textarea:focus {
             outline: none;
-            border-color: rgba(245, 158, 11, 0.6);
+            border-color: rgba(0, 245, 255, 0.6);
+            box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1);
         }
 
-        .modify-chat-submit {
-            padding: 0.75rem 1.25rem;
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        .section-edit-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .section-validate-btn {
+            padding: 0.6rem 1.25rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: none;
             border-radius: var(--radius-sm);
             color: white;
@@ -1923,29 +1908,15 @@
             transition: all 0.25s ease;
         }
 
-        .modify-chat-submit:hover {
+        .section-validate-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
         }
 
-        .modify-chat-submit:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .modify-chat-submit svg {
+        .section-validate-btn svg {
             width: 16px;
             height: 16px;
         }
-
-        .modify-chat-submit .spinner {
-            display: none;
-            animation: spin 0.8s linear infinite;
-        }
-
-        .modify-chat-submit.loading .btn-text { display: none; }
-        .modify-chat-submit.loading .spinner { display: block; }
 
         /* Bouton final pour générer la lettre */
         .sections-review-actions {
@@ -2136,57 +2107,109 @@
                     <!-- Contexte / Lettre d'entrée -->
                     <div class="field-group">
                         <label class="field-label">Contexte / Lettre d'entrée</label>
-                        <textarea
-                            class="input-field"
-                            id="contextText"
-                            placeholder="Collez ici la lettre d'entrée ou le contexte d'admission...
+                        <div class="textarea-wrapper">
+                            <textarea
+                                class="input-field"
+                                id="contextText"
+                                placeholder="Collez ici la lettre d'entrée ou le contexte d'admission...
 
 Ex: Patient de 82 ans, adressé par les urgences pour AEG et chutes à répétition depuis 1 semaine. ATCD: HTA, diabète type 2, IRC stade 3. TTT habituel: Amlodipine 5mg, Metformine 850mg..."
-                        ></textarea>
+                            ></textarea>
+                            <button type="button" class="mic-btn" onclick="toggleRecording('contextText', this)" style="display: none;">
+                                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <div class="mic-waves">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </button>
+                        </div>
                         <div class="field-hint">Lettre d'entrée, motif d'admission, antécédents</div>
                     </div>
 
                     <!-- Informations complémentaires -->
                     <div class="field-group">
                         <label class="field-label">Informations complémentaires</label>
-                        <textarea
-                            class="input-field small"
-                            id="extraInfo"
-                            placeholder="Précisions, demandes spécifiques...
+                        <div class="textarea-wrapper">
+                            <textarea
+                                class="input-field small"
+                                id="extraInfo"
+                                placeholder="Précisions, demandes spécifiques...
 
 Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suivi cardio prévu"
-                        ></textarea>
+                            ></textarea>
+                            <button type="button" class="mic-btn" onclick="toggleRecording('extraInfo', this)" style="display: none;">
+                                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <div class="mic-waves">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </button>
+                        </div>
                         <div class="field-hint">Vos précisions pour orienter la rédaction</div>
                     </div>
 
                     <!-- Notes de suite -->
                     <div class="field-group">
                         <label class="field-label">Notes de suite</label>
-                        <textarea
-                            class="input-field large"
-                            id="notesText"
-                            placeholder="Collez ici les notes de suite (plusieurs jours)...
+                        <div class="textarea-wrapper">
+                            <textarea
+                                class="input-field large"
+                                id="notesText"
+                                placeholder="Collez ici les notes de suite (plusieurs jours)...
 
 Ex:
 J1: Entrée pour AEG. TA 145/85, FC 78. Bilan demandé.
 J2: Résultats labo: Hb 98, créat 145, CRP 45. Hydratation IV.
 J3: Amélioration clinique. Reprise alimentation. Physio débutée."
-                        ></textarea>
+                            ></textarea>
+                            <button type="button" class="mic-btn" onclick="toggleRecording('notesText', this)" style="display: none;">
+                                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <div class="mic-waves">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </button>
+                        </div>
                         <div class="field-hint">Notes de suite quotidiennes du dossier patient</div>
                     </div>
 
                     <!-- Comptes rendus -->
                     <div class="field-group">
                         <label class="field-label">Comptes rendus</label>
-                        <textarea
-                            class="input-field"
-                            id="crText"
-                            placeholder="Collez ici les comptes rendus (imagerie, avis spécialisés, etc.)...
+                        <div class="textarea-wrapper">
+                            <textarea
+                                class="input-field"
+                                id="crText"
+                                placeholder="Collez ici les comptes rendus (imagerie, avis spécialisés, etc.)...
 
 Ex:
 CT-TAP (15.01): Condensation basale droite compatible avec pneumopathie. Pas d'EP.
 Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
-                        ></textarea>
+                            ></textarea>
+                            <button type="button" class="mic-btn" onclick="toggleRecording('crText', this)" style="display: none;">
+                                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <div class="mic-waves">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </button>
+                        </div>
                         <div class="field-hint">Comptes rendus d'examens, avis spécialisés</div>
                     </div>
                 </div>
@@ -2223,6 +2246,15 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                         <div class="upload-hint">Résultats de laboratoire (PDF)</div>
                         <div class="files-preview pdf-preview" id="pdfPreview"></div>
                     </div>
+
+                    <!-- Bouton Effacer les données -->
+                    <button class="clear-draft-btn" onclick="clearDraft()" style="margin-top: 1rem; padding: 0.6rem 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); color: #ef4444; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s ease;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
+                        </svg>
+                        Effacer les données
+                    </button>
                 </div>
             </div>
 
@@ -2660,6 +2692,8 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
 
         // ==================== Speech Recognition ====================
 
+        let currentMicTarget = null; // ID du textarea actif pour la dictée
+
         function initSpeechRecognition() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2675,8 +2709,12 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                             finalTranscript += event.results[i][0].transcript;
                         }
                     }
-                    if (finalTranscript) {
-                        document.getElementById('inputText').value += finalTranscript + ' ';
+                    if (finalTranscript && currentMicTarget) {
+                        const textarea = document.getElementById(currentMicTarget);
+                        if (textarea) {
+                            textarea.value += finalTranscript + ' ';
+                            saveToLocalStorage();
+                        }
                     }
                 };
 
@@ -2688,25 +2726,43 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                 recognition.onend = () => {
                     if (isRecording) recognition.start();
                 };
+
+                // Afficher les boutons micro si supporté
+                document.querySelectorAll('.mic-btn').forEach(btn => {
+                    btn.style.display = 'flex';
+                });
+            } else {
+                // Cacher les boutons micro si non supporté
+                document.querySelectorAll('.mic-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
             }
         }
 
-        function toggleRecording() {
-            isRecording ? stopRecording() : startRecording();
+        function toggleRecording(targetId, btnElement) {
+            if (isRecording && currentMicTarget === targetId) {
+                stopRecording();
+            } else {
+                if (isRecording) stopRecording();
+                startRecording(targetId, btnElement);
+            }
         }
 
-        function startRecording() {
+        function startRecording(targetId, btnElement) {
             if (!recognition) return;
+            currentMicTarget = targetId;
             isRecording = true;
             recognition.start();
-            document.getElementById('micBtn').classList.add('recording');
+            document.querySelectorAll('.mic-btn').forEach(btn => btn.classList.remove('recording'));
+            if (btnElement) btnElement.classList.add('recording');
         }
 
         function stopRecording() {
             if (!recognition) return;
             isRecording = false;
             recognition.stop();
-            document.getElementById('micBtn').classList.remove('recording');
+            currentMicTarget = null;
+            document.querySelectorAll('.mic-btn').forEach(btn => btn.classList.remove('recording'));
         }
 
         // ==================== Analyze Documents (Step 1) ====================
@@ -3031,6 +3087,9 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                     sectionData.generating = false;
                 }
 
+                // Sauvegarder dans localStorage
+                saveToLocalStorage();
+
                 // Mettre à jour l'affichage
                 renderSectionsList();
                 updateProgress();
@@ -3097,39 +3156,18 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                                     <p style="margin-top: 1rem;">Génération en cours...</p>
                                 </div>
                             ` : `
-                                <div class="section-text">${formatSectionText(section.section)}</div>
                                 ${!section.validated ? `
-                                    <div class="section-actions">
-                                        <button class="section-ok-btn" onclick="validateSection(${section.index})">
+                                    <textarea class="section-edit-textarea" id="sectionTextarea-${section.index}">${escapeHtml(section.section)}</textarea>
+                                    <div class="section-edit-actions">
+                                        <button class="section-validate-btn" onclick="validateSectionWithText(${section.index})">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                                 <polyline points="20 6 9 17 4 12"/>
                                             </svg>
-                                            OK
+                                            Valider
                                         </button>
-                                        <button class="section-modify-btn" onclick="showModifyChat(${section.index})">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                            </svg>
-                                            Modifier
-                                        </button>
-                                    </div>
-                                    <div class="section-modify-chat" id="modifyChat-${section.index}">
-                                        <div class="modify-chat-label">Instruction de modification :</div>
-                                        <div class="modify-chat-input-wrapper">
-                                            <input type="text" class="modify-chat-input" id="modifyInput-${section.index}"
-                                                   placeholder="Ex: ajouter que le patient a reçu 2 culots globulaires"
-                                                   onkeypress="if(event.key==='Enter') regenerateSection(${section.index})">
-                                            <button class="modify-chat-submit" id="modifySubmit-${section.index}" onclick="regenerateSection(${section.index})">
-                                                <span class="btn-text">Régénérer</span>
-                                                <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <circle cx="12" cy="12" r="10" opacity="0.3"/>
-                                                    <path d="M12 2a10 10 0 0 1 10 10"/>
-                                                </svg>
-                                            </button>
-                                        </div>
                                     </div>
                                 ` : `
+                                    <div class="section-text">${formatSectionText(section.section)}</div>
                                     <div style="text-align: center; padding: 0.5rem; color: #10b981;">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="24" height="24">
                                             <polyline points="20 6 9 17 4 12"/>
@@ -3166,74 +3204,17 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             }
         }
 
-        function validateSection(index) {
-            const section = generatedSections.find(s => s.index === index);
-            if (section) {
-                section.validated = true;
-                renderSectionsList();
-            }
-        }
-
-        function showModifyChat(index) {
-            const chatEl = document.getElementById(`modifyChat-${index}`);
-            if (chatEl) {
-                chatEl.classList.add('visible');
-                document.getElementById(`modifyInput-${index}`).focus();
-            }
-        }
-
-        async function regenerateSection(index) {
+        function validateSectionWithText(index) {
             const section = generatedSections.find(s => s.index === index);
             if (!section) return;
 
-            const instruction = document.getElementById(`modifyInput-${index}`).value.trim();
-            if (!instruction) {
-                alert('Veuillez entrer une instruction de modification.');
-                return;
+            const textarea = document.getElementById(`sectionTextarea-${index}`);
+            if (textarea) {
+                section.section = textarea.value.trim();
             }
-
-            const btn = document.getElementById(`modifySubmit-${index}`);
-            btn.classList.add('loading');
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(`${BACKEND_URL}/regenerer-section`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: currentSessionId,
-                        probleme: section.probleme,
-                        probleme_index: index,
-                        section_actuelle: section.section,
-                        instruction: instruction,
-                        is_diagnostic_principal: index === 1
-                    })
-                });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.detail || `Erreur API: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                // Mettre à jour la section
-                section.section = data.section;
-                section.validated = false;
-
-                // Réinitialiser l'input
-                document.getElementById(`modifyInput-${index}`).value = '';
-
-                // Rerendre
-                renderSectionsList();
-
-            } catch (error) {
-                console.error('Erreur régénération:', error);
-                alert('Erreur: ' + error.message);
-            } finally {
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }
+            section.validated = true;
+            saveToLocalStorage();
+            renderSectionsList();
         }
 
         function updateFinalButtonState() {
@@ -3484,7 +3465,88 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
         // ==================== History Management ====================
 
         const HISTORY_KEY = 'mediletter_history';
+        const DRAFT_KEY = 'mediletter_draft';
         let currentHistoryItem = null;
+
+        // ==================== Persistance localStorage (Brouillon) ====================
+
+        function saveToLocalStorage() {
+            const draft = {
+                contextText: document.getElementById('contextText')?.value || '',
+                extraInfo: document.getElementById('extraInfo')?.value || '',
+                notesText: document.getElementById('notesText')?.value || '',
+                crText: document.getElementById('crText')?.value || '',
+                letterType: document.getElementById('letterType')?.value || 'sortie',
+                modelSelect: document.getElementById('modelSelect')?.value || 'claude-sonnet-4-20250514',
+                generatedSections: generatedSections,
+                validatedProblems: validatedProblems,
+                validatedDiagnostic: validatedDiagnostic,
+                currentSessionId: currentSessionId
+            };
+            try {
+                localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+            } catch (e) {
+                console.warn('Erreur sauvegarde localStorage:', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const draft = JSON.parse(localStorage.getItem(DRAFT_KEY));
+                if (!draft) return;
+
+                if (draft.contextText) document.getElementById('contextText').value = draft.contextText;
+                if (draft.extraInfo) document.getElementById('extraInfo').value = draft.extraInfo;
+                if (draft.notesText) document.getElementById('notesText').value = draft.notesText;
+                if (draft.crText) document.getElementById('crText').value = draft.crText;
+                if (draft.letterType) document.getElementById('letterType').value = draft.letterType;
+                if (draft.modelSelect) document.getElementById('modelSelect').value = draft.modelSelect;
+
+                if (draft.generatedSections && draft.generatedSections.length > 0) {
+                    generatedSections = draft.generatedSections;
+                    validatedProblems = draft.validatedProblems || [];
+                    validatedDiagnostic = draft.validatedDiagnostic || '';
+                    currentSessionId = draft.currentSessionId || null;
+
+                    // Afficher l'étape 3 si des sections existent
+                    document.querySelector('.input-section').style.display = 'block';
+                    document.getElementById('step2Container').style.display = 'none';
+                    document.getElementById('step3Container').style.display = 'block';
+                    document.getElementById('outputSection').style.display = 'none';
+                    renderSectionsList();
+                }
+            } catch (e) {
+                console.warn('Erreur chargement localStorage:', e);
+            }
+        }
+
+        function clearDraft() {
+            if (!confirm('Effacer toutes les données saisies et les sections en cours ?')) return;
+            localStorage.removeItem(DRAFT_KEY);
+            document.getElementById('contextText').value = '';
+            document.getElementById('extraInfo').value = '';
+            document.getElementById('notesText').value = '';
+            document.getElementById('crText').value = '';
+            generatedSections = [];
+            validatedProblems = [];
+            validatedDiagnostic = '';
+            currentSessionId = null;
+            document.getElementById('step2Container').style.display = 'none';
+            document.getElementById('step3Container').style.display = 'none';
+            document.getElementById('outputSection').style.display = 'none';
+            showToast('Données effacées');
+        }
+
+        function setupAutoSave() {
+            const fields = ['contextText', 'extraInfo', 'notesText', 'crText', 'letterType', 'modelSelect'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', saveToLocalStorage);
+                    el.addEventListener('change', saveToLocalStorage);
+                }
+            });
+        }
 
         function getHistory() {
             try {
@@ -3725,6 +3787,8 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
         document.addEventListener('DOMContentLoaded', () => {
             initSpeechRecognition();
             renderHistoryList();
+            loadFromLocalStorage();
+            setupAutoSave();
         });
 
         // Register Service Worker for PWA
