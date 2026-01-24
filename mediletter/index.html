@@ -2054,6 +2054,47 @@
             animation: spin 0.8s linear infinite;
         }
 
+        /* Spinner de chargement DANS la zone de texte */
+        .wizard-textarea-loading {
+            flex: 1;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px dashed rgba(168, 85, 247, 0.4);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .wizard-textarea-loading .loading-spinner {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1.5rem;
+        }
+
+        .wizard-textarea-loading .loading-spinner svg {
+            width: 100%;
+            height: 100%;
+            color: var(--accent-purple);
+            animation: spin 1s linear infinite;
+        }
+
+        .wizard-textarea-loading p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .wizard-textarea-loading .loading-hint {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
         .wizard-all-done {
             text-align: center;
             padding: 2rem;
@@ -3652,20 +3693,20 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
         function renderSectionsList() {
             const container = document.getElementById('sectionsList');
 
-            // Séparer les sections validées et non validées
-            const validatedSections = generatedSections.filter(s => s.validated);
-            const pendingSections = generatedSections.filter(s => !s.validated && !s.generating);
+            // Séparer les sections par état
+            const validatedSections = generatedSections.filter(s => s.validated).sort((a, b) => a.index - b.index);
+            const nonValidatedSections = generatedSections.filter(s => !s.validated).sort((a, b) => a.index - b.index);
             const generatingSections = generatedSections.filter(s => s.generating);
 
             const total = generatedSections.length;
-            const currentIndex = validatedSections.length + 1;
 
-            // Trouver le premier problème non validé et non en génération
-            const currentProblem = pendingSections[0];
+            // Trouver le PREMIER problème non validé par ordre d'index (qu'il soit généré ou en cours)
+            const currentProblem = nonValidatedSections[0];
+            const currentIndex = currentProblem ? currentProblem.index : total + 1;
 
             let html = '';
 
-            // 1. Afficher les problèmes validés en miniature
+            // 1. Afficher les problèmes validés en miniature (triés par index)
             if (validatedSections.length > 0) {
                 html += `<div class="wizard-validated-list">`;
                 html += validatedSections.map(section => `
@@ -3679,29 +3720,8 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                 html += `</div>`;
             }
 
-            // 2. Si aucun problème en attente mais des générations en cours
-            if (generatingSections.length > 0 && !currentProblem) {
-                // Calculer l'estimation du temps
-                const remaining = generatingSections.length;
-                const estimatedSeconds = remaining * 10;
-
-                html += `
-                    <div class="wizard-generating">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color: var(--accent-purple);">
-                            <circle cx="12" cy="12" r="10" opacity="0.3"/>
-                            <path d="M12 2a10 10 0 0 1 10 10"/>
-                        </svg>
-                        <p style="margin-top: 1rem; color: var(--text-muted);">
-                            Génération en cours... (~${estimatedSeconds} secondes)
-                        </p>
-                        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-dim);">
-                            ${remaining} section${remaining > 1 ? 's' : ''} en cours de génération
-                        </p>
-                    </div>
-                `;
-            }
-            // 3. Si tous sont validés
-            else if (!currentProblem) {
+            // 2. Si tous les problèmes sont validés
+            if (!currentProblem) {
                 html += `
                     <div class="wizard-all-done">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color: #10b981;">
@@ -3713,8 +3733,11 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                     </div>
                 `;
             }
-            // 4. Afficher le problème courant en grand
+            // 3. Afficher le problème courant (en cours de génération OU prêt à valider)
             else {
+                const isGenerating = currentProblem.generating;
+                const otherGenerating = generatingSections.filter(s => s.index !== currentProblem.index).length;
+
                 html += `
                     <div class="wizard-progress">
                         <span class="wizard-progress-text">Problème ${currentIndex} sur ${total}</span>
@@ -3727,6 +3750,25 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                             </div>
                         </div>
                         <div class="wizard-problem-content">
+                `;
+
+                // Si en cours de génération, afficher un spinner DANS la zone
+                if (isGenerating) {
+                    html += `
+                            <div class="wizard-textarea-loading">
+                                <div class="loading-spinner">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                                    </svg>
+                                </div>
+                                <p>Génération en cours...</p>
+                                <p class="loading-hint">Le texte apparaîtra ici dès qu'il sera prêt</p>
+                            </div>
+                    `;
+                } else {
+                    // Si généré, afficher le textarea
+                    html += `
                             <textarea class="section-edit-textarea" id="sectionTextarea-${currentProblem.index}">${escapeHtml(currentProblem.section || '')}</textarea>
                             <button class="wizard-validate-btn" onclick="validateSectionWithText(${currentProblem.index})">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -3734,12 +3776,16 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                                 </svg>
                                 Valider ce problème
                             </button>
+                    `;
+                }
+
+                html += `
                         </div>
                     </div>
                 `;
 
                 // Afficher un indicateur si d'autres sections sont en cours de génération
-                if (generatingSections.length > 0) {
+                if (otherGenerating > 0) {
                     html += `
                         <div class="wizard-generating-placeholder">
                             <div class="generating-icon">
@@ -3748,7 +3794,7 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                                     <path d="M12 2a10 10 0 0 1 10 10"/>
                                 </svg>
                             </div>
-                            <p>${generatingSections.length} autre${generatingSections.length > 1 ? 's' : ''} problème${generatingSections.length > 1 ? 's' : ''} en cours de génération...</p>
+                            <p>${otherGenerating} autre${otherGenerating > 1 ? 's' : ''} problème${otherGenerating > 1 ? 's' : ''} en cours de génération...</p>
                         </div>
                     `;
                 }
