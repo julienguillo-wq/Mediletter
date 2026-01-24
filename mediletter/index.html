@@ -2148,6 +2148,194 @@
         .generate-final-btn.loading .btn-text { display: none; }
         .generate-final-btn.loading .spinner { display: block; }
 
+        /* ==================== Input Section Hidden State ==================== */
+
+        .input-section.hidden {
+            display: none !important;
+        }
+
+        .generate-btn.hidden {
+            display: none !important;
+        }
+
+        /* Bouton pour revenir au formulaire */
+        .back-to-form-btn {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-bottom: 1rem;
+        }
+
+        .back-to-form-btn.visible {
+            display: inline-flex;
+        }
+
+        .back-to-form-btn:hover {
+            background: var(--bg-glass-strong);
+            color: var(--text-light);
+            border-color: rgba(0, 245, 255, 0.3);
+        }
+
+        .back-to-form-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ==================== Time Estimation ==================== */
+
+        .time-estimate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-glass);
+            border-radius: var(--radius-sm);
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .time-estimate svg {
+            width: 16px;
+            height: 16px;
+            color: var(--accent-cyan);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .time-estimate .time-value {
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        /* ==================== Vue Focus Plein Écran ==================== */
+
+        .sections-review.fullscreen-mode {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: var(--bg-dark);
+            border-radius: 0;
+            margin: 0;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sections-review.fullscreen-mode .sections-list {
+            min-height: calc(100vh - 300px);
+            padding: 1.5rem 2rem;
+        }
+
+        .sections-review.fullscreen-mode .wizard-current-problem {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .sections-review.fullscreen-mode .wizard-problem-content .section-edit-textarea {
+            min-height: 350px;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        /* Validated problem card animation */
+        .wizard-validated-item {
+            animation: validateSlideIn 0.4s ease;
+        }
+
+        @keyframes validateSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Problem validation animation */
+        .wizard-current-problem.validating {
+            animation: validateShrink 0.5s ease forwards;
+        }
+
+        @keyframes validateShrink {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+        }
+
+        /* Generating placeholder */
+        .wizard-generating-placeholder {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-glass);
+            border: 1px dashed rgba(168, 85, 247, 0.4);
+            border-radius: var(--radius);
+            margin-top: 1rem;
+        }
+
+        .wizard-generating-placeholder .generating-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0.75rem;
+        }
+
+        .wizard-generating-placeholder .generating-icon svg {
+            width: 32px;
+            height: 32px;
+            color: var(--accent-purple);
+            animation: spin 1s linear infinite;
+        }
+
+        .wizard-generating-placeholder p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Final button - only when all validated */
+        .generate-final-btn.all-validated {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 24px rgba(16, 185, 129, 0.3);
+            animation: finalButtonPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes finalButtonPulse {
+            0%, 100% { box-shadow: 0 4px 24px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 4px 40px rgba(16, 185, 129, 0.5); }
+        }
+
+        .generate-final-btn.all-validated:hover {
+            animation: none;
+            box-shadow: 0 6px 32px rgba(16, 185, 129, 0.5);
+        }
+
         /* ==================== Responsive ==================== */
 
         @media (max-width: 640px) {
@@ -2196,6 +2384,29 @@
             .file-item {
                 width: 60px;
                 height: 60px;
+            }
+
+            /* Fullscreen mode responsive */
+            .sections-review.fullscreen-mode .sections-list {
+                padding: 1rem;
+            }
+
+            .sections-review.fullscreen-mode .wizard-problem-content .section-edit-textarea {
+                min-height: 250px;
+                font-size: 0.95rem;
+            }
+
+            .wizard-validated-item span {
+                max-width: 120px;
+            }
+
+            .back-to-form-btn {
+                font-size: 0.8rem;
+                padding: 0.6rem 1rem;
+            }
+
+            .time-estimate {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -2430,6 +2641,23 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                     <circle cx="12" cy="12" r="10" opacity="0.3"/>
                     <path d="M12 2a10 10 0 0 1 10 10"/>
                 </svg>
+            </button>
+
+            <!-- Time Estimation for Analysis -->
+            <div class="time-estimate" id="analysisTimeEstimate" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span>Analyse en cours... <span class="time-value">~30 secondes</span></span>
+            </div>
+
+            <!-- Back to Form Button -->
+            <button class="back-to-form-btn" id="backToFormBtn" onclick="showFormSection()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Modifier les informations
             </button>
 
             <!-- Problem Validation Section -->
@@ -2945,6 +3173,10 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             btn.classList.add('loading');
             btn.disabled = true;
 
+            // Afficher l'estimation du temps
+            const timeEstimate = document.getElementById('analysisTimeEstimate');
+            timeEstimate.style.display = 'flex';
+
             try {
                 // Générer un ID de session unique
                 currentSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -2995,6 +3227,7 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             } finally {
                 btn.classList.remove('loading');
                 btn.disabled = false;
+                timeEstimate.style.display = 'none';
             }
         }
 
@@ -3151,6 +3384,9 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
 
         // ==================== Generate with Validated Problems (Step 2) ====================
 
+        // Variable pour stocker le temps de départ de génération
+        let generationStartTime = null;
+
         async function generateWithValidatedProblems() {
             // Récupérer les problèmes validés (cochés)
             validatedProblems = extractedProblems
@@ -3176,8 +3412,14 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                 // Cacher la section de validation des problèmes
                 hideValidationSection();
 
-                // Afficher la section de review des sections
+                // Cacher le formulaire et le bouton d'analyse
+                hideFormSection();
+
+                // Afficher la section de review des sections (plein écran)
                 showSectionsReview();
+
+                // Démarrer le chrono pour l'estimation du temps
+                generationStartTime = Date.now();
 
                 // Initialiser les sections générées
                 generatedSections = validatedProblems.map((probleme, idx) => ({
@@ -3211,14 +3453,39 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             }
         }
 
+        // === Fonctions pour cacher/afficher le formulaire ===
+
+        function hideFormSection() {
+            document.querySelector('.input-section').classList.add('hidden');
+            document.getElementById('generateBtn').classList.add('hidden');
+            document.getElementById('analysisTimeEstimate').style.display = 'none';
+            document.getElementById('backToFormBtn').classList.add('visible');
+        }
+
+        function showFormSection() {
+            document.querySelector('.input-section').classList.remove('hidden');
+            document.getElementById('generateBtn').classList.remove('hidden');
+            document.getElementById('backToFormBtn').classList.remove('visible');
+            // Réafficher la section de validation si on a des problèmes
+            if (extractedProblems.length > 0) {
+                showValidationSection();
+            }
+            // Cacher la section de review
+            hideSectionsReview();
+        }
+
         // === Fonctions pour la review des sections ===
 
         function showSectionsReview() {
-            document.getElementById('sectionsReview').classList.add('visible');
+            const sectionsReview = document.getElementById('sectionsReview');
+            sectionsReview.classList.add('visible');
+            sectionsReview.classList.add('fullscreen-mode');
         }
 
         function hideSectionsReview() {
-            document.getElementById('sectionsReview').classList.remove('visible');
+            const sectionsReview = document.getElementById('sectionsReview');
+            sectionsReview.classList.remove('visible');
+            sectionsReview.classList.remove('fullscreen-mode');
         }
 
         async function generateSingleSection(probleme, index, isDiagnosticPrincipal) {
@@ -3273,13 +3540,27 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             const percent = Math.round((done / total) * 100);
 
             document.getElementById('progressBar').style.width = `${percent}%`;
+
+            // Calculer l'estimation du temps restant
+            let timeEstimateHtml = '';
+            if (done < total && done > 0 && generationStartTime) {
+                const elapsed = (Date.now() - generationStartTime) / 1000; // en secondes
+                const avgTimePerSection = elapsed / done;
+                const remaining = Math.ceil((total - done) * avgTimePerSection);
+                timeEstimateHtml = ` (~${remaining} secondes restantes)`;
+            } else if (done === 0) {
+                const estimatedPerSection = 10; // ~10 secondes par section
+                const estimatedTotal = total * estimatedPerSection;
+                timeEstimateHtml = ` (~${estimatedTotal} secondes)`;
+            }
+
             document.getElementById('progressText').innerHTML = `
-                Génération des sections en cours... <strong>${done} / ${total}</strong>
+                Génération <strong>${done} / ${total}</strong>${timeEstimateHtml}
             `;
 
             if (done === total) {
                 document.getElementById('progressText').innerHTML = `
-                    <strong>Toutes les sections sont générées !</strong> Validez chaque section puis générez la lettre finale.
+                    <strong>Toutes les sections sont générées !</strong> Validez chaque section puis cliquez sur "Générer la lettre finale".
                 `;
             }
         }
@@ -3314,8 +3595,12 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                 html += `</div>`;
             }
 
-            // 2. Si des sections sont en cours de génération
-            if (generatingSections.length > 0) {
+            // 2. Si aucun problème en attente mais des générations en cours
+            if (generatingSections.length > 0 && !currentProblem) {
+                // Calculer l'estimation du temps
+                const remaining = generatingSections.length;
+                const estimatedSeconds = remaining * 10;
+
                 html += `
                     <div class="wizard-generating">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color: var(--accent-purple);">
@@ -3323,7 +3608,10 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                             <path d="M12 2a10 10 0 0 1 10 10"/>
                         </svg>
                         <p style="margin-top: 1rem; color: var(--text-muted);">
-                            Génération des sections en cours... (${generatedSections.filter(s => !s.generating).length}/${total})
+                            Génération en cours... (~${estimatedSeconds} secondes)
+                        </p>
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-dim);">
+                            ${remaining} section${remaining > 1 ? 's' : ''} en cours de génération
                         </p>
                     </div>
                 `;
@@ -3347,7 +3635,7 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                     <div class="wizard-progress">
                         <span class="wizard-progress-text">Problème ${currentIndex} sur ${total}</span>
                     </div>
-                    <div class="wizard-current-problem">
+                    <div class="wizard-current-problem" id="currentProblemCard">
                         <div class="wizard-problem-header">
                             <div class="wizard-problem-title">
                                 <span class="wizard-problem-number">${currentProblem.index}</span>
@@ -3365,6 +3653,21 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                         </div>
                     </div>
                 `;
+
+                // Afficher un indicateur si d'autres sections sont en cours de génération
+                if (generatingSections.length > 0) {
+                    html += `
+                        <div class="wizard-generating-placeholder">
+                            <div class="generating-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                                    <path d="M12 2a10 10 0 0 1 10 10"/>
+                                </svg>
+                            </div>
+                            <p>${generatingSections.length} autre${generatingSections.length > 1 ? 's' : ''} problème${generatingSections.length > 1 ? 's' : ''} en cours de génération...</p>
+                        </div>
+                    `;
+                }
             }
 
             container.innerHTML = html;
@@ -3401,28 +3704,48 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             }
             section.validated = true;
             saveToLocalStorage();
-            renderSectionsList();
+
+            // Animation de réduction avant de passer au suivant
+            const currentCard = document.getElementById('currentProblemCard');
+            if (currentCard) {
+                currentCard.classList.add('validating');
+                setTimeout(() => {
+                    renderSectionsList();
+                }, 400); // Attendre la fin de l'animation
+            } else {
+                renderSectionsList();
+            }
         }
 
         function updateFinalButtonState() {
             const allGenerated = generatedSections.every(s => !s.generating);
             const allValidated = generatedSections.every(s => s.validated);
+            const validatedCount = generatedSections.filter(s => s.validated).length;
+            const totalCount = generatedSections.length;
             const btn = document.getElementById('generateFinalBtn');
 
-            if (allValidated) {
+            // Retirer la classe spéciale par défaut
+            btn.classList.remove('all-validated');
+
+            if (allValidated && totalCount > 0) {
+                // TOUS les problèmes sont validés - activer le bouton avec style spécial
                 btn.disabled = false;
+                btn.classList.add('all-validated');
                 btn.querySelector('.btn-text').textContent = 'Générer la lettre finale';
             } else if (allGenerated) {
-                btn.disabled = false;
-                btn.querySelector('.btn-text').textContent = `Générer la lettre (${generatedSections.filter(s => s.validated).length}/${generatedSections.length} validées)`;
-            } else {
+                // Sections générées mais pas toutes validées - bouton désactivé
                 btn.disabled = true;
-                btn.querySelector('.btn-text').textContent = 'En attente des sections...';
+                btn.querySelector('.btn-text').textContent = `Validez tous les problèmes (${validatedCount}/${totalCount})`;
+            } else {
+                // Sections en cours de génération
+                btn.disabled = true;
+                btn.querySelector('.btn-text').textContent = 'Génération en cours...';
             }
         }
 
         function cancelSectionsReview() {
             hideSectionsReview();
+            showFormSection();
             generatedSections = [];
             validatedProblems = [];
             validatedDiagnostic = '';
@@ -3461,6 +3784,9 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
 
                 // Cacher la section de review
                 hideSectionsReview();
+
+                // Cacher le bouton de retour au formulaire
+                document.getElementById('backToFormBtn').classList.remove('visible');
 
                 // Afficher la lettre générée
                 displayOutput(data.letter);
@@ -3571,11 +3897,20 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             hideValidationActions();
             // Cacher la section de validation des problèmes
             hideValidationSection();
+            // Cacher la section de review des sections
+            hideSectionsReview();
+            // Réafficher le formulaire
+            document.querySelector('.input-section').classList.remove('hidden');
+            document.getElementById('generateBtn').classList.remove('hidden');
+            document.getElementById('backToFormBtn').classList.remove('visible');
             // Réinitialiser les états
             currentSessionId = null;
             extractedProblems = [];
             extractedDiagnostic = '';
             extractedData = {};
+            generatedSections = [];
+            validatedProblems = [];
+            validatedDiagnostic = '';
         }
 
         // ==================== Validation & Correction ====================
@@ -3695,12 +4030,11 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                     validatedDiagnostic = draft.validatedDiagnostic || '';
                     currentSessionId = draft.currentSessionId || null;
 
-                    // Afficher l'étape 3 si des sections existent
-                    document.querySelector('.input-section').style.display = 'block';
-                    document.getElementById('step2Container').style.display = 'none';
-                    document.getElementById('step3Container').style.display = 'block';
-                    document.getElementById('outputSection').style.display = 'none';
+                    // Si des sections existent, afficher la section de review
+                    hideFormSection();
+                    showSectionsReview();
                     renderSectionsList();
+                    updateProgress();
                 }
             } catch (e) {
                 console.warn('Erreur chargement localStorage:', e);
@@ -3714,13 +4048,24 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             document.getElementById('extraInfo').value = '';
             document.getElementById('notesText').value = '';
             document.getElementById('crText').value = '';
+            uploadedImages = [];
+            uploadedPdfs = [];
+            renderPreviews();
+            renderPdfPreviews();
             generatedSections = [];
             validatedProblems = [];
             validatedDiagnostic = '';
+            extractedProblems = [];
+            extractedDiagnostic = '';
+            extractedData = {};
             currentSessionId = null;
-            document.getElementById('step2Container').style.display = 'none';
-            document.getElementById('step3Container').style.display = 'none';
-            document.getElementById('outputSection').style.display = 'none';
+            // Cacher les sections de validation et review
+            hideValidationSection();
+            hideSectionsReview();
+            // Réafficher le formulaire
+            document.querySelector('.input-section').classList.remove('hidden');
+            document.getElementById('generateBtn').classList.remove('hidden');
+            document.getElementById('backToFormBtn').classList.remove('visible');
             showToast('Données effacées');
         }
 
