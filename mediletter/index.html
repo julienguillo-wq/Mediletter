@@ -2693,6 +2693,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 sectionDisplay: '',
                 validated: false,
                 generating: idx === 0, // Only first section starts generating
+                prefetching: false, // For background pre-generation
                 error: false,
                 startTime: idx === 0 ? Date.now() : null
             }));
@@ -2798,6 +2799,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 saveToLocalStorage();
                 renderEditor();
 
+                // Start prefetching next section in background
+                prefetchNextSection(index);
+
             } catch (error) {
                 // Stop medical facts cycle on error
                 if (sectionFactInterval) {
@@ -2834,6 +2838,72 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 // Variable speed for more natural effect
                 const delay = Math.random() * 30 + 10;
                 await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        // Pre-fetch next section in background while user reads current one
+        function prefetchNextSection(currentIndex) {
+            const nextIdx = currentIndex + 1;
+
+            // Check if there's a next section to prefetch
+            if (nextIdx >= generatedSections.length) return;
+
+            const nextSection = generatedSections[nextIdx];
+
+            // Don't prefetch if already generated, generating, prefetching, or has error
+            if (nextSection.section !== null ||
+                nextSection.generating ||
+                nextSection.prefetching ||
+                nextSection.error) {
+                return;
+            }
+
+            // Mark as prefetching to avoid duplicate calls
+            nextSection.prefetching = true;
+
+            // Generate in background (silent mode - no UI updates)
+            generateSectionSilent(nextSection.probleme, nextIdx, nextIdx === 0);
+        }
+
+        // Silent generation for prefetch - no medical facts, no streaming animation
+        async function generateSectionSilent(probleme, index, isDiagnosticPrincipal) {
+            const section = generatedSections.find(s => s.index === index);
+            if (!section) return;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/generer-section`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        probleme: probleme,
+                        probleme_index: index + 1,
+                        is_diagnostic_principal: isDiagnosticPrincipal
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || `Erreur API`);
+                }
+
+                const data = await response.json();
+
+                // Store the generated content silently
+                section.section = data.section;
+                section.sectionDisplay = data.section;
+                section.prefetching = false;
+                section.error = false;
+
+                saveToLocalStorage();
+
+                // Prefetch the next one if available
+                prefetchNextSection(index);
+
+            } catch (error) {
+                section.prefetching = false;
+                section.error = true;
+                section.errorMessage = error.message;
             }
         }
 
@@ -3063,16 +3133,38 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 currentEditorIndex = nextIdx;
                 const nextSection = generatedSections[nextIdx];
 
-                // If next section hasn't been generated yet, generate it now
-                if (!nextSection.section && !nextSection.generating && !nextSection.error) {
+                // Case 1: Section already prefetched - display immediately (no streaming needed)
+                if (nextSection.section && !nextSection.generating && !nextSection.prefetching) {
+                    renderEditor();
+                    // Start prefetching the next one
+                    prefetchNextSection(nextIdx);
+                }
+                // Case 2: Section is currently being prefetched - wait for it
+                else if (nextSection.prefetching) {
+                    // Show loading state while waiting
+                    nextSection.generating = true;
+                    renderEditor();
+                    // Wait for prefetch to complete
+                    while (nextSection.prefetching) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                    nextSection.generating = false;
+                    renderEditor();
+                    prefetchNextSection(nextIdx);
+                }
+                // Case 3: Not generated yet - generate now (fallback)
+                else if (!nextSection.section && !nextSection.generating && !nextSection.error) {
                     renderEditor(); // Show "generating" state
                     await generateSingleSection(
                         nextSection.probleme,
                         nextIdx,
                         nextIdx === 0
                     );
+                    renderEditor();
                 }
-                renderEditor();
+                else {
+                    renderEditor();
+                }
             }
         }
 
