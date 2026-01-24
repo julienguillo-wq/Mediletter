@@ -1804,6 +1804,28 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         </div>
     </div>
 
+    <!-- Assembly Overlay (Simplified) -->
+    <div class="loading-overlay" id="assemblyOverlay">
+        <div class="loading-card" style="padding: 48px 40px;">
+            <div class="loading-spinner-large">
+                <svg viewBox="0 0 50 50">
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="url(#gradient2)" stroke-width="4" stroke-linecap="round" stroke-dasharray="80 40"/>
+                    <defs>
+                        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#22C55E"/>
+                            <stop offset="100%" stop-color="#14B8A6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h3 class="loading-title" id="assemblyTitle">Assemblage de la lettre...</h3>
+            <p class="loading-subtitle" id="assemblySubtitle">Mise en forme finale</p>
+            <div class="loading-progress" style="margin-bottom: 0;">
+                <div class="loading-progress-bar" id="assemblyProgressBar" style="width: 0%; background: linear-gradient(90deg, #22C55E, #14B8A6);"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript - Full Business Logic -->
     <script>
         // ==========================================
@@ -2174,6 +2196,46 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             }, success ? 500 : 0);
         }
 
+        // ==================== Assembly Overlay (Simplified) ====================
+
+        let assemblyInterval = null;
+        let assemblyStartTime = null;
+        const ASSEMBLY_ESTIMATED_TIME = 10; // seconds
+
+        function showAssemblyOverlay() {
+            const overlay = document.getElementById('assemblyOverlay');
+            document.getElementById('assemblyProgressBar').style.width = '0%';
+            document.getElementById('assemblyTitle').textContent = 'Assemblage de la lettre...';
+            document.getElementById('assemblySubtitle').textContent = 'Mise en forme finale';
+
+            overlay.classList.add('visible');
+            assemblyStartTime = Date.now();
+
+            // Animate progress bar
+            assemblyInterval = setInterval(() => {
+                const elapsed = (Date.now() - assemblyStartTime) / 1000;
+                const progress = Math.min((elapsed / ASSEMBLY_ESTIMATED_TIME) * 100, 95);
+                document.getElementById('assemblyProgressBar').style.width = `${progress}%`;
+            }, 100);
+        }
+
+        function hideAssemblyOverlay(success = true) {
+            if (assemblyInterval) {
+                clearInterval(assemblyInterval);
+                assemblyInterval = null;
+            }
+
+            if (success) {
+                document.getElementById('assemblyProgressBar').style.width = '100%';
+                document.getElementById('assemblyTitle').textContent = 'Lettre prete !';
+                document.getElementById('assemblySubtitle').textContent = 'Redirection...';
+            }
+
+            setTimeout(() => {
+                document.getElementById('assemblyOverlay').classList.remove('visible');
+            }, success ? 500 : 0);
+        }
+
         // ==================== Analyze Documents (Step 1 -> 2) ====================
 
         async function analyzeDocuments() {
@@ -2429,6 +2491,8 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             }
         }
 
+        let sectionCountdownInterval = null;
+
         async function generateSingleSection(probleme, index, isDiagnosticPrincipal) {
             const section = generatedSections.find(s => s.index === index);
 
@@ -2438,6 +2502,21 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 section.startTime = Date.now();
                 renderEditor();
             }
+
+            // Start countdown timer for real-time update
+            if (sectionCountdownInterval) {
+                clearInterval(sectionCountdownInterval);
+            }
+            sectionCountdownInterval = setInterval(() => {
+                if (section && section.generating && index === currentEditorIndex) {
+                    const textarea = document.getElementById('editorTextarea');
+                    if (textarea) {
+                        const elapsed = Math.floor((Date.now() - section.startTime) / 1000);
+                        const remaining = Math.max(0, ESTIMATED_SECONDS_PER_SECTION - elapsed);
+                        textarea.value = `Generation en cours...\n\n⏱ ~${remaining} secondes restantes`;
+                    }
+                }
+            }, 1000);
 
             try {
                 const response = await fetch(`${BACKEND_URL}/generer-section`, {
@@ -2458,6 +2537,12 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
                 const data = await response.json();
 
+                // Stop countdown timer
+                if (sectionCountdownInterval) {
+                    clearInterval(sectionCountdownInterval);
+                    sectionCountdownInterval = null;
+                }
+
                 if (section) {
                     section.section = data.section;
                     section.generating = false;
@@ -2475,6 +2560,12 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 renderEditor();
 
             } catch (error) {
+                // Stop countdown timer on error
+                if (sectionCountdownInterval) {
+                    clearInterval(sectionCountdownInterval);
+                    sectionCountdownInterval = null;
+                }
+
                 if (section) {
                     section.section = '';
                     section.sectionDisplay = '';
@@ -2579,6 +2670,19 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             const current = generatedSections[currentEditorIndex];
 
             if (!current) return;
+
+            // Update progress bar and text
+            const validated = generatedSections.filter(s => s.validated).length;
+            const progressText = document.getElementById('editorProgressText');
+            const progressFill = document.getElementById('editorProgressFill');
+
+            if (progressText) {
+                progressText.innerHTML = `Progression : <strong>${validated} / ${total}</strong>`;
+            }
+            if (progressFill) {
+                const percent = total > 0 ? (validated / total) * 100 : 0;
+                progressFill.style.width = `${percent}%`;
+            }
 
             // Update dots
             renderEditorDots();
@@ -2757,8 +2861,8 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             const letterType = document.getElementById('letterType').value;
             const sectionsOrdered = generatedSections.sort((a, b) => a.index - b.index).map(s => s.section);
 
-            // Show loading overlay
-            showLoadingOverlay('Assemblage de la lettre...', 'Mise en forme finale');
+            // Show simplified assembly overlay
+            showAssemblyOverlay();
 
             try {
                 const response = await fetch(`${BACKEND_URL}/assembler`, {
@@ -2779,7 +2883,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
                 const data = await response.json();
 
-                hideLoadingOverlay(true);
+                hideAssemblyOverlay(true);
 
                 setTimeout(() => {
                     displayFinalLetter(data.letter);
@@ -2792,7 +2896,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
             } catch (error) {
                 console.error('Error:', error);
-                hideLoadingOverlay(false);
+                hideAssemblyOverlay(false);
                 showToast('Erreur: ' + error.message, 'error');
             }
         }
@@ -3178,8 +3282,8 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         .step-spinner {
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: white;
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-top-color: var(--violet);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             display: block;
