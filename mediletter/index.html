@@ -3359,6 +3359,13 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
         // ==================== Problem Validation UI ====================
 
         function showValidationSection() {
+            // Cacher le formulaire et le bouton d'analyse
+            document.querySelector('.input-section').classList.add('hidden');
+            document.getElementById('generateBtn').classList.add('hidden');
+            document.getElementById('analysisTimeEstimate').style.display = 'none';
+            // Afficher le bouton retour
+            document.getElementById('backToFormBtn').classList.add('visible');
+            // Afficher la section de validation
             document.getElementById('validationSection').classList.add('visible');
             document.getElementById('diagnosticInput').value = extractedDiagnostic;
             renderProblems();
@@ -3588,13 +3595,12 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
         }
 
         function showFormSection() {
+            // Réafficher le formulaire
             document.querySelector('.input-section').classList.remove('hidden');
             document.getElementById('generateBtn').classList.remove('hidden');
             document.getElementById('backToFormBtn').classList.remove('visible');
-            // Réafficher la section de validation si on a des problèmes
-            if (extractedProblems.length > 0) {
-                showValidationSection();
-            }
+            // Cacher la section de validation (l'utilisateur veut modifier le formulaire)
+            hideValidationSection();
             // Cacher la section de review
             hideSectionsReview();
         }
