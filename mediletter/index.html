@@ -2234,22 +2234,74 @@
             margin: 0;
             max-height: 100vh;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sections-review.fullscreen-mode .sections-review-header {
+            flex-shrink: 0;
+        }
+
+        .sections-review.fullscreen-mode .progress-container {
+            flex-shrink: 0;
         }
 
         .sections-review.fullscreen-mode .sections-list {
-            min-height: calc(100vh - 300px);
-            padding: 1.5rem 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 2rem;
+            overflow-y: auto;
         }
 
+        .sections-review.fullscreen-mode .sections-review-actions {
+            flex-shrink: 0;
+        }
+
+        /* Carte du problème en plein écran */
         .sections-review.fullscreen-mode .wizard-current-problem {
+            width: 100%;
             max-width: 900px;
+            height: 80vh;
             margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid rgba(0, 245, 255, 0.5);
+            box-shadow: 0 0 40px rgba(0, 245, 255, 0.15);
+        }
+
+        .sections-review.fullscreen-mode .wizard-problem-header {
+            flex-shrink: 0;
+            padding: 1rem 1.5rem;
+        }
+
+        .sections-review.fullscreen-mode .wizard-problem-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 1.5rem;
+            overflow: hidden;
         }
 
         .sections-review.fullscreen-mode .wizard-problem-content .section-edit-textarea {
-            min-height: 350px;
-            font-size: 1rem;
+            flex: 1;
+            min-height: 400px;
+            height: 100%;
+            font-size: 16px;
             line-height: 1.8;
+            resize: none;
+            overflow-y: auto;
+            margin: 0;
+            padding: 1.25rem;
+        }
+
+        .sections-review.fullscreen-mode .wizard-validate-btn {
+            flex-shrink: 0;
+            margin-top: 1rem;
+            padding: 1.25rem 2rem;
+            font-size: 1.1rem;
+            position: sticky;
+            bottom: 0;
         }
 
         /* Validated problem card animation */
@@ -2388,21 +2440,53 @@
 
             /* Fullscreen mode responsive */
             .sections-review.fullscreen-mode .sections-list {
-                padding: 1rem;
+                padding: 0.75rem;
+            }
+
+            .sections-review.fullscreen-mode .wizard-current-problem {
+                height: 85vh;
+                max-width: 100%;
+                border-radius: var(--radius-sm);
+            }
+
+            .sections-review.fullscreen-mode .wizard-problem-header {
+                padding: 0.875rem 1rem;
+            }
+
+            .sections-review.fullscreen-mode .wizard-problem-title {
+                font-size: 1rem;
+            }
+
+            .sections-review.fullscreen-mode .wizard-problem-content {
+                padding: 0.75rem;
             }
 
             .sections-review.fullscreen-mode .wizard-problem-content .section-edit-textarea {
-                min-height: 250px;
-                font-size: 0.95rem;
+                min-height: 300px;
+                font-size: 16px; /* Évite le zoom sur iOS */
+                padding: 1rem;
+            }
+
+            .sections-review.fullscreen-mode .wizard-validate-btn {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
             }
 
             .wizard-validated-item span {
-                max-width: 120px;
+                max-width: 100px;
             }
 
             .back-to-form-btn {
                 font-size: 0.8rem;
                 padding: 0.6rem 1rem;
+            }
+
+            .wizard-progress {
+                padding: 0.5rem;
+            }
+
+            .wizard-progress-text {
+                font-size: 0.85rem;
             }
 
             .time-estimate {
