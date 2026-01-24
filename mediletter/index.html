@@ -2406,10 +2406,31 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 btn.disabled = false;
             }
 
-            // Show completion message
+            // Check if all sections generated successfully
             const successCount = generatedSections.filter(s => !s.error).length;
             if (successCount === generatedSections.length) {
-                showToast('Toutes les sections generees !', 'success');
+                // Update progress to show completion
+                const progressText = document.getElementById('editorProgressText');
+                const progressFill = document.getElementById('editorProgressFill');
+
+                if (progressText) progressText.innerHTML = '<strong>Termine !</strong> Assemblage de la lettre...';
+                if (progressFill) progressFill.style.width = '100%';
+
+                // Auto-validate all sections
+                generatedSections.forEach(s => {
+                    s.validated = true;
+                    if (!s.sectionDisplay) s.sectionDisplay = s.section;
+                });
+
+                // Update dots to show all done
+                renderEditorDots();
+
+                // Wait 1 second then go to final letter
+                setTimeout(() => {
+                    generateFinalLetter();
+                }, 1000);
+            } else {
+                showToast('Certaines sections ont echoue', 'error');
             }
         }
 
@@ -2519,8 +2540,10 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             if (progressText) {
                 if (done < total) {
                     progressText.innerHTML = `Generation : <strong>${done}/${total}</strong> · ~${remaining}s restantes`;
+                } else if (validated < total) {
+                    progressText.innerHTML = `<strong>Termine !</strong> Preparation de la lettre...`;
                 } else {
-                    progressText.innerHTML = `Validation : <strong>${validated}/${total}</strong>`;
+                    progressText.innerHTML = `<strong>Termine !</strong> Redirection...`;
                 }
             }
 
