@@ -2089,10 +2089,12 @@
             margin-bottom: 0.5rem;
         }
 
-        .wizard-textarea-loading .loading-hint {
-            font-size: 0.9rem;
-            font-weight: 400;
-            color: var(--text-muted);
+        .wizard-textarea-loading .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-family: 'Space Grotesk', sans-serif;
+            margin-top: 0.5rem;
         }
 
         .wizard-all-done {
@@ -2856,7 +2858,7 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                 <div class="validation-actions-bottom">
                     <button class="cancel-validation-btn" onclick="cancelValidation()">Annuler</button>
                     <button class="generate-validated-btn" id="generateValidatedBtn" onclick="generateWithValidatedProblems()">
-                        <span class="btn-text">Générer la lettre</span>
+                        <span class="btn-text">Rédiger les problèmes</span>
                         <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10" opacity="0.3"/>
                             <path d="M12 2a10 10 0 0 1 10 10"/>
@@ -3555,6 +3557,47 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
 
         // Variable pour stocker le temps de départ de génération
         let generationStartTime = null;
+        let countdownInterval = null;
+        const ESTIMATED_SECONDS_PER_SECTION = 45; // Estimation ~45 secondes par section (Sonnet)
+
+        function startCountdownTimer() {
+            // Arrêter un éventuel timer précédent
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            // Mettre à jour toutes les secondes
+            countdownInterval = setInterval(() => {
+                updateCountdownDisplay();
+            }, 1000);
+        }
+
+        function stopCountdownTimer() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+        }
+
+        function updateCountdownDisplay() {
+            const countdownEl = document.getElementById('countdownTimer');
+            if (!countdownEl) return;
+
+            // Trouver la section en cours de génération (la première non validée)
+            const currentSection = generatedSections.find(s => s.generating && !s.validated);
+            if (!currentSection) {
+                stopCountdownTimer();
+                return;
+            }
+
+            const elapsed = Math.floor((Date.now() - currentSection.startTime) / 1000);
+            const remaining = ESTIMATED_SECONDS_PER_SECTION - elapsed;
+
+            if (remaining > 0) {
+                countdownEl.textContent = `~${remaining} seconde${remaining > 1 ? 's' : ''}`;
+            } else {
+                countdownEl.textContent = 'Presque terminé...';
+            }
+        }
 
         async function generateWithValidatedProblems() {
             // Récupérer les problèmes validés (cochés)
@@ -3590,14 +3633,19 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                 // Démarrer le chrono pour l'estimation du temps
                 generationStartTime = Date.now();
 
-                // Initialiser les sections générées
+                // Initialiser les sections générées avec timestamp de démarrage
+                const now = Date.now();
                 generatedSections = validatedProblems.map((probleme, idx) => ({
                     index: idx + 1,
                     probleme: probleme,
                     section: null,
                     validated: false,
-                    generating: true
+                    generating: true,
+                    startTime: now // Pour le compte à rebours
                 }));
+
+                // Démarrer le compte à rebours
+                startCountdownTimer();
 
                 // Rendre la liste des sections (en attente)
                 renderSectionsList();
@@ -3799,8 +3847,15 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                         <div class="wizard-problem-content">
                 `;
 
-                // Si en cours de génération, afficher un spinner DANS la zone
+                // Si en cours de génération, afficher un spinner avec compte à rebours
                 if (isGenerating) {
+                    // Calculer le temps restant estimé
+                    const elapsed = Math.floor((Date.now() - currentProblem.startTime) / 1000);
+                    const remaining = ESTIMATED_SECONDS_PER_SECTION - elapsed;
+                    const countdownText = remaining > 0
+                        ? `~${remaining} seconde${remaining > 1 ? 's' : ''}`
+                        : 'Presque terminé...';
+
                     html += `
                             <div class="wizard-textarea-loading">
                                 <div class="loading-spinner">
@@ -3810,7 +3865,7 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                                     </svg>
                                 </div>
                                 <p>Génération en cours...</p>
-                                <p class="loading-hint">Le texte apparaîtra ici dès qu'il sera prêt</p>
+                                <p class="countdown-timer" id="countdownTimer">${countdownText}</p>
                             </div>
                     `;
                 } else {
@@ -3901,6 +3956,11 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
             const totalCount = generatedSections.length;
             const btn = document.getElementById('generateFinalBtn');
 
+            // Arrêter le compte à rebours si tout est généré
+            if (allGenerated) {
+                stopCountdownTimer();
+            }
+
             // Retirer la classe spéciale par défaut
             btn.classList.remove('all-validated');
 
@@ -3921,6 +3981,7 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
         }
 
         function cancelSectionsReview() {
+            stopCountdownTimer();
             hideSectionsReview();
             showFormSection();
             generatedSections = [];
