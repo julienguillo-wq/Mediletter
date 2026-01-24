@@ -1783,9 +1783,8 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             <div class="loading-progress">
                 <div class="loading-progress-bar" id="loadingProgressBar"></div>
             </div>
-            <div class="loading-time" id="loadingTime">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span id="loadingCountdown">~30 secondes restantes</span>
+            <div class="medical-fact" id="loadingFact">
+                <span class="fact-text" id="loadingFactText">💡 Le saviez-vous ? Le cœur bat environ 100 000 fois par jour.</span>
             </div>
             <div class="loading-steps" id="loadingSteps">
                 <div class="loading-step active" id="loadingStep1">
@@ -1820,8 +1819,11 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             </div>
             <h3 class="loading-title" id="assemblyTitle">Assemblage de la lettre...</h3>
             <p class="loading-subtitle" id="assemblySubtitle">Mise en forme finale</p>
-            <div class="loading-progress" style="margin-bottom: 0;">
+            <div class="loading-progress" style="margin-bottom: 16px;">
                 <div class="loading-progress-bar" id="assemblyProgressBar" style="width: 0%; background: linear-gradient(90deg, #22C55E, #14B8A6);"></div>
+            </div>
+            <div class="medical-fact" id="assemblyFact">
+                <span class="fact-text" id="assemblyFactText">💡 Le saviez-vous ? Le cœur bat environ 100 000 fois par jour.</span>
             </div>
         </div>
     </div>
@@ -1862,6 +1864,71 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         // Countdown timer
         let countdownInterval = null;
         const ESTIMATED_SECONDS_PER_SECTION = 45;
+
+        // ==================== Medical Facts / Anecdotes ====================
+        const medicalFacts = [
+            "💡 Le saviez-vous ? Le cœur bat environ 100 000 fois par jour.",
+            "💡 Le corps humain contient assez de fer pour fabriquer un clou de 7 cm.",
+            "💡 Le foie peut se régénérer entièrement en seulement 6 semaines.",
+            "💡 Les empreintes de langue sont uniques, comme les empreintes digitales.",
+            "💡 Le cerveau utilise 20% de l'oxygène total du corps.",
+            "💡 Les os sont 4 fois plus résistants que le béton.",
+            "💡 L'estomac produit un nouveau mucus tous les 3-4 jours.",
+            "💡 Le nez peut détecter plus de 1 000 milliards d'odeurs différentes.",
+            "💡 Les bébés naissent avec 300 os, les adultes n'en ont que 206.",
+            "💡 Le sang parcourt environ 19 000 km par jour dans le corps.",
+            "💡 La cornée est le seul tissu sans vaisseaux sanguins.",
+            "💡 Le muscle le plus fort du corps est la langue.",
+            "💡 Une cellule sanguine fait le tour du corps en 20 secondes.",
+            "💡 Le corps produit 25 millions de nouvelles cellules chaque seconde.",
+            "💡 Les poumons contiennent environ 300 millions d'alvéoles."
+        ];
+
+        let factIntervals = {};
+
+        function getRandomFact(excludeIndex = -1) {
+            let index;
+            do {
+                index = Math.floor(Math.random() * medicalFacts.length);
+            } while (index === excludeIndex && medicalFacts.length > 1);
+            return { text: medicalFacts[index], index: index };
+        }
+
+        function startFactCycle(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            let currentIndex = -1;
+            const fact = getRandomFact();
+            element.textContent = fact.text;
+            currentIndex = fact.index;
+            element.classList.remove('completed');
+
+            factIntervals[elementId] = setInterval(() => {
+                element.style.opacity = '0';
+                setTimeout(() => {
+                    const newFact = getRandomFact(currentIndex);
+                    element.textContent = newFact.text;
+                    currentIndex = newFact.index;
+                    element.style.opacity = '';
+                }, 300);
+            }, 5000);
+        }
+
+        function stopFactCycle(elementId, showCompleted = true) {
+            if (factIntervals[elementId]) {
+                clearInterval(factIntervals[elementId]);
+                delete factIntervals[elementId];
+            }
+
+            if (showCompleted) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = '✓ Terminé !';
+                    element.classList.add('completed');
+                }
+            }
+        }
 
         // ==================== Navigation ====================
 
@@ -2134,19 +2201,18 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             overlay.classList.add('visible');
             loadingStartTime = Date.now();
 
-            // Start countdown
+            // Start medical facts cycle
+            startFactCycle('loadingFactText');
+
+            // Start progress animation
             loadingInterval = setInterval(updateLoadingProgress, 100);
         }
 
         function updateLoadingProgress() {
             const elapsed = (Date.now() - loadingStartTime) / 1000;
             const progress = Math.min((elapsed / ANALYSIS_ESTIMATED_TIME) * 100, 95);
-            const remaining = Math.max(0, Math.ceil(ANALYSIS_ESTIMATED_TIME - elapsed));
 
             document.getElementById('loadingProgressBar').style.width = `${progress}%`;
-            document.getElementById('loadingCountdown').textContent = remaining > 0
-                ? `~${remaining} seconde${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''}`
-                : 'Finalisation...';
 
             // Update steps based on progress
             if (elapsed > 5 && elapsed < 15) {
@@ -2180,6 +2246,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 loadingInterval = null;
             }
 
+            // Stop medical facts cycle
+            stopFactCycle('loadingFactText', success);
+
             if (success) {
                 document.getElementById('loadingProgressBar').style.width = '100%';
                 document.querySelectorAll('.loading-step').forEach(step => {
@@ -2188,7 +2257,6 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     step.querySelector('.loading-step-icon').innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
                 });
                 document.getElementById('loadingTitle').textContent = 'Analyse terminee !';
-                document.getElementById('loadingCountdown').textContent = 'Redirection...';
             }
 
             setTimeout(() => {
@@ -2211,6 +2279,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             overlay.classList.add('visible');
             assemblyStartTime = Date.now();
 
+            // Start medical facts cycle
+            startFactCycle('assemblyFactText');
+
             // Animate progress bar
             assemblyInterval = setInterval(() => {
                 const elapsed = (Date.now() - assemblyStartTime) / 1000;
@@ -2224,6 +2295,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 clearInterval(assemblyInterval);
                 assemblyInterval = null;
             }
+
+            // Stop medical facts cycle
+            stopFactCycle('assemblyFactText', success);
 
             if (success) {
                 document.getElementById('assemblyProgressBar').style.width = '100%';
@@ -2291,8 +2365,15 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
                 // Update loading overlay to show completion
                 document.getElementById('loadingTitle').textContent = 'Analyse terminee !';
-                document.getElementById('loadingCountdown').textContent = `${extractedProblems.length} probleme(s) detecte(s)`;
                 document.getElementById('loadingProgressBar').style.width = '100%';
+
+                // Stop medical facts cycle and show completion
+                stopFactCycle('loadingFactText', false);
+                const factText = document.getElementById('loadingFactText');
+                if (factText) {
+                    factText.textContent = `✓ ${extractedProblems.length} probleme(s) detecte(s)`;
+                    factText.classList.add('completed');
+                }
 
                 // Mark all steps as done
                 document.querySelectorAll('.loading-step').forEach(step => {
@@ -2491,7 +2572,8 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             }
         }
 
-        let sectionCountdownInterval = null;
+        let sectionFactInterval = null;
+        let currentSectionFactIndex = -1;
 
         async function generateSingleSection(probleme, index, isDiagnosticPrincipal) {
             const section = generatedSections.find(s => s.index === index);
@@ -2503,20 +2585,31 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 renderEditor();
             }
 
-            // Start countdown timer for real-time update
-            if (sectionCountdownInterval) {
-                clearInterval(sectionCountdownInterval);
+            // Start medical facts cycle for textarea
+            if (sectionFactInterval) {
+                clearInterval(sectionFactInterval);
             }
-            sectionCountdownInterval = setInterval(() => {
+
+            // Display initial fact
+            const initialFact = getRandomFact();
+            currentSectionFactIndex = initialFact.index;
+            if (index === currentEditorIndex) {
+                const textarea = document.getElementById('editorTextarea');
+                if (textarea) {
+                    textarea.value = `Generation en cours...\n\n${initialFact.text}`;
+                }
+            }
+
+            sectionFactInterval = setInterval(() => {
                 if (section && section.generating && index === currentEditorIndex) {
                     const textarea = document.getElementById('editorTextarea');
                     if (textarea) {
-                        const elapsed = Math.floor((Date.now() - section.startTime) / 1000);
-                        const remaining = Math.max(0, ESTIMATED_SECONDS_PER_SECTION - elapsed);
-                        textarea.value = `Generation en cours...\n\n⏱ ~${remaining} secondes restantes`;
+                        const newFact = getRandomFact(currentSectionFactIndex);
+                        currentSectionFactIndex = newFact.index;
+                        textarea.value = `Generation en cours...\n\n${newFact.text}`;
                     }
                 }
-            }, 1000);
+            }, 5000);
 
             try {
                 const response = await fetch(`${BACKEND_URL}/generer-section`, {
@@ -2537,10 +2630,10 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
                 const data = await response.json();
 
-                // Stop countdown timer
-                if (sectionCountdownInterval) {
-                    clearInterval(sectionCountdownInterval);
-                    sectionCountdownInterval = null;
+                // Stop medical facts cycle
+                if (sectionFactInterval) {
+                    clearInterval(sectionFactInterval);
+                    sectionFactInterval = null;
                 }
 
                 if (section) {
@@ -2560,10 +2653,10 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 renderEditor();
 
             } catch (error) {
-                // Stop countdown timer on error
-                if (sectionCountdownInterval) {
-                    clearInterval(sectionCountdownInterval);
-                    sectionCountdownInterval = null;
+                // Stop medical facts cycle on error
+                if (sectionFactInterval) {
+                    clearInterval(sectionFactInterval);
+                    sectionFactInterval = null;
                 }
 
                 if (section) {
@@ -2616,11 +2709,6 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             const done = generatedSections.filter(s => !s.generating).length;
             const validated = generatedSections.filter(s => s.validated).length;
 
-            // Calculate time
-            const elapsed = Math.floor((Date.now() - sectionGenerationStartTime) / 1000);
-            const avgTimePerSection = done > 0 ? elapsed / done : ESTIMATED_SECONDS_PER_SECTION;
-            const remaining = Math.max(0, Math.ceil((total - done) * avgTimePerSection));
-
             // Update progress bar
             const progressFill = document.getElementById('editorProgressFill');
             const progressText = document.getElementById('editorProgressText');
@@ -2632,7 +2720,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
             if (progressText) {
                 if (done < total) {
-                    progressText.innerHTML = `Generation : <strong>${done}/${total}</strong> · ~${remaining}s restantes`;
+                    progressText.innerHTML = `Generation : <strong>${done}/${total}</strong>`;
                 } else if (validated < total) {
                     progressText.innerHTML = `<strong>Termine !</strong> Preparation de la lettre...`;
                 } else {
@@ -2649,9 +2737,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
             if (current && textarea) {
                 if (current.generating) {
-                    const sectionElapsed = Math.floor((Date.now() - current.startTime) / 1000);
-                    const sectionRemaining = Math.max(0, ESTIMATED_SECONDS_PER_SECTION - sectionElapsed);
-                    textarea.value = `Generation en cours...\n\n⏱ ~${sectionRemaining} secondes restantes`;
+                    // Medical fact is already being updated by the interval
                     textarea.classList.add('generating');
                 } else if (current.error) {
                     textarea.value = `Erreur: ${current.errorMessage}\n\nCliquez sur "Precedent" puis "Suivant" pour reessayer.`;
@@ -2697,9 +2783,11 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             const textarea = document.getElementById('editorTextarea');
             if (textarea) {
                 if (current.generating) {
-                    const elapsed = Math.floor((Date.now() - current.startTime) / 1000);
-                    const remaining = Math.max(0, ESTIMATED_SECONDS_PER_SECTION - elapsed);
-                    textarea.value = `Generation en cours...\n\n⏱ ~${remaining} secondes restantes`;
+                    // Show medical fact (already updated by interval, just set initial if empty)
+                    if (!textarea.value.startsWith('Generation en cours...')) {
+                        const fact = getRandomFact();
+                        textarea.value = `Generation en cours...\n\n${fact.text}`;
+                    }
                     textarea.disabled = true;
                     textarea.classList.add('generating');
                 } else if (current.error) {
@@ -3280,16 +3368,51 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         .loading-step.done span:last-child { color: var(--green); }
 
         .step-spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(139, 92, 246, 0.2);
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(139, 92, 246, 0.2);
             border-top-color: var(--violet);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 1s linear infinite;
             display: block;
         }
         .step-number {
             font-size: 11px;
+        }
+
+        /* ============================================
+           MEDICAL FACTS / ANECDOTES
+           ============================================ */
+        .medical-fact {
+            text-align: center;
+            padding: 16px;
+            color: var(--gray-600);
+            font-size: 14px;
+            font-style: italic;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .fact-text {
+            animation: fadeInOut 5s ease-in-out infinite;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .fact-text.completed {
+            animation: none;
+            opacity: 1;
+            color: var(--green);
+            font-weight: 600;
+            font-style: normal;
         }
 
         /* ============================================
