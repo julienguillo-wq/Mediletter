@@ -2299,50 +2299,79 @@
             flex-shrink: 0;
         }
 
-        /* Carte du problème en plein écran */
+        /* Carte du problème en PLEIN ÉCRAN */
         .sections-review.fullscreen-mode .wizard-current-problem {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 80px; /* espace pour le bouton */
             width: 100%;
-            max-width: 900px;
-            height: 80vh;
-            margin: 0 auto;
+            height: calc(100vh - 80px);
+            max-width: none;
+            margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            border: 2px solid rgba(0, 245, 255, 0.5);
-            box-shadow: 0 0 40px rgba(0, 245, 255, 0.15);
+            background: var(--bg-dark);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            z-index: 100;
+            overflow: hidden;
         }
 
         .sections-review.fullscreen-mode .wizard-problem-header {
             flex-shrink: 0;
             padding: 1rem 1.5rem;
+            background: var(--bg-glass-strong);
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+        }
+
+        .sections-review.fullscreen-mode .wizard-problem-title {
+            font-size: 1.3rem;
         }
 
         .sections-review.fullscreen-mode .wizard-problem-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 1rem 1.5rem;
+            padding: 0;
             overflow: hidden;
+            min-height: 0; /* important pour flex */
         }
 
         .sections-review.fullscreen-mode .wizard-problem-content .section-edit-textarea {
             flex: 1;
-            min-height: 400px;
+            width: 100%;
+            min-height: 0; /* important pour flex */
             height: 100%;
             font-size: 16px;
-            line-height: 1.8;
+            line-height: 1.6;
+            padding: 15px;
             resize: none;
             overflow-y: auto;
             margin: 0;
-            padding: 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: var(--radius-sm);
         }
 
         .sections-review.fullscreen-mode .wizard-validate-btn {
-            flex-shrink: 0;
-            margin-top: 1rem;
-            padding: 1.25rem 2rem;
-            font-size: 1.1rem;
-            position: sticky;
+            position: fixed;
             bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            margin: 0;
+            padding: 0 2rem;
+            font-size: 1.1rem;
+            border-radius: 0;
+            z-index: 101;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Validated problem card animation */
@@ -2485,13 +2514,19 @@
             }
 
             .sections-review.fullscreen-mode .wizard-current-problem {
-                height: 85vh;
-                max-width: 100%;
-                border-radius: var(--radius-sm);
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 70px;
+                height: calc(100vh - 70px);
+                padding: 12px;
+                border-radius: 0;
             }
 
             .sections-review.fullscreen-mode .wizard-problem-header {
-                padding: 0.875rem 1rem;
+                padding: 0.75rem 1rem;
+                margin-bottom: 10px;
             }
 
             .sections-review.fullscreen-mode .wizard-problem-title {
@@ -2499,17 +2534,19 @@
             }
 
             .sections-review.fullscreen-mode .wizard-problem-content {
-                padding: 0.75rem;
+                padding: 0;
+                min-height: 0;
             }
 
             .sections-review.fullscreen-mode .wizard-problem-content .section-edit-textarea {
-                min-height: 300px;
+                min-height: 0;
                 font-size: 16px; /* Évite le zoom sur iOS */
-                padding: 1rem;
+                padding: 12px;
             }
 
             .sections-review.fullscreen-mode .wizard-validate-btn {
-                padding: 1rem 1.5rem;
+                height: 60px;
+                padding: 0 1.5rem;
                 font-size: 1rem;
             }
 
@@ -3649,9 +3686,11 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                 // Sauvegarder dans localStorage
                 saveToLocalStorage();
 
-                // Mettre à jour l'affichage
-                renderSectionsList();
-                updateProgress();
+                // Mettre à jour l'affichage IMMÉDIATEMENT (forcer le redraw)
+                requestAnimationFrame(() => {
+                    renderSectionsList();
+                    updateProgress();
+                });
 
             } catch (error) {
                 console.error(`Erreur section ${index}:`, error);
@@ -3660,8 +3699,10 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
                     sectionData.section = `Erreur: ${error.message}`;
                     sectionData.generating = false;
                 }
-                renderSectionsList();
-                updateProgress();
+                requestAnimationFrame(() => {
+                    renderSectionsList();
+                    updateProgress();
+                });
             }
         }
 
