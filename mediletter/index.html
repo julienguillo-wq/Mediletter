@@ -1399,9 +1399,9 @@
             <div class="steps">
                 <button class="step-item active" id="step-0" onclick="goToPage(0)">Informations</button>
                 <div class="step-divider" id="divider-0"></div>
-                <button class="step-item" id="step-1" onclick="goToPage(1)">Problemes</button>
+                <button class="step-item" id="step-1" onclick="goToPage(1)">Problèmes</button>
                 <div class="step-divider" id="divider-1"></div>
-                <button class="step-item" id="step-2" onclick="goToPage(2)">Redaction</button>
+                <button class="step-item" id="step-2" onclick="goToPage(2)">Rédaction</button>
                 <div class="step-divider" id="divider-2"></div>
                 <button class="step-item" id="step-3" onclick="goToPage(3)">Lettre</button>
             </div>
@@ -1423,7 +1423,7 @@
                     <span class="hero-title-gradient">en quelques minutes</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Renseignez les informations du patient et laissez l'IA generer une lettre medicale professionnelle.
+                    Renseignez les informations du patient et laissez l'IA générer une lettre médicale professionnelle.
                 </p>
             </section>
 
@@ -1469,7 +1469,7 @@
                         <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
                             <label class="form-label">Infos complementaires</label>
                             <div class="textarea-wrapper" style="flex: 1;">
-                                <textarea class="textarea" id="additionalInfo" style="height: 100%; min-height: 80px;" placeholder="Precisions pour orienter la redaction..."></textarea>
+                                <textarea class="textarea" id="additionalInfo" style="height: 100%; min-height: 80px;" placeholder="Précisions pour orienter la rédaction..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -1572,7 +1572,7 @@
             <div class="btn-wrapper">
                 <button class="btn btn-primary" onclick="analyzeDocuments()">
                     <div class="btn-glow"></div>
-                    Rechercher les problemes
+                    Rechercher les problèmes
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
             </div>
@@ -1592,14 +1592,14 @@
             <section class="hero">
                 <div class="hero-badge">
                     <span class="hero-badge-dot"></span>
-                    <span class="hero-badge-text" id="problemsCountBadge">6 problemes identifies</span>
+                    <span class="hero-badge-text" id="problemsCountBadge">6 problèmes identifiés</span>
                 </div>
                 <h1 class="hero-title">
                     Validez les<br>
-                    <span class="hero-title-gradient">problemes detectes</span>
+                    <span class="hero-title-gradient">problèmes détectés</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Reorganisez, ajoutez ou supprimez des problemes avant de passer a la redaction.
+                    Réorganisez, ajoutez ou supprimez des problèmes avant de passer à la rédaction.
                 </p>
             </section>
 
@@ -1607,7 +1607,7 @@
                 <div class="problem-card">
                     <div class="problem-number">1</div>
                     <div class="problem-content">
-                        <div class="problem-title">Insuffisance cardiaque decompensee</div>
+                        <div class="problem-title">Insuffisance cardiaque décompensée</div>
                         <div class="problem-desc">FEVG 35%, traitement par diuretiques IV, amelioration progressive</div>
                     </div>
                     <div class="problem-actions">
@@ -1689,7 +1689,7 @@
                 </button>
                 <button class="btn btn-primary" onclick="generateSections()">
                     <div class="btn-glow"></div>
-                    Rediger les sections
+                    Rédiger les sections
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
             </div>
@@ -1729,7 +1729,7 @@
                         <div class="editor-problem-number" id="editorProblemNumber">3</div>
                         <div class="editor-problem-info">
                             <h2 id="editorProblemTitle">Insuffisance renale aigue</h2>
-                            <p>Relisez et modifiez si necessaire</p>
+                            <p>Relisez et modifiez si nécessaire</p>
                         </div>
                     </div>
 
@@ -1745,7 +1745,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 <div class="editor-footer">
                     <button class="btn btn-secondary" onclick="prevProblem()">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                        Precedent
+                        Précédent
                     </button>
                     <button class="btn btn-success" onclick="nextProblem()">
                         Valider et continuer
@@ -1757,7 +1757,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             <div class="btn-wrapper">
                 <button class="btn btn-secondary" onclick="goToPage(1)">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    Retour aux problemes
+                    Retour aux problèmes
                 </button>
             </div>
         </div>
@@ -1769,11 +1769,11 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             <section class="hero" style="padding-bottom: 40px;">
                 <div class="hero-badge" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1)); border-color: rgba(34, 197, 94, 0.2);">
                     <span class="hero-badge-dot" style="background: var(--green);"></span>
-                    <span class="hero-badge-text" style="color: #16A34A;">Lettre generee avec succes</span>
+                    <span class="hero-badge-text" style="color: #16A34A;">Lettre générée avec succès</span>
                 </div>
                 <h1 class="hero-title" style="font-size: 44px;">
                     Votre lettre est<br>
-                    <span class="hero-title-gradient">prete a l'export</span>
+                    <span class="hero-title-gradient">prête à l'export</span>
                 </h1>
             </section>
 
@@ -1785,7 +1785,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                         </div>
                         <div class="letter-header-info">
                             <h2 id="letterTypeTitle">Lettre de sortie</h2>
-                            <p id="letterMeta">6 sections · Generee le 24 janvier 2026</p>
+                            <p id="letterMeta">6 sections · Générée le 24 janvier 2026</p>
                         </div>
                     </div>
                     <div class="letter-actions">
@@ -1805,10 +1805,10 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                         <div class="letter-section">
                             <div class="letter-section-title">
                                 <span class="letter-section-number">1</span>
-                                Insuffisance cardiaque decompensee
+                                Insuffisance cardiaque décompensée
                             </div>
                             <div class="letter-section-content">
-                                Hospitalisation pour decompensation cardiaque globale sur cardiopathie ischemique connue (FEVG 35%). Le patient presentait une dyspnee stade IV NYHA avec oedemes des membres inferieurs. Le traitement a comporte une depletion par furosemide IV avec bonne reponse clinique. A la sortie, le patient est stable sous traitement optimise associant IEC, betabloquant et diuretique de l'anse.
+                                Hospitalisation pour décompensation cardiaque globale sur cardiopathie ischémique connue (FEVG 35%). Le patient présentait une dyspnée stade IV NYHA avec œdèmes des membres inférieurs. Le traitement a comporté une déplétion par furosémide IV avec bonne réponse clinique. À la sortie, le patient est stable sous traitement optimisé associant IEC, bêtabloquant et diurétique de l'anse.
                             </div>
                         </div>
 
@@ -1870,7 +1870,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 </svg>
             </div>
             <h3 class="loading-title" id="loadingTitle">Analyse en cours...</h3>
-            <p class="loading-subtitle" id="loadingSubtitle">Detection des problemes medicaux</p>
+            <p class="loading-subtitle" id="loadingSubtitle">Détection des problèmes médicaux</p>
             <div class="loading-progress">
                 <div class="loading-progress-bar" id="loadingProgressBar"></div>
             </div>
@@ -1888,7 +1888,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 </div>
                 <div class="loading-step" id="loadingStep3">
                     <div class="loading-step-icon"><span class="step-number">3</span></div>
-                    <span>Identification des problemes</span>
+                    <span>Identification des problèmes</span>
                 </div>
             </div>
         </div>
@@ -2260,7 +2260,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             }
             updateUploadZoneStatus();
             saveToLocalStorage();
-            showToast('Fichier supprime', 'success');
+            showToast('Fichier supprimé', 'success');
         }
 
         // ==================== Speech Recognition ====================
@@ -2333,7 +2333,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         function showLoadingOverlay(title, subtitle) {
             const overlay = document.getElementById('loadingOverlay');
             document.getElementById('loadingTitle').textContent = title || 'Analyse en cours...';
-            document.getElementById('loadingSubtitle').textContent = subtitle || 'Detection des problemes medicaux';
+            document.getElementById('loadingSubtitle').textContent = subtitle || 'Détection des problèmes médicaux';
             document.getElementById('loadingProgressBar').style.width = '0%';
 
             // Reset steps
@@ -2447,7 +2447,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
             if (success) {
                 document.getElementById('assemblyProgressBar').style.width = '100%';
-                document.getElementById('assemblyTitle').textContent = 'Lettre prete !';
+                document.getElementById('assemblyTitle').textContent = 'Lettre prête !';
                 document.getElementById('assemblySubtitle').textContent = 'Redirection...';
             }
 
@@ -2475,7 +2475,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             btn.disabled = true;
 
             // Show loading overlay
-            showLoadingOverlay('Analyse en cours...', 'Detection des problemes medicaux');
+            showLoadingOverlay('Analyse en cours...', 'Détection des problèmes médicaux');
 
             try {
                 currentSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -2517,7 +2517,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 stopFactCycle('loadingFactText', false);
                 const factText = document.getElementById('loadingFactText');
                 if (factText) {
-                    factText.textContent = `✓ ${extractedProblems.length} probleme(s) detecte(s)`;
+                    factText.textContent = `✓ ${extractedProblems.length} problème(s) détecté(s)`;
                     factText.classList.add('completed');
                 }
 
@@ -2541,7 +2541,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     // Now render problems and navigate to page 2
                     renderProblemsPage();
                     goToPage(1);
-                    showToast(`${extractedProblems.length} probleme(s) detecte(s) - Validez puis cliquez sur "Rediger les sections"`, 'success');
+                    showToast(`${extractedProblems.length} problème(s) détecté(s) - Validez puis cliquez sur "Rédiger les sections"`, 'success');
                 }, 800);
 
             } catch (error) {
@@ -2561,7 +2561,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             const badge = document.getElementById('problemsCountBadge');
 
             if (badge) {
-                badge.textContent = `${extractedProblems.length} probleme(s) identifie(s)`;
+                badge.textContent = `${extractedProblems.length} problème(s) identifié(s)`;
             }
 
             let html = extractedProblems.map((problem, idx) => `
@@ -2571,7 +2571,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                         <input type="text" class="problem-title" value="${escapeHtml(problem.text)}"
                                onchange="updateProblemText(${problem.id}, this.value)"
                                style="background: transparent; border: none; font-size: 17px; font-weight: 700; color: var(--gray-900); width: 100%;">
-                        <div class="problem-desc">${problem.checked ? 'Selectionne' : 'Non selectionne'}</div>
+                        <div class="problem-desc">${problem.checked ? 'Sélectionné' : 'Non sélectionné'}</div>
                     </div>
                     <div class="problem-actions">
                         <button class="problem-action" onclick="toggleProblemCheck(${problem.id})" title="${problem.checked ? 'Desactiver' : 'Activer'}">
@@ -2671,7 +2671,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             validatedProblems = extractedProblems.filter(p => p.checked).map(p => p.text);
 
             if (validatedProblems.length === 0) {
-                showToast('Selectionnez au moins un probleme', 'error');
+                showToast('Sélectionnéz au moins un probleme', 'error');
                 return;
             }
 
@@ -2713,7 +2713,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             // Check if first section generated successfully
             const firstSection = generatedSections[0];
             if (firstSection && firstSection.error) {
-                showToast('Erreur lors de la generation', 'error');
+                showToast('Erreur lors de la génération', 'error');
             } else {
                 renderEditor();
             }
@@ -2743,7 +2743,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             if (index === currentEditorIndex) {
                 const textarea = document.getElementById('editorTextarea');
                 if (textarea) {
-                    textarea.value = `Generation en cours...\n\n${initialFact.text}`;
+                    textarea.value = `Génération en cours...\n\n${initialFact.text}`;
                 }
             }
 
@@ -2753,7 +2753,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     if (textarea) {
                         const newFact = getRandomFact(currentSectionFactIndex);
                         currentSectionFactIndex = newFact.index;
-                        textarea.value = `Generation en cours...\n\n${newFact.text}`;
+                        textarea.value = `Génération en cours...\n\n${newFact.text}`;
                     }
                 }
             }, 5000);
@@ -2936,11 +2936,11 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
             if (progressText) {
                 if (done < total) {
-                    progressText.innerHTML = `Generation : <strong>${done}/${total}</strong>`;
+                    progressText.innerHTML = `Génération : <strong>${done}/${total}</strong>`;
                 } else if (validated < total) {
-                    progressText.innerHTML = `<strong>Termine !</strong> Preparation de la lettre...`;
+                    progressText.innerHTML = `<strong>Terminé !</strong> Préparation de la lettre...`;
                 } else {
-                    progressText.innerHTML = `<strong>Termine !</strong> Redirection...`;
+                    progressText.innerHTML = `<strong>Terminé !</strong> Redirection...`;
                 }
             }
 
@@ -2956,7 +2956,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     // Medical fact is already being updated by the interval
                     textarea.classList.add('generating');
                 } else if (current.error) {
-                    textarea.value = `Erreur: ${current.errorMessage}\n\nCliquez sur "Precedent" puis "Suivant" pour reessayer.`;
+                    textarea.value = `Erreur: ${current.errorMessage}\n\nCliquez sur "Précédent" puis "Suivant" pour réessayer.`;
                     textarea.classList.add('error');
                     textarea.classList.remove('generating');
                 } else {
@@ -3000,9 +3000,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             if (textarea) {
                 if (current.generating) {
                     // Show medical fact (already updated by interval, just set initial if empty)
-                    if (!textarea.value.startsWith('Generation en cours...')) {
+                    if (!textarea.value.startsWith('Génération en cours...')) {
                         const fact = getRandomFact();
-                        textarea.value = `Generation en cours...\n\n${fact.text}`;
+                        textarea.value = `Génération en cours...\n\n${fact.text}`;
                     }
                     textarea.disabled = true;
                     textarea.classList.add('generating');
@@ -3067,10 +3067,10 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
                 if (current.generating) {
                     nextBtn.disabled = true;
-                    nextBtn.innerHTML = '<span class="spinner"></span> Generation...';
+                    nextBtn.innerHTML = '<span class="spinner"></span> Génération...';
                 } else if (isLast && allValidated) {
                     nextBtn.disabled = false;
-                    nextBtn.innerHTML = `Generer la lettre finale <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+                    nextBtn.innerHTML = `Générer la lettre finale <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
                 } else {
                     nextBtn.disabled = false;
                     nextBtn.innerHTML = `Valider et continuer <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`;
@@ -3104,7 +3104,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
             // Don't proceed if current section is still generating
             if (current && current.generating) {
-                showToast('Veuillez attendre la fin de la generation', 'warning');
+                showToast('Veuillez attendre la fin de la génération', 'warning');
                 return;
             }
 
@@ -3116,7 +3116,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             }
 
             saveToLocalStorage();
-            showToast('Section validee', 'success');
+            showToast('Section validée', 'success');
             renderEditorDots();
 
             // Check if this was the last section
@@ -3214,7 +3214,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 setTimeout(() => {
                     displayFinalLetter(data.letter);
                     goToPage(3);
-                    showToast('Lettre generee avec succes !', 'success');
+                    showToast('Lettre générée avec succès !', 'success');
                 }, 600);
 
                 // Save to history
@@ -3236,7 +3236,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             if (titleEl) titleEl.textContent = letterType === 'Lettre de transfert' ? 'Lettre de transfert' : 'Lettre de sortie';
 
             const now = new Date();
-            if (metaEl) metaEl.textContent = `${generatedSections.length} sections · Generee le ${now.toLocaleDateString('fr-FR')}`;
+            if (metaEl) metaEl.textContent = `${generatedSections.length} sections · Générée le ${now.toLocaleDateString('fr-FR')}`;
 
             // Parse sections from letter
             if (container) {
