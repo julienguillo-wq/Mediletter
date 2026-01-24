@@ -4,8 +4,8 @@
     "description": "Générez vos lettres médicales en quelques minutes",
     "start_url": "./index.html",
     "display": "standalone",
-    "background_color": "#050510",
-    "theme_color": "#050510",
+    "background_color": "#FFFFFF",
+    "theme_color": "#8B5CF6",
     "orientation": "portrait-primary",
     "icons": [
         {

@@ -1,0 +1,4570 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>MediLetter</title>
+    
+    <link rel="manifest" href="../manifest.json">
+    <link rel="apple-touch-icon" href="../icon-192x192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #050510;
+            --bg-card: rgba(15, 15, 35, 0.6);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --bg-glass-strong: rgba(255, 255, 255, 0.06);
+            
+            --text-white: #ffffff;
+            --text-light: rgba(255, 255, 255, 0.9);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --text-dim: rgba(255, 255, 255, 0.3);
+            
+            --accent-cyan: #00f5ff;
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --accent-blue: #3b82f6;
+            
+            --gradient-main: linear-gradient(135deg, #00f5ff 0%, #a855f7 50%, #ec4899 100%);
+            --gradient-subtle: linear-gradient(135deg, rgba(0, 245, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%);
+            --gradient-border: linear-gradient(135deg, rgba(0, 245, 255, 0.5) 0%, rgba(168, 85, 247, 0.5) 50%, rgba(236, 72, 153, 0.5) 100%);
+            
+            --glow-cyan: 0 0 30px rgba(0, 245, 255, 0.3);
+            --glow-purple: 0 0 30px rgba(168, 85, 247, 0.3);
+            --glow-pink: 0 0 30px rgba(236, 72, 153, 0.3);
+            
+            --border-glass: 1px solid rgba(255, 255, 255, 0.08);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-full: 9999px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ==================== Animated Background ==================== */
+        
+        .bg-wrapper {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0, 245, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 30%, rgba(168, 85, 247, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 70% 50% at 50% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 90% 90%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 2%) rotate(1deg); }
+            50% { transform: translate(-1%, 3%) rotate(-1deg); }
+            75% { transform: translate(-2%, -1%) rotate(0.5deg); }
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+
+        .floating-orbs {
+            position: absolute;
+            inset: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: orbFloat 15s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(0, 245, 255, 0.08);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: rgba(168, 85, 247, 0.08);
+            top: 50%;
+            right: 10%;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(236, 72, 153, 0.06);
+            bottom: 10%;
+            left: 30%;
+            animation-delay: -10s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* ==================== App Container ==================== */
+
+        .app {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== Header ==================== */
+
+        .header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 42px;
+            background: var(--bg-glass-strong);
+            border: var(--border-glass);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-muted);
+        }
+
+        .back-btn:hover {
+            background: var(--bg-card);
+            color: var(--accent-cyan);
+            border-color: rgba(0, 245, 255, 0.3);
+            transform: translateY(-50%) translateX(-2px);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+        }
+
+        .logo-mark {
+            position: relative;
+            width: 48px;
+            height: 48px;
+        }
+
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient-main);
+            border-radius: var(--radius-sm);
+            opacity: 0.2;
+            filter: blur(12px);
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(1.1); }
+        }
+
+        .logo-icon {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-main);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 24px rgba(0, 245, 255, 0.25);
+        }
+
+        .logo-icon svg {
+            width: 26px;
+            height: 26px;
+            color: white;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(0, 245, 255, 0.5);
+        }
+
+        /* ==================== Main ==================== */
+
+        .main {
+            flex: 1;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* ==================== Glass Card ==================== */
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            border: var(--border-glass);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            padding: 1px;
+            background: var(--gradient-border);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            -webkit-mask-composite: xor;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* ==================== Input Section ==================== */
+
+        .input-section .section-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-subtle);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-icon svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent-cyan);
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-white);
+            letter-spacing: -0.01em;
+        }
+
+        .input-area {
+            position: relative;
+            padding: 1.25rem;
+        }
+
+        .textarea-wrapper {
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            min-height: 140px;
+            padding: 1.25rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-sm);
+            color: var(--text-white);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            line-height: 1.75;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .input-field.large {
+            min-height: 280px;
+        }
+
+        .input-field.small {
+            min-height: 100px;
+        }
+
+        .input-field::placeholder {
+            color: var(--text-dim);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: rgba(0, 245, 255, 0.3);
+            box-shadow:
+                0 0 0 4px rgba(0, 245, 255, 0.1),
+                inset 0 0 30px rgba(0, 245, 255, 0.03);
+        }
+
+        select.input-field {
+            min-height: auto;
+            background-color: #1a1a2e;
+            color: var(--text-white);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        select.input-field option {
+            background-color: #1a1a2e;
+            color: var(--text-white);
+            padding: 0.5rem;
+        }
+
+        .field-group {
+            margin-bottom: 1rem;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .field-hint {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.35rem;
+        }
+
+        /* ==================== Mic Button ==================== */
+
+        .mic-btn {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--gradient-main);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 4px 24px rgba(0, 245, 255, 0.3),
+                0 0 0 0 rgba(0, 245, 255, 0.4);
+        }
+
+        .mic-btn:hover {
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 
+                0 8px 32px rgba(0, 245, 255, 0.4),
+                0 0 40px rgba(168, 85, 247, 0.2);
+        }
+
+        .mic-btn:active {
+            transform: scale(0.95);
+        }
+
+        .mic-btn svg {
+            width: 26px;
+            height: 26px;
+            color: white;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+        }
+
+        .mic-btn.recording {
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            animation: micPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes micPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+        }
+
+        .mic-waves {
+            display: none;
+            gap: 4px;
+        }
+
+        .mic-waves span {
+            width: 4px;
+            height: 20px;
+            background: white;
+            border-radius: 4px;
+            animation: waveAnim 0.6s ease-in-out infinite;
+        }
+
+        .mic-waves span:nth-child(1) { animation-delay: 0s; }
+        .mic-waves span:nth-child(2) { animation-delay: 0.15s; }
+        .mic-waves span:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes waveAnim {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1); }
+        }
+
+        .mic-btn.recording .mic-icon { display: none; }
+        .mic-btn.recording .mic-waves { display: flex; }
+
+        /* ==================== File Upload ==================== */
+
+        .upload-section {
+            padding: 0 1.25rem 1.25rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-glass);
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 245, 255, 0.05);
+            box-shadow: inset 0 0 30px rgba(0, 245, 255, 0.05);
+        }
+
+        .upload-zone.has-files {
+            border-style: solid;
+            border-color: rgba(0, 245, 255, 0.3);
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            background: var(--gradient-subtle);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-cyan);
+        }
+
+        .upload-text {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-text strong {
+            color: var(--accent-cyan);
+        }
+
+        .upload-hint {
+            color: var(--text-dim);
+            font-size: 0.8125rem;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        /* File Preview */
+        .files-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .file-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .file-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-item.pdf-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-glass-strong);
+            padding: 0.5rem;
+        }
+
+        .file-item.pdf-item svg {
+            width: 28px;
+            height: 28px;
+            color: var(--accent-pink);
+            margin-bottom: 0.25rem;
+        }
+
+        .file-item.pdf-item .pdf-name {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .file-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .file-item:hover .file-remove {
+            opacity: 1;
+        }
+
+        .file-remove svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* PDF Zone styling */
+        .pdf-zone .upload-icon {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+        }
+
+        .pdf-zone .upload-icon svg {
+            color: var(--accent-pink);
+        }
+
+        .pdf-zone:hover,
+        .pdf-zone.dragover {
+            border-color: var(--accent-pink);
+            background: rgba(236, 72, 153, 0.05);
+            box-shadow: inset 0 0 30px rgba(236, 72, 153, 0.05);
+        }
+
+        .pdf-zone.has-files {
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+
+        /* ==================== History Section ==================== */
+
+        .history-section {
+            margin-top: 1.5rem;
+        }
+
+        .history-section .section-header {
+            padding: 1rem 1.5rem;
+            border-bottom: var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 1rem 1.5rem;
+            border-bottom: var(--border-glass);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background: var(--bg-glass-strong);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-item-date {
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            font-weight: 500;
+        }
+
+        .history-item-type {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--gradient-subtle);
+            border-radius: var(--radius-full);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .history-item-status {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .history-item-status.valide {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .history-item-status.corrige {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .history-item-preview {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .history-empty {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-dim);
+        }
+
+        .history-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .history-modal.show {
+            display: flex;
+        }
+
+        .history-modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: var(--border-glass);
+            max-width: 900px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        .history-modal-close {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-glass);
+            border: var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .history-modal-close:hover {
+            background: var(--bg-glass-strong);
+            color: var(--accent-cyan);
+        }
+
+        .history-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .history-modal-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .history-modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .history-modal-section h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-cyan);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .history-modal-section pre {
+            background: var(--bg-glass);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-light);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: var(--border-glass);
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        /* ==================== Tags ==================== */
+
+        .tags-section {
+            padding: 1rem 1.25rem;
+            border-top: var(--border-glass);
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 0.5rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-full);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .tag:hover {
+            background: var(--gradient-subtle);
+            border-color: rgba(0, 245, 255, 0.3);
+            color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+            transform: translateY(-2px);
+        }
+
+        /* ==================== Generate Button ==================== */
+
+        .generate-btn {
+            width: 100%;
+            padding: 1.125rem 2rem;
+            background: var(--gradient-main);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 4px 24px rgba(0, 245, 255, 0.25),
+                0 0 60px rgba(168, 85, 247, 0.15);
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .generate-btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 40px rgba(0, 245, 255, 0.35),
+                0 0 80px rgba(168, 85, 247, 0.25);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .generate-btn:hover svg:not(.spinner) {
+            transform: translateX(4px);
+        }
+
+        .generate-btn .spinner {
+            display: none;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .generate-btn.loading .btn-content { display: none; }
+        .generate-btn.loading .spinner { display: block; }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== Output Section ==================== */
+
+        .output-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-section .section-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .output-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.25s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--gradient-subtle);
+            border-color: rgba(0, 245, 255, 0.3);
+            color: var(--accent-cyan);
+        }
+
+        .action-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .output-body {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Empty State */
+        .empty-state {
+            height: 100%;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .empty-visual {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+        }
+
+        .empty-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px dashed rgba(0, 245, 255, 0.2);
+            animation: ringRotate 20s linear infinite;
+        }
+
+        .empty-ring:nth-child(2) {
+            inset: 15px;
+            border-color: rgba(168, 85, 247, 0.2);
+            animation-direction: reverse;
+            animation-duration: 15s;
+        }
+
+        .empty-ring:nth-child(3) {
+            inset: 30px;
+            border-color: rgba(236, 72, 153, 0.2);
+            animation-duration: 10s;
+        }
+
+        @keyframes ringRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-icon {
+            position: absolute;
+            inset: 35px;
+            background: var(--gradient-subtle);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-icon svg {
+            width: 28px;
+            height: 28px;
+            color: var(--accent-cyan);
+            opacity: 0.8;
+        }
+
+        .empty-state h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+            max-width: 280px;
+        }
+
+        /* Output Content */
+        .output-content {
+            display: none;
+            font-size: 0.9375rem;
+            line-height: 1.9;
+            color: var(--text-light);
+        }
+
+        .output-content.visible {
+            display: block;
+        }
+
+        .output-content h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-cyan);
+            margin: 2rem 0 0.75rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .output-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .output-content strong {
+            color: var(--text-white);
+            font-weight: 600;
+        }
+
+        /* ==================== Validation Actions ==================== */
+
+        .validation-actions {
+            display: none;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .validation-actions.visible {
+            display: flex;
+        }
+
+        .validate-btn, .correct-btn, .validate-correction-btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.25s ease;
+        }
+
+        .validate-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(16, 185, 129, 0.4);
+        }
+
+        .correct-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .correct-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(245, 158, 11, 0.4);
+        }
+
+        .validate-correction-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .validate-correction-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Correction Mode */
+        .correction-container {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .correction-container.visible {
+            display: flex;
+        }
+
+        .correction-textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 0.9375rem;
+            line-height: 1.8;
+            resize: vertical;
+            transition: border-color 0.25s ease;
+        }
+
+        .correction-textarea:focus {
+            outline: none;
+            border-color: rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+        }
+
+        /* ==================== Problem Validation Section ==================== */
+
+        .validation-section {
+            display: none;
+        }
+
+        .validation-section.visible {
+            display: block;
+        }
+
+        .validation-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .validation-header .section-icon {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
+        }
+
+        .validation-header .section-icon svg {
+            color: #10b981;
+        }
+
+        .diagnostic-input-group {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+        }
+
+        .diagnostic-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .diagnostic-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--text-white);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+        }
+
+        .diagnostic-input:focus {
+            outline: none;
+            border-color: rgba(16, 185, 129, 0.6);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .problems-list {
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .problems-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .problems-list-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .add-problem-btn {
+            padding: 0.5rem 0.875rem;
+            background: var(--bg-glass);
+            border: 1px dashed rgba(0, 245, 255, 0.4);
+            border-radius: var(--radius-sm);
+            color: var(--accent-cyan);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            transition: all 0.25s ease;
+        }
+
+        .add-problem-btn:hover {
+            background: rgba(0, 245, 255, 0.1);
+            border-style: solid;
+        }
+
+        .add-problem-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .problem-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-sm);
+            transition: all 0.25s ease;
+        }
+
+        .problem-item:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            background: var(--bg-glass-strong);
+        }
+
+        .problem-item.unchecked {
+            opacity: 0.5;
+        }
+
+        .problem-item.unchecked .problem-text {
+            text-decoration: line-through;
+            color: var(--text-dim);
+        }
+
+        .problem-drag-handle {
+            cursor: grab;
+            color: var(--text-dim);
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .problem-drag-handle:hover {
+            color: var(--text-muted);
+        }
+
+        .problem-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .problem-drag-handle svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .problem-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .problem-checkbox:hover {
+            border-color: #10b981;
+        }
+
+        .problem-checkbox.checked {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .problem-checkbox svg {
+            width: 12px;
+            height: 12px;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .problem-checkbox.checked svg {
+            opacity: 1;
+        }
+
+        .problem-number {
+            min-width: 24px;
+            height: 24px;
+            background: var(--gradient-subtle);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            flex-shrink: 0;
+        }
+
+        .problem-text {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 0.9375rem;
+            outline: none;
+        }
+
+        .problem-text:focus {
+            color: var(--text-white);
+        }
+
+        .problem-delete-btn {
+            width: 28px;
+            height: 28px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-dim);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            opacity: 0;
+        }
+
+        .problem-item:hover .problem-delete-btn {
+            opacity: 1;
+        }
+
+        .problem-delete-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .problem-delete-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .validation-actions-bottom {
+            padding: 1.25rem 1.5rem;
+            border-top: var(--border-glass);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .generate-validated-btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .generate-validated-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(16, 185, 129, 0.4);
+        }
+
+        .generate-validated-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-validated-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .generate-validated-btn .spinner {
+            display: none;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .generate-validated-btn.loading .btn-text { display: none; }
+        .generate-validated-btn.loading .spinner { display: block; }
+
+        .cancel-validation-btn {
+            padding: 1rem 1.5rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .cancel-validation-btn:hover {
+            background: var(--bg-glass-strong);
+            color: var(--text-light);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Drag and drop styles */
+        .problem-item.dragging {
+            opacity: 0.5;
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .problem-item.drag-over {
+            border-color: var(--accent-cyan);
+            transform: translateY(2px);
+        }
+
+        /* ==================== Toast ==================== */
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(15, 15, 35, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--glow-cyan);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .toast svg {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-cyan);
+        }
+
+        .toast span {
+            font-weight: 500;
+            color: var(--text-white);
+        }
+
+        /* ==================== Scrollbar ==================== */
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ==================== Section Review (Nouveau) ==================== */
+
+        .sections-review {
+            display: none;
+        }
+
+        .sections-review.visible {
+            display: block;
+        }
+
+        .sections-review-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sections-review-header .section-icon {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+        }
+
+        .sections-review-header .section-icon svg {
+            color: var(--accent-purple);
+        }
+
+        /* Barre de progression */
+        .progress-container {
+            padding: 1.25rem 1.5rem;
+            border-bottom: var(--border-glass);
+        }
+
+        .progress-bar-wrapper {
+            height: 8px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-main);
+            border-radius: var(--radius-full);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .progress-text strong {
+            color: var(--accent-cyan);
+        }
+
+        /* Liste des sections */
+        .sections-list {
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .section-review-item {
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .section-review-item.validated {
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .section-review-item.generating {
+            border-color: rgba(168, 85, 247, 0.4);
+            animation: sectionPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes sectionPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.2); }
+            50% { box-shadow: 0 0 20px 5px rgba(168, 85, 247, 0.1); }
+        }
+
+        .section-review-header {
+            padding: 1rem 1.25rem;
+            background: var(--bg-glass-strong);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .section-review-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-review-number {
+            width: 28px;
+            height: 28px;
+            background: var(--gradient-subtle);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .section-review-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-white);
+        }
+
+        .section-review-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-status-badge.generating {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--accent-purple);
+        }
+
+        .section-status-badge.ready {
+            background: rgba(0, 245, 255, 0.2);
+            color: var(--accent-cyan);
+        }
+
+        .section-status-badge.validated {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .section-toggle-btn {
+            width: 28px;
+            height: 28px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .section-toggle-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .section-review-item.expanded .section-toggle-btn {
+            transform: rotate(180deg);
+        }
+
+        .section-review-content {
+            display: none;
+            padding: 1.25rem;
+            border-top: var(--border-glass);
+        }
+
+        .section-review-item.expanded .section-review-content {
+            display: block;
+        }
+
+        .section-text {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: 1.25rem;
+        }
+
+        .section-text h3 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-cyan);
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        .section-text h3:first-child {
+            margin-top: 0;
+        }
+
+        .section-text strong {
+            color: var(--text-white);
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .section-ok-btn, .section-modify-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.25s ease;
+        }
+
+        .section-ok-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .section-ok-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        .section-modify-btn {
+            background: var(--bg-glass-strong);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #f59e0b;
+        }
+
+        .section-modify-btn:hover {
+            background: rgba(245, 158, 11, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .section-ok-btn svg, .section-modify-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Textarea éditable pour modification directe */
+        .section-edit-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--text-white);
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .section-edit-textarea:focus {
+            outline: none;
+            border-color: rgba(0, 245, 255, 0.6);
+            box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1);
+        }
+
+        .section-edit-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .section-validate-btn {
+            padding: 0.6rem 1.25rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.25s ease;
+        }
+
+        .section-validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        /* ==================== Vue Wizard - Focus par problème ==================== */
+
+        .wizard-validated-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .wizard-validated-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: #10b981;
+        }
+
+        .wizard-validated-item svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .wizard-validated-item span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .wizard-progress {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--gradient-subtle);
+            border-radius: var(--radius-sm);
+        }
+
+        .wizard-progress-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .wizard-current-problem {
+            background: var(--bg-glass);
+            border: 2px solid rgba(0, 245, 255, 0.4);
+            border-radius: var(--radius);
+            overflow: hidden;
+            animation: wizardFadeIn 0.3s ease;
+        }
+
+        @keyframes wizardFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .wizard-problem-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-glass-strong);
+            border-bottom: var(--border-glass);
+        }
+
+        .wizard-problem-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .wizard-problem-number {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .wizard-problem-content {
+            padding: 1.5rem;
+        }
+
+        .wizard-problem-content .section-edit-textarea {
+            margin-top: 0;
+            min-height: 200px;
+        }
+
+        .wizard-validate-btn {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.25s ease;
+            margin-top: 1rem;
+        }
+
+        .wizard-validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+        }
+
+        .wizard-validate-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .wizard-generating {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: var(--radius);
+        }
+
+        .wizard-generating svg {
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Spinner de chargement DANS la zone de texte */
+        .wizard-textarea-loading {
+            flex: 1;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px dashed rgba(168, 85, 247, 0.4);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .wizard-textarea-loading .loading-spinner {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1.5rem;
+        }
+
+        .wizard-textarea-loading .loading-spinner svg {
+            width: 100%;
+            height: 100%;
+            color: var(--accent-purple);
+            animation: spin 1s linear infinite;
+        }
+
+        .wizard-textarea-loading p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .wizard-textarea-loading .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-family: 'Space Grotesk', sans-serif;
+            margin-top: 0.5rem;
+        }
+
+        .wizard-all-done {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius);
+        }
+
+        .wizard-all-done h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+
+        .wizard-all-done p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .section-validate-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Bouton final pour générer la lettre */
+        .sections-review-actions {
+            padding: 1.25rem 1.5rem;
+            border-top: var(--border-glass);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .cancel-review-btn {
+            padding: 1rem 1.5rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .cancel-review-btn:hover {
+            background: var(--bg-glass-strong);
+            color: var(--text-light);
+        }
+
+        .generate-final-btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: var(--gradient-main);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 24px rgba(0, 245, 255, 0.25);
+        }
+
+        .generate-final-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 32px rgba(0, 245, 255, 0.35);
+        }
+
+        .generate-final-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-final-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .generate-final-btn .spinner {
+            display: none;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .generate-final-btn.loading .btn-text { display: none; }
+        .generate-final-btn.loading .spinner { display: block; }
+
+        /* ==================== Input Section Hidden State ==================== */
+
+        .input-section.hidden {
+            display: none !important;
+        }
+
+        .generate-btn.hidden {
+            display: none !important;
+        }
+
+        /* Bouton pour revenir au formulaire */
+        .back-to-form-btn {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-bottom: 1rem;
+        }
+
+        .back-to-form-btn.visible {
+            display: inline-flex;
+        }
+
+        .back-to-form-btn:hover {
+            background: var(--bg-glass-strong);
+            color: var(--text-light);
+            border-color: rgba(0, 245, 255, 0.3);
+        }
+
+        .back-to-form-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ==================== Time Estimation ==================== */
+
+        .time-estimate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-glass);
+            border-radius: var(--radius-sm);
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .time-estimate svg {
+            width: 16px;
+            height: 16px;
+            color: var(--accent-cyan);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .time-estimate .time-value {
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        /* ==================== Vue Focus Plein Écran ==================== */
+
+        .sections-review.fullscreen-mode {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: var(--bg-dark);
+            border-radius: 0;
+            margin: 0;
+            max-height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sections-review.fullscreen-mode .sections-review-header {
+            flex-shrink: 0;
+        }
+
+        .sections-review.fullscreen-mode .progress-container {
+            flex-shrink: 0;
+        }
+
+        .sections-review.fullscreen-mode .sections-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 2rem;
+            overflow-y: auto;
+        }
+
+        .sections-review.fullscreen-mode .sections-review-actions {
+            flex-shrink: 0;
+        }
+
+        /* Carte du problème en PLEIN ÉCRAN */
+        .sections-review.fullscreen-mode .wizard-current-problem {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 80px; /* espace pour le bouton */
+            width: 100%;
+            height: calc(100vh - 80px);
+            max-width: none;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-dark);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .sections-review.fullscreen-mode .wizard-problem-header {
+            flex-shrink: 0;
+            padding: 1rem 1.5rem;
+            background: var(--bg-glass-strong);
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+        }
+
+        .sections-review.fullscreen-mode .wizard-problem-title {
+            font-size: 1.3rem;
+        }
+
+        .sections-review.fullscreen-mode .wizard-problem-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+            min-height: 0; /* important pour flex */
+        }
+
+        .sections-review.fullscreen-mode .wizard-problem-content .section-edit-textarea {
+            flex: 1;
+            width: 100%;
+            min-height: 0; /* important pour flex */
+            height: 100%;
+            font-size: 16px;
+            line-height: 1.6;
+            padding: 15px;
+            resize: none;
+            overflow-y: auto;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: var(--radius-sm);
+        }
+
+        .sections-review.fullscreen-mode .wizard-validate-btn {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            margin: 0;
+            padding: 0 2rem;
+            font-size: 1.1rem;
+            border-radius: 0;
+            z-index: 101;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Validated problem card animation */
+        .wizard-validated-item {
+            animation: validateSlideIn 0.4s ease;
+        }
+
+        @keyframes validateSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Problem validation animation */
+        .wizard-current-problem.validating {
+            animation: validateShrink 0.5s ease forwards;
+        }
+
+        @keyframes validateShrink {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+        }
+
+        /* Generating placeholder */
+        .wizard-generating-placeholder {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-glass);
+            border: 1px dashed rgba(168, 85, 247, 0.4);
+            border-radius: var(--radius);
+            margin-top: 1rem;
+        }
+
+        .wizard-generating-placeholder .generating-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0.75rem;
+        }
+
+        .wizard-generating-placeholder .generating-icon svg {
+            width: 32px;
+            height: 32px;
+            color: var(--accent-purple);
+            animation: spin 1s linear infinite;
+        }
+
+        .wizard-generating-placeholder p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Final button - only when all validated */
+        .generate-final-btn.all-validated {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 24px rgba(16, 185, 129, 0.3);
+            animation: finalButtonPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes finalButtonPulse {
+            0%, 100% { box-shadow: 0 4px 24px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 4px 40px rgba(16, 185, 129, 0.5); }
+        }
+
+        .generate-final-btn.all-validated:hover {
+            animation: none;
+            box-shadow: 0 6px 32px rgba(16, 185, 129, 0.5);
+        }
+
+        /* ==================== Responsive ==================== */
+
+        @media (max-width: 640px) {
+            .header {
+                padding: 1.25rem 1rem;
+            }
+
+            .logo-text {
+                font-size: 1.5rem;
+            }
+
+            .main {
+                padding: 0 1rem 1.5rem;
+            }
+
+            .input-field {
+                min-height: 120px;
+                padding: 1rem;
+                padding-right: 4.5rem;
+            }
+
+            .mic-btn {
+                width: 48px;
+                height: 48px;
+                right: 0.75rem;
+                top: 0.75rem;
+            }
+
+            .mic-btn svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            .tags-section {
+                padding: 0.875rem 1rem;
+            }
+
+            .output-body {
+                padding: 1.25rem;
+            }
+
+            .upload-zone {
+                padding: 1rem;
+            }
+
+            .file-item {
+                width: 60px;
+                height: 60px;
+            }
+
+            /* Fullscreen mode responsive */
+            .sections-review.fullscreen-mode .sections-list {
+                padding: 0.75rem;
+            }
+
+            .sections-review.fullscreen-mode .wizard-current-problem {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 70px;
+                height: calc(100vh - 70px);
+                padding: 12px;
+                border-radius: 0;
+            }
+
+            .sections-review.fullscreen-mode .wizard-problem-header {
+                padding: 0.75rem 1rem;
+                margin-bottom: 10px;
+            }
+
+            .sections-review.fullscreen-mode .wizard-problem-title {
+                font-size: 1rem;
+            }
+
+            .sections-review.fullscreen-mode .wizard-problem-content {
+                padding: 0;
+                min-height: 0;
+            }
+
+            .sections-review.fullscreen-mode .wizard-problem-content .section-edit-textarea {
+                min-height: 0;
+                font-size: 16px; /* Évite le zoom sur iOS */
+                padding: 12px;
+            }
+
+            .sections-review.fullscreen-mode .wizard-validate-btn {
+                height: 60px;
+                padding: 0 1.5rem;
+                font-size: 1rem;
+            }
+
+            .wizard-validated-item span {
+                max-width: 100px;
+            }
+
+            .back-to-form-btn {
+                font-size: 0.8rem;
+                padding: 0.6rem 1rem;
+            }
+
+            .wizard-progress {
+                padding: 0.5rem;
+            }
+
+            .wizard-progress-text {
+                font-size: 0.85rem;
+            }
+
+            .time-estimate {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-wrapper">
+        <div class="bg-gradient"></div>
+        <div class="grid-overlay"></div>
+        <div class="floating-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+    </div>
+
+    <div class="app">
+        <header class="header">
+            <a href="../index.html" class="back-btn" title="Retour au hub">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div class="logo">
+                <div class="logo-mark">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M12 2L4 6v6c0 5.5 3.4 10.6 8 12 4.6-1.4 8-6.5 8-12V6l-8-4z"/>
+                            <path d="M9 12h6M12 9v6"/>
+                        </svg>
+                    </div>
+                </div>
+                <span class="logo-text">MediLetter</span>
+            </div>
+        </header>
+
+        <main class="main">
+            <!-- Input Section -->
+            <div class="glass-card input-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <span class="section-title">Informations patient</span>
+                </div>
+                
+                <div class="input-area">
+                    <!-- Type de lettre + Modèle -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="field-group">
+                            <label class="field-label">Type de lettre</label>
+                            <select class="input-field" id="letterType" style="padding: 0.875rem 1rem; font-size: 0.95rem;">
+                                <option value="sortie">Lettre de sortie</option>
+                                <option value="transfert">Lettre de transfert</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Modèle IA</label>
+                            <select class="input-field" id="modelSelect" style="padding: 0.875rem 1rem; font-size: 0.95rem;">
+                                <option value="claude-opus-4-20250514">Ultra Haute Qualité (UHQ)</option>
+                                <option value="claude-sonnet-4-20250514" selected>Haute Qualité (HQ)</option>
+                                <option value="claude-haiku-3-5-20241022">Économique (ECO)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Contexte / Lettre d'entrée -->
+                    <div class="field-group">
+                        <label class="field-label">Contexte / Lettre d'entrée</label>
+                        <div class="textarea-wrapper">
+                            <textarea
+                                class="input-field"
+                                id="contextText"
+                                placeholder="Collez ici la lettre d'entrée ou le contexte d'admission...
+
+Ex: Patient de 82 ans, adressé par les urgences pour AEG et chutes à répétition depuis 1 semaine. ATCD: HTA, diabète type 2, IRC stade 3. TTT habituel: Amlodipine 5mg, Metformine 850mg..."
+                            ></textarea>
+                            <button type="button" class="mic-btn" onclick="toggleRecording('contextText', this)" style="display: none;">
+                                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <div class="mic-waves">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="field-hint">Lettre d'entrée, motif d'admission, antécédents</div>
+                    </div>
+
+                    <!-- Informations complémentaires -->
+                    <div class="field-group">
+                        <label class="field-label">Informations complémentaires</label>
+                        <div class="textarea-wrapper">
+                            <textarea
+                                class="input-field small"
+                                id="extraInfo"
+                                placeholder="Précisions, demandes spécifiques...
+
+Ex: Insister sur les chutes, transfert CTR La Chaux-de-Fonds, mentionner le suivi cardio prévu"
+                            ></textarea>
+                            <button type="button" class="mic-btn" onclick="toggleRecording('extraInfo', this)" style="display: none;">
+                                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <div class="mic-waves">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="field-hint">Vos précisions pour orienter la rédaction</div>
+                    </div>
+
+                    <!-- Notes de suite -->
+                    <div class="field-group">
+                        <label class="field-label">Notes de suite</label>
+                        <div class="textarea-wrapper">
+                            <textarea
+                                class="input-field large"
+                                id="notesText"
+                                placeholder="Collez ici les notes de suite (plusieurs jours)...
+
+Ex:
+J1: Entrée pour AEG. TA 145/85, FC 78. Bilan demandé.
+J2: Résultats labo: Hb 98, créat 145, CRP 45. Hydratation IV.
+J3: Amélioration clinique. Reprise alimentation. Physio débutée."
+                            ></textarea>
+                            <button type="button" class="mic-btn" onclick="toggleRecording('notesText', this)" style="display: none;">
+                                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <div class="mic-waves">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="field-hint">Notes de suite quotidiennes du dossier patient</div>
+                    </div>
+
+                    <!-- Comptes rendus -->
+                    <div class="field-group">
+                        <label class="field-label">Comptes rendus</label>
+                        <div class="textarea-wrapper">
+                            <textarea
+                                class="input-field"
+                                id="crText"
+                                placeholder="Collez ici les comptes rendus (imagerie, avis spécialisés, etc.)...
+
+Ex:
+CT-TAP (15.01): Condensation basale droite compatible avec pneumopathie. Pas d'EP.
+Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
+                            ></textarea>
+                            <button type="button" class="mic-btn" onclick="toggleRecording('crText', this)" style="display: none;">
+                                <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <div class="mic-waves">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="field-hint">Comptes rendus d'examens, avis spécialisés</div>
+                    </div>
+                </div>
+
+                <!-- Upload Zones -->
+                <div class="upload-section">
+                    <!-- Images Upload -->
+                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                        <input type="file" id="fileInput" class="upload-input" accept="image/*" multiple onchange="handleFiles(this.files)">
+                        <div class="upload-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                        </div>
+                        <div class="upload-text"><strong>Cliquez</strong> ou glissez des images</div>
+                        <div class="upload-hint">ECG, radios, screenshots de bilans...</div>
+                        <div class="files-preview" id="filesPreview"></div>
+                    </div>
+
+                    <!-- PDF Lab Results Upload -->
+                    <div class="upload-zone pdf-zone" id="pdfUploadZone" onclick="document.getElementById('pdfInput').click()" style="margin-top: 1rem;">
+                        <input type="file" id="pdfInput" class="upload-input" accept=".pdf,application/pdf" multiple onchange="handlePdfFiles(this.files)">
+                        <div class="upload-icon pdf-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                        </div>
+                        <div class="upload-text"><strong>Cliquez</strong> ou glissez des PDF</div>
+                        <div class="upload-hint">Résultats de laboratoire (PDF)</div>
+                        <div class="files-preview pdf-preview" id="pdfPreview"></div>
+                    </div>
+
+                    <!-- Bouton Effacer les données -->
+                    <button class="clear-draft-btn" onclick="clearDraft()" style="margin-top: 1rem; padding: 0.6rem 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); color: #ef4444; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s ease;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
+                        </svg>
+                        Effacer les données
+                    </button>
+                </div>
+            </div>
+
+            <button class="generate-btn" id="generateBtn" onclick="analyzeDocuments()">
+                <span class="btn-content">
+                    <span>Rechercher les problèmes</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </span>
+                <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                    <path d="M12 2a10 10 0 0 1 10 10"/>
+                </svg>
+            </button>
+
+            <!-- Time Estimation for Analysis -->
+            <div class="time-estimate" id="analysisTimeEstimate" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span>Analyse en cours... <span class="time-value">~30 secondes</span></span>
+            </div>
+
+            <!-- Back to Form Button -->
+            <button class="back-to-form-btn" id="backToFormBtn" onclick="showFormSection()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Modifier les informations
+            </button>
+
+            <!-- Problem Validation Section -->
+            <div class="glass-card validation-section" id="validationSection">
+                <div class="validation-header">
+                    <div class="section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M9 11l3 3L22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                    </div>
+                    <span class="section-title">Validation des problèmes identifiés</span>
+                </div>
+
+                <div class="diagnostic-input-group">
+                    <label class="diagnostic-label">Diagnostic principal</label>
+                    <input type="text" class="diagnostic-input" id="diagnosticInput" placeholder="Diagnostic principal...">
+                </div>
+
+                <div class="problems-list" id="problemsList">
+                    <div class="problems-list-header">
+                        <span class="problems-list-title">Problèmes à traiter</span>
+                        <button class="add-problem-btn" onclick="addNewProblem()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Ajouter
+                        </button>
+                    </div>
+                    <div id="problemsContainer"></div>
+                </div>
+
+                <div class="validation-actions-bottom">
+                    <button class="cancel-validation-btn" onclick="cancelValidation()">Annuler</button>
+                    <button class="generate-validated-btn" id="generateValidatedBtn" onclick="generateWithValidatedProblems()">
+                        <span class="btn-text">Rédiger les problèmes</span>
+                        <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                            <path d="M12 2a10 10 0 0 1 10 10"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sections Review (Nouveau) -->
+            <div class="glass-card sections-review" id="sectionsReview">
+                <div class="sections-review-header">
+                    <div class="section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                            <rect x="9" y="3" width="6" height="4" rx="2"/>
+                            <path d="M9 14l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <span class="section-title">Validation des sections</span>
+                </div>
+
+                <!-- Barre de progression -->
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">
+                        Génération des sections en cours... <strong>0 / 0</strong>
+                    </div>
+                </div>
+
+                <!-- Liste des sections -->
+                <div class="sections-list" id="sectionsList"></div>
+
+                <!-- Actions finales -->
+                <div class="sections-review-actions">
+                    <button class="cancel-review-btn" onclick="cancelSectionsReview()">Annuler</button>
+                    <button class="generate-final-btn" id="generateFinalBtn" onclick="generateFinalLetter()" disabled>
+                        <span class="btn-text">Générer la lettre finale</span>
+                        <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                            <path d="M12 2a10 10 0 0 1 10 10"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="glass-card output-section">
+                <div class="section-header">
+                    <div class="header-left">
+                        <div class="section-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                        </div>
+                        <span class="section-title">Lettre générée</span>
+                    </div>
+                    <div class="output-actions">
+                        <button class="action-btn" onclick="copyLetter()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Copier
+                        </button>
+                        <button class="action-btn" onclick="clearOutput()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
+                            </svg>
+                            Effacer
+                        </button>
+                    </div>
+                </div>
+                <div class="output-body">
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-visual">
+                            <div class="empty-ring"></div>
+                            <div class="empty-ring"></div>
+                            <div class="empty-ring"></div>
+                            <div class="empty-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M9 12h6M12 9v6"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Prêt à générer</h3>
+                        <p>Entrez les infos, ajoutez des images si besoin, et cliquez sur "Générer"</p>
+                    </div>
+                    <div class="output-content" id="outputContent"></div>
+
+                    <!-- Boutons de validation après génération -->
+                    <div class="validation-actions" id="validationActions">
+                        <button class="validate-btn" onclick="validateLetter()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Valider
+                        </button>
+                        <button class="correct-btn" onclick="showCorrectionMode()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Corriger
+                        </button>
+                    </div>
+
+                    <!-- Mode correction -->
+                    <div class="correction-container" id="correctionContainer">
+                        <textarea class="correction-textarea" id="correctionTextarea" placeholder="Modifiez la lettre ici..."></textarea>
+                        <button class="validate-correction-btn" onclick="validateCorrection()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Valider la correction
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="glass-card history-section">
+                <div class="section-header">
+                    <div class="header-left">
+                        <div class="section-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <span class="section-title">Historique</span>
+                    </div>
+                    <div class="history-actions">
+                        <button class="action-btn" onclick="exportHistory()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export JSON
+                        </button>
+                        <button class="action-btn" onclick="clearHistory()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
+                            </svg>
+                            Vider
+                        </button>
+                    </div>
+                </div>
+                <div class="history-list" id="historyList">
+                    <div class="history-empty">Aucune lettre générée pour l'instant</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- History Detail Modal -->
+        <div class="history-modal" id="historyModal" onclick="closeHistoryModal(event)">
+            <div class="history-modal-content" onclick="event.stopPropagation()">
+                <div class="history-modal-header">
+                    <span class="history-modal-title" id="historyModalTitle">Détail de la lettre</span>
+                    <button class="history-modal-close" onclick="closeHistoryModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="history-modal-body" id="historyModalBody"></div>
+                <div class="history-modal-footer">
+                    <button class="action-btn" onclick="copyHistoryLetter()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        Copier la lettre
+                    </button>
+                    <button class="action-btn" onclick="reloadHistoryItem()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M1 4v6h6"/>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                        </svg>
+                        Recharger dans le formulaire
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast" id="toast">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            <span>Copié dans le presse-papier</span>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // MediLetter V4 - App Logic with Image Upload
+        // ==========================================
+
+        let isRecording = false;
+        let recognition = null;
+        let uploadedImages = []; // Stocke les images en base64
+        let uploadedPdfs = []; // Stocke les PDFs en base64
+
+        // Backend API URL
+        const BACKEND_URL = 'https://medhub-backend-orb0.onrender.com';
+
+        // État de la session et des problèmes
+        let currentSessionId = null;
+        let extractedProblems = [];
+        let extractedDiagnostic = '';
+        let extractedData = {};
+
+        // État pour la review des sections (nouveau)
+        let generatedSections = [];  // { index, probleme, section, validated }
+        let validatedDiagnostic = '';
+        let validatedProblems = [];
+
+        // Pré-configure la clé API
+        if (!localStorage.getItem('mediletter_apikey')) {
+            localStorage.setItem('mediletter_apikey', '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');
+        }
+        const API_KEY = localStorage.getItem('mediletter_apikey');
+
+        // ==================== File Upload ====================
+
+        const uploadZone = document.getElementById('uploadZone');
+
+        // Drag & Drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    compressImage(file).then(compressedBase64 => {
+                        uploadedImages.push({
+                            name: file.name,
+                            data: compressedBase64,
+                            type: 'image/jpeg'
+                        });
+                        renderPreviews();
+                    });
+                }
+            });
+        }
+
+        // Compression d'image (plus agressive pour supporter plusieurs images)
+        function compressImage(file, maxWidth = 1200, quality = 0.6) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        // Redimensionner si trop large
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Compresser en JPEG
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                        resolve(compressedBase64);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderPreviews() {
+            const preview = document.getElementById('filesPreview');
+            preview.innerHTML = uploadedImages.map((img, idx) => `
+                <div class="file-item">
+                    <img src="${img.data}" alt="${img.name}">
+                    <button class="file-remove" onclick="removeImage(event, ${idx})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+
+            uploadZone.classList.toggle('has-files', uploadedImages.length > 0);
+        }
+
+        function removeImage(event, idx) {
+            event.stopPropagation();
+            uploadedImages.splice(idx, 1);
+            renderPreviews();
+        }
+
+        // ==================== PDF Upload ====================
+
+        const pdfUploadZone = document.getElementById('pdfUploadZone');
+
+        // Drag & Drop for PDF
+        pdfUploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            pdfUploadZone.classList.add('dragover');
+        });
+
+        pdfUploadZone.addEventListener('dragleave', () => {
+            pdfUploadZone.classList.remove('dragover');
+        });
+
+        pdfUploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            pdfUploadZone.classList.remove('dragover');
+            handlePdfFiles(e.dataTransfer.files);
+        });
+
+        function handlePdfFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/pdf') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        uploadedPdfs.push({
+                            name: file.name,
+                            data: e.target.result,
+                            type: 'application/pdf'
+                        });
+                        renderPdfPreviews();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function renderPdfPreviews() {
+            const preview = document.getElementById('pdfPreview');
+            preview.innerHTML = uploadedPdfs.map((pdf, idx) => `
+                <div class="file-item pdf-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span class="pdf-name">${pdf.name}</span>
+                    <button class="file-remove" onclick="removePdf(event, ${idx})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+
+            pdfUploadZone.classList.toggle('has-files', uploadedPdfs.length > 0);
+        }
+
+        function removePdf(event, idx) {
+            event.stopPropagation();
+            uploadedPdfs.splice(idx, 1);
+            renderPdfPreviews();
+        }
+
+        // ==================== Speech Recognition ====================
+
+        let currentMicTarget = null; // ID du textarea actif pour la dictée
+
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'fr-FR';
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    if (finalTranscript && currentMicTarget) {
+                        const textarea = document.getElementById(currentMicTarget);
+                        if (textarea) {
+                            textarea.value += finalTranscript + ' ';
+                            saveToLocalStorage();
+                        }
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech error:', event.error);
+                    stopRecording();
+                };
+
+                recognition.onend = () => {
+                    if (isRecording) recognition.start();
+                };
+
+                // Afficher les boutons micro si supporté
+                document.querySelectorAll('.mic-btn').forEach(btn => {
+                    btn.style.display = 'flex';
+                });
+            } else {
+                // Cacher les boutons micro si non supporté
+                document.querySelectorAll('.mic-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
+        }
+
+        function toggleRecording(targetId, btnElement) {
+            if (isRecording && currentMicTarget === targetId) {
+                stopRecording();
+            } else {
+                if (isRecording) stopRecording();
+                startRecording(targetId, btnElement);
+            }
+        }
+
+        function startRecording(targetId, btnElement) {
+            if (!recognition) return;
+            currentMicTarget = targetId;
+            isRecording = true;
+            recognition.start();
+            document.querySelectorAll('.mic-btn').forEach(btn => btn.classList.remove('recording'));
+            if (btnElement) btnElement.classList.add('recording');
+        }
+
+        function stopRecording() {
+            if (!recognition) return;
+            isRecording = false;
+            recognition.stop();
+            currentMicTarget = null;
+            document.querySelectorAll('.mic-btn').forEach(btn => btn.classList.remove('recording'));
+        }
+
+        // ==================== Analyze Documents (Step 1) ====================
+
+        async function analyzeDocuments() {
+            const contextText = document.getElementById('contextText').value.trim();
+            const extraInfo = document.getElementById('extraInfo').value.trim();
+            const notesText = document.getElementById('notesText').value.trim();
+            const crText = document.getElementById('crText').value.trim();
+
+            // Vérifier qu'il y a au moins une source d'information
+            const hasContent = contextText || notesText || crText || uploadedImages.length > 0 || uploadedPdfs.length > 0;
+            if (!hasContent) {
+                alert('Veuillez entrer au moins une information (contexte, notes, comptes rendus) ou ajouter des fichiers.');
+                return;
+            }
+
+            const btn = document.getElementById('generateBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            // Afficher l'estimation du temps
+            const timeEstimate = document.getElementById('analysisTimeEstimate');
+            timeEstimate.style.display = 'flex';
+
+            try {
+                // Générer un ID de session unique
+                currentSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+                // Préparer les images en base64
+                const imagesBase64 = uploadedImages.map(img => img.data);
+                const pdfsBase64 = uploadedPdfs.map(pdf => pdf.data);
+
+                // Appeler le backend /analyser
+                const response = await fetch(`${BACKEND_URL}/analyser`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        context: contextText || null,
+                        extra_info: extraInfo || null,
+                        notes: notesText || null,
+                        cr: crText || null,
+                        images_base64: imagesBase64.length > 0 ? imagesBase64 : null,
+                        pdfs_base64: pdfsBase64.length > 0 ? pdfsBase64 : null
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || `Erreur API: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Stocker les données extraites
+                extractedDiagnostic = data.diagnostic_principal;
+                extractedProblems = data.problemes.map((p, idx) => ({
+                    id: idx,
+                    text: p,
+                    checked: true
+                }));
+                extractedData = data.donnees_extraites;
+
+                // Afficher la section de validation
+                showValidationSection();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur: ' + error.message);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                timeEstimate.style.display = 'none';
+            }
+        }
+
+        // ==================== Problem Validation UI ====================
+
+        function showValidationSection() {
+            // Cacher le formulaire et le bouton d'analyse
+            document.querySelector('.input-section').classList.add('hidden');
+            document.getElementById('generateBtn').classList.add('hidden');
+            document.getElementById('analysisTimeEstimate').style.display = 'none';
+            // Afficher le bouton retour
+            document.getElementById('backToFormBtn').classList.add('visible');
+            // Afficher la section de validation
+            document.getElementById('validationSection').classList.add('visible');
+            document.getElementById('diagnosticInput').value = extractedDiagnostic;
+            renderProblems();
+        }
+
+        function hideValidationSection() {
+            document.getElementById('validationSection').classList.remove('visible');
+        }
+
+        function renderProblems() {
+            const container = document.getElementById('problemsContainer');
+            container.innerHTML = extractedProblems.map((problem, idx) => `
+                <div class="problem-item ${problem.checked ? '' : 'unchecked'}" data-id="${problem.id}" draggable="true">
+                    <div class="problem-drag-handle" title="Réordonner">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="12" x2="21" y2="12"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    </div>
+                    <div class="problem-checkbox ${problem.checked ? 'checked' : ''}" onclick="toggleProblem(${problem.id})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <span class="problem-number">${idx + 1}</span>
+                    <input type="text" class="problem-text" value="${problem.text}" onchange="updateProblemText(${problem.id}, this.value)">
+                    <button class="problem-delete-btn" onclick="deleteProblem(${problem.id})" title="Supprimer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+
+            // Ajouter le drag & drop
+            initDragAndDrop();
+        }
+
+        function toggleProblem(id) {
+            const problem = extractedProblems.find(p => p.id === id);
+            if (problem) {
+                problem.checked = !problem.checked;
+                renderProblems();
+            }
+        }
+
+        function updateProblemText(id, text) {
+            const problem = extractedProblems.find(p => p.id === id);
+            if (problem) {
+                problem.text = text;
+            }
+        }
+
+        function deleteProblem(id) {
+            extractedProblems = extractedProblems.filter(p => p.id !== id);
+            renderProblems();
+        }
+
+        function addNewProblem() {
+            const newId = extractedProblems.length > 0
+                ? Math.max(...extractedProblems.map(p => p.id)) + 1
+                : 0;
+            extractedProblems.push({
+                id: newId,
+                text: 'Nouveau problème',
+                checked: true
+            });
+            renderProblems();
+            // Focus sur le nouveau champ
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('.problem-text');
+                if (inputs.length > 0) {
+                    inputs[inputs.length - 1].focus();
+                    inputs[inputs.length - 1].select();
+                }
+            }, 100);
+        }
+
+        function cancelValidation() {
+            hideValidationSection();
+            currentSessionId = null;
+            extractedProblems = [];
+            extractedDiagnostic = '';
+            extractedData = {};
+        }
+
+        // ==================== Drag & Drop for Problems ====================
+
+        function initDragAndDrop() {
+            const container = document.getElementById('problemsContainer');
+            const items = container.querySelectorAll('.problem-item');
+
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        let draggedItem = null;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.problem-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (this !== draggedItem) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            if (this !== draggedItem) {
+                const fromId = parseInt(draggedItem.dataset.id);
+                const toId = parseInt(this.dataset.id);
+
+                const fromIndex = extractedProblems.findIndex(p => p.id === fromId);
+                const toIndex = extractedProblems.findIndex(p => p.id === toId);
+
+                if (fromIndex !== -1 && toIndex !== -1) {
+                    const [removed] = extractedProblems.splice(fromIndex, 1);
+                    extractedProblems.splice(toIndex, 0, removed);
+                    renderProblems();
+                }
+            }
+            this.classList.remove('drag-over');
+        }
+
+        // ==================== Generate with Validated Problems (Step 2) ====================
+
+        // Variable pour stocker le temps de départ de génération
+        let generationStartTime = null;
+        let countdownInterval = null;
+        const ESTIMATED_SECONDS_PER_SECTION = 45; // Estimation ~45 secondes par section (Sonnet)
+
+        function startCountdownTimer() {
+            // Arrêter un éventuel timer précédent
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            // Mettre à jour toutes les secondes
+            countdownInterval = setInterval(() => {
+                updateCountdownDisplay();
+            }, 1000);
+        }
+
+        function stopCountdownTimer() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+        }
+
+        function updateCountdownDisplay() {
+            const countdownEl = document.getElementById('countdownTimer');
+            if (!countdownEl) return;
+
+            // Trouver la section en cours de génération (la première non validée)
+            const currentSection = generatedSections.find(s => s.generating && !s.validated);
+            if (!currentSection) {
+                stopCountdownTimer();
+                return;
+            }
+
+            const elapsed = Math.floor((Date.now() - currentSection.startTime) / 1000);
+            const remaining = ESTIMATED_SECONDS_PER_SECTION - elapsed;
+
+            if (remaining > 0) {
+                countdownEl.textContent = `~${remaining} seconde${remaining > 1 ? 's' : ''}`;
+            } else {
+                countdownEl.textContent = 'Presque terminé...';
+            }
+        }
+
+        async function generateWithValidatedProblems() {
+            // Récupérer les problèmes validés (cochés)
+            validatedProblems = extractedProblems
+                .filter(p => p.checked)
+                .map(p => p.text);
+
+            if (validatedProblems.length === 0) {
+                alert('Veuillez sélectionner au moins un problème.');
+                return;
+            }
+
+            validatedDiagnostic = document.getElementById('diagnosticInput').value.trim();
+            if (!validatedDiagnostic) {
+                alert('Veuillez entrer un diagnostic principal.');
+                return;
+            }
+
+            const btn = document.getElementById('generateValidatedBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                // Cacher la section de validation des problèmes
+                hideValidationSection();
+
+                // Cacher le formulaire et le bouton d'analyse
+                hideFormSection();
+
+                // Afficher la section de review des sections (plein écran)
+                showSectionsReview();
+
+                // Démarrer le chrono pour l'estimation du temps
+                generationStartTime = Date.now();
+
+                // Initialiser les sections générées avec timestamp de démarrage
+                const now = Date.now();
+                generatedSections = validatedProblems.map((probleme, idx) => ({
+                    index: idx + 1,
+                    probleme: probleme,
+                    section: null,
+                    validated: false,
+                    generating: true,
+                    startTime: now // Pour le compte à rebours
+                }));
+
+                // Démarrer le compte à rebours
+                startCountdownTimer();
+
+                // Rendre la liste des sections (en attente)
+                renderSectionsList();
+
+                // Lancer les requêtes en parallèle pour chaque problème
+                const promises = validatedProblems.map((probleme, idx) =>
+                    generateSingleSection(probleme, idx + 1, probleme === validatedDiagnostic || idx === 0)
+                );
+
+                // Attendre que toutes les sections soient générées
+                await Promise.all(promises);
+
+                // Activer le bouton de génération finale si toutes les sections sont prêtes
+                updateFinalButtonState();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur: ' + error.message);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // === Fonctions pour cacher/afficher le formulaire ===
+
+        function hideFormSection() {
+            document.querySelector('.input-section').classList.add('hidden');
+            document.getElementById('generateBtn').classList.add('hidden');
+            document.getElementById('analysisTimeEstimate').style.display = 'none';
+            document.getElementById('backToFormBtn').classList.add('visible');
+        }
+
+        function showFormSection() {
+            // Réafficher le formulaire
+            document.querySelector('.input-section').classList.remove('hidden');
+            document.getElementById('generateBtn').classList.remove('hidden');
+            document.getElementById('backToFormBtn').classList.remove('visible');
+            // Cacher la section de validation (l'utilisateur veut modifier le formulaire)
+            hideValidationSection();
+            // Cacher la section de review
+            hideSectionsReview();
+        }
+
+        // === Fonctions pour la review des sections ===
+
+        function showSectionsReview() {
+            const sectionsReview = document.getElementById('sectionsReview');
+            sectionsReview.classList.add('visible');
+            sectionsReview.classList.add('fullscreen-mode');
+        }
+
+        function hideSectionsReview() {
+            const sectionsReview = document.getElementById('sectionsReview');
+            sectionsReview.classList.remove('visible');
+            sectionsReview.classList.remove('fullscreen-mode');
+        }
+
+        async function generateSingleSection(probleme, index, isDiagnosticPrincipal) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/generer-section`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        probleme: probleme,
+                        probleme_index: index,
+                        is_diagnostic_principal: isDiagnosticPrincipal
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || `Erreur API: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Mettre à jour la section dans notre tableau
+                const sectionData = generatedSections.find(s => s.index === index);
+                if (sectionData) {
+                    sectionData.section = data.section;
+                    sectionData.generating = false;
+                }
+
+                // Sauvegarder dans localStorage
+                saveToLocalStorage();
+
+                // Mettre à jour l'affichage IMMÉDIATEMENT (forcer le redraw)
+                requestAnimationFrame(() => {
+                    renderSectionsList();
+                    updateProgress();
+                });
+
+            } catch (error) {
+                console.error(`Erreur section ${index}:`, error);
+                const sectionData = generatedSections.find(s => s.index === index);
+                if (sectionData) {
+                    sectionData.section = `Erreur: ${error.message}`;
+                    sectionData.generating = false;
+                }
+                requestAnimationFrame(() => {
+                    renderSectionsList();
+                    updateProgress();
+                });
+            }
+        }
+
+        function updateProgress() {
+            const total = generatedSections.length;
+            const done = generatedSections.filter(s => !s.generating).length;
+            const percent = Math.round((done / total) * 100);
+
+            document.getElementById('progressBar').style.width = `${percent}%`;
+
+            // Calculer l'estimation du temps restant
+            let timeEstimateHtml = '';
+            if (done < total && done > 0 && generationStartTime) {
+                const elapsed = (Date.now() - generationStartTime) / 1000; // en secondes
+                const avgTimePerSection = elapsed / done;
+                const remaining = Math.ceil((total - done) * avgTimePerSection);
+                timeEstimateHtml = ` (~${remaining} secondes restantes)`;
+            } else if (done === 0) {
+                const estimatedPerSection = 10; // ~10 secondes par section
+                const estimatedTotal = total * estimatedPerSection;
+                timeEstimateHtml = ` (~${estimatedTotal} secondes)`;
+            }
+
+            document.getElementById('progressText').innerHTML = `
+                Génération <strong>${done} / ${total}</strong>${timeEstimateHtml}
+            `;
+
+            if (done === total) {
+                document.getElementById('progressText').innerHTML = `
+                    <strong>Toutes les sections sont générées !</strong> Validez chaque section puis cliquez sur "Générer la lettre finale".
+                `;
+            }
+        }
+
+        function renderSectionsList() {
+            const container = document.getElementById('sectionsList');
+
+            // Séparer les sections par état
+            const validatedSections = generatedSections.filter(s => s.validated).sort((a, b) => a.index - b.index);
+            const nonValidatedSections = generatedSections.filter(s => !s.validated).sort((a, b) => a.index - b.index);
+            const generatingSections = generatedSections.filter(s => s.generating);
+
+            const total = generatedSections.length;
+
+            // Trouver le PREMIER problème non validé par ordre d'index (qu'il soit généré ou en cours)
+            const currentProblem = nonValidatedSections[0];
+            const currentIndex = currentProblem ? currentProblem.index : total + 1;
+
+            let html = '';
+
+            // 1. Afficher les problèmes validés en miniature (triés par index)
+            if (validatedSections.length > 0) {
+                html += `<div class="wizard-validated-list">`;
+                html += validatedSections.map(section => `
+                    <div class="wizard-validated-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>${section.index}. ${truncateText(section.probleme, 30)}</span>
+                    </div>
+                `).join('');
+                html += `</div>`;
+            }
+
+            // 2. Si tous les problèmes sont validés
+            if (!currentProblem) {
+                html += `
+                    <div class="wizard-all-done">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color: #10b981;">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <h3 style="margin-top: 1rem;">Tous les problèmes sont validés !</h3>
+                        <p>Cliquez sur "Générer la lettre finale" ci-dessous.</p>
+                    </div>
+                `;
+            }
+            // 3. Afficher le problème courant (en cours de génération OU prêt à valider)
+            else {
+                const isGenerating = currentProblem.generating;
+                const otherGenerating = generatingSections.filter(s => s.index !== currentProblem.index).length;
+
+                html += `
+                    <div class="wizard-progress">
+                        <span class="wizard-progress-text">Problème ${currentIndex} sur ${total}</span>
+                    </div>
+                    <div class="wizard-current-problem" id="currentProblemCard">
+                        <div class="wizard-problem-header">
+                            <div class="wizard-problem-title">
+                                <span class="wizard-problem-number">${currentProblem.index}</span>
+                                <span>${currentProblem.probleme}</span>
+                            </div>
+                        </div>
+                        <div class="wizard-problem-content">
+                `;
+
+                // Si en cours de génération, afficher un spinner avec compte à rebours
+                if (isGenerating) {
+                    // Calculer le temps restant estimé
+                    const elapsed = Math.floor((Date.now() - currentProblem.startTime) / 1000);
+                    const remaining = ESTIMATED_SECONDS_PER_SECTION - elapsed;
+                    const countdownText = remaining > 0
+                        ? `~${remaining} seconde${remaining > 1 ? 's' : ''}`
+                        : 'Presque terminé...';
+
+                    html += `
+                            <div class="wizard-textarea-loading">
+                                <div class="loading-spinner">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                                    </svg>
+                                </div>
+                                <p>Génération en cours...</p>
+                                <p class="countdown-timer" id="countdownTimer">${countdownText}</p>
+                            </div>
+                    `;
+                } else {
+                    // Si généré, afficher le textarea
+                    html += `
+                            <textarea class="section-edit-textarea" id="sectionTextarea-${currentProblem.index}">${escapeHtml(currentProblem.section || '')}</textarea>
+                            <button class="wizard-validate-btn" onclick="validateSectionWithText(${currentProblem.index})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Valider ce problème
+                            </button>
+                    `;
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+
+                // Afficher un indicateur si d'autres sections sont en cours de génération
+                if (otherGenerating > 0) {
+                    html += `
+                        <div class="wizard-generating-placeholder">
+                            <div class="generating-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                                    <path d="M12 2a10 10 0 0 1 10 10"/>
+                                </svg>
+                            </div>
+                            <p>${otherGenerating} autre${otherGenerating > 1 ? 's' : ''} problème${otherGenerating > 1 ? 's' : ''} en cours de génération...</p>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = html;
+            updateFinalButtonState();
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function formatSectionText(text) {
+            if (!text) return '';
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^## Problème \d+ : .*/gm, '') // Enlever le titre redondant
+                .replace(/\n/g, '<br>');
+        }
+
+        function toggleSectionExpand(index) {
+            const item = document.querySelector(`.section-review-item[data-index="${index}"]`);
+            if (item) {
+                item.classList.toggle('expanded');
+            }
+        }
+
+        function validateSectionWithText(index) {
+            const section = generatedSections.find(s => s.index === index);
+            if (!section) return;
+
+            const textarea = document.getElementById(`sectionTextarea-${index}`);
+            if (textarea) {
+                section.section = textarea.value.trim();
+            }
+            section.validated = true;
+            saveToLocalStorage();
+
+            // Animation de réduction avant de passer au suivant
+            const currentCard = document.getElementById('currentProblemCard');
+            if (currentCard) {
+                currentCard.classList.add('validating');
+                setTimeout(() => {
+                    renderSectionsList();
+                }, 400); // Attendre la fin de l'animation
+            } else {
+                renderSectionsList();
+            }
+        }
+
+        function updateFinalButtonState() {
+            const allGenerated = generatedSections.every(s => !s.generating);
+            const allValidated = generatedSections.every(s => s.validated);
+            const validatedCount = generatedSections.filter(s => s.validated).length;
+            const totalCount = generatedSections.length;
+            const btn = document.getElementById('generateFinalBtn');
+
+            // Arrêter le compte à rebours si tout est généré
+            if (allGenerated) {
+                stopCountdownTimer();
+            }
+
+            // Retirer la classe spéciale par défaut
+            btn.classList.remove('all-validated');
+
+            if (allValidated && totalCount > 0) {
+                // TOUS les problèmes sont validés - activer le bouton avec style spécial
+                btn.disabled = false;
+                btn.classList.add('all-validated');
+                btn.querySelector('.btn-text').textContent = 'Générer la lettre finale';
+            } else if (allGenerated) {
+                // Sections générées mais pas toutes validées - bouton désactivé
+                btn.disabled = true;
+                btn.querySelector('.btn-text').textContent = `Validez tous les problèmes (${validatedCount}/${totalCount})`;
+            } else {
+                // Sections en cours de génération
+                btn.disabled = true;
+                btn.querySelector('.btn-text').textContent = 'Génération en cours...';
+            }
+        }
+
+        function cancelSectionsReview() {
+            stopCountdownTimer();
+            hideSectionsReview();
+            showFormSection();
+            generatedSections = [];
+            validatedProblems = [];
+            validatedDiagnostic = '';
+        }
+
+        async function generateFinalLetter() {
+            const letterType = document.getElementById('letterType').value;
+
+            // Récupérer les sections dans l'ordre
+            const sectionsOrdered = generatedSections
+                .sort((a, b) => a.index - b.index)
+                .map(s => s.section);
+
+            const btn = document.getElementById('generateFinalBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/assembler`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        letter_type: letterType,
+                        diagnostic_principal: validatedDiagnostic,
+                        sections: sectionsOrdered
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || `Erreur API: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Cacher la section de review
+                hideSectionsReview();
+
+                // Cacher le bouton de retour au formulaire
+                document.getElementById('backToFormBtn').classList.remove('visible');
+
+                // Afficher la lettre générée
+                displayOutput(data.letter);
+
+                // Stocker pour validation ultérieure
+                pendingValidation = {
+                    input: {
+                        context: document.getElementById('contextText').value.trim(),
+                        extraInfo: document.getElementById('extraInfo').value.trim(),
+                        notes: document.getElementById('notesText').value.trim(),
+                        cr: document.getElementById('crText').value.trim(),
+                        imagesCount: uploadedImages.length,
+                        pdfsCount: uploadedPdfs.length,
+                        diagnostic: validatedDiagnostic,
+                        problemes: validatedProblems
+                    },
+                    output: data.letter
+                };
+
+                // Afficher les boutons de validation finale
+                showValidationActions();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur: ' + error.message);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        function displayOutput(text) {
+            document.getElementById('emptyState').style.display = 'none';
+            const output = document.getElementById('outputContent');
+            output.classList.add('visible');
+
+            let formatted = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^(Contexte|Investigations|Discussion|Propositions|Attitude)\s*:?\s*$/gm, '<h3>$1</h3>')
+                .replace(/\n/g, '<br>');
+
+            output.innerHTML = formatted;
+        }
+
+        function parseResponse(text, hasFiles) {
+            // Si pas de fichiers, retourner le texte tel quel
+            if (!hasFiles) {
+                return { extraction: null, letter: text };
+            }
+
+            // Essayer d'extraire les sections avec les marqueurs
+            const extractionMatch = text.match(/```EXTRACTION_DEBUT```([\s\S]*?)```EXTRACTION_FIN```/);
+            const letterMatch = text.match(/```LETTRE_DEBUT```([\s\S]*?)```LETTRE_FIN```/);
+
+            if (extractionMatch && letterMatch) {
+                return {
+                    extraction: extractionMatch[1].trim(),
+                    letter: letterMatch[1].trim()
+                };
+            }
+
+            // Fallback : essayer avec des variantes de marqueurs (Claude peut varier)
+            const extractionMatch2 = text.match(/EXTRACTION_DEBUT([\s\S]*?)EXTRACTION_FIN/);
+            const letterMatch2 = text.match(/LETTRE_DEBUT([\s\S]*?)LETTRE_FIN/);
+
+            if (extractionMatch2 && letterMatch2) {
+                return {
+                    extraction: extractionMatch2[1].trim(),
+                    letter: letterMatch2[1].trim()
+                };
+            }
+
+            // Si les marqueurs ne sont pas trouvés, retourner tout comme lettre
+            // (Claude n'a peut-être pas suivi le format)
+            console.warn('Marqueurs non trouvés dans la réponse, utilisation du texte complet');
+            return { extraction: null, letter: text };
+        }
+
+        // ==================== Copy & Clear ====================
+
+        function copyLetter() {
+            const output = document.getElementById('outputContent');
+            if (!output.innerText) return;
+
+            navigator.clipboard.writeText(output.innerText).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            });
+        }
+
+        function clearOutput() {
+            document.getElementById('emptyState').style.display = 'flex';
+            const output = document.getElementById('outputContent');
+            output.classList.remove('visible');
+            output.innerHTML = '';
+            // Vider les images et PDFs
+            uploadedImages = [];
+            uploadedPdfs = [];
+            renderPreviews();
+            renderPdfPreviews();
+            // Vider les champs texte
+            document.getElementById('contextText').value = '';
+            document.getElementById('extraInfo').value = '';
+            document.getElementById('notesText').value = '';
+            document.getElementById('crText').value = '';
+            // Réinitialiser le mode validation
+            hideValidationActions();
+            // Cacher la section de validation des problèmes
+            hideValidationSection();
+            // Cacher la section de review des sections
+            hideSectionsReview();
+            // Réafficher le formulaire
+            document.querySelector('.input-section').classList.remove('hidden');
+            document.getElementById('generateBtn').classList.remove('hidden');
+            document.getElementById('backToFormBtn').classList.remove('visible');
+            // Réinitialiser les états
+            currentSessionId = null;
+            extractedProblems = [];
+            extractedDiagnostic = '';
+            extractedData = {};
+            generatedSections = [];
+            validatedProblems = [];
+            validatedDiagnostic = '';
+        }
+
+        // ==================== Validation & Correction ====================
+
+        let pendingValidation = null;
+
+        function showValidationActions() {
+            document.getElementById('validationActions').classList.add('visible');
+            document.getElementById('correctionContainer').classList.remove('visible');
+        }
+
+        function hideValidationActions() {
+            document.getElementById('validationActions').classList.remove('visible');
+            document.getElementById('correctionContainer').classList.remove('visible');
+            pendingValidation = null;
+        }
+
+        function validateLetter() {
+            if (!pendingValidation) return;
+
+            // Sauvegarder dans l'historique avec statut "valide"
+            saveToHistoryWithStatus(pendingValidation.input, pendingValidation.output, 'valide');
+
+            hideValidationActions();
+            showToast('Lettre validée et sauvegardée');
+        }
+
+        function showCorrectionMode() {
+            if (!pendingValidation) return;
+
+            // Cacher les boutons de validation
+            document.getElementById('validationActions').classList.remove('visible');
+
+            // Afficher le textarea avec le texte généré
+            const textarea = document.getElementById('correctionTextarea');
+            textarea.value = pendingValidation.output;
+            document.getElementById('correctionContainer').classList.add('visible');
+
+            // Cacher l'output formaté
+            document.getElementById('outputContent').classList.remove('visible');
+
+            // Focus sur le textarea
+            textarea.focus();
+        }
+
+        function validateCorrection() {
+            if (!pendingValidation) return;
+
+            const correctedText = document.getElementById('correctionTextarea').value.trim();
+            if (!correctedText) {
+                alert('La lettre corrigée ne peut pas être vide');
+                return;
+            }
+
+            // Sauvegarder dans l'historique avec statut "corrige"
+            saveToHistoryWithStatus(
+                pendingValidation.input,
+                pendingValidation.output,
+                'corrige',
+                correctedText
+            );
+
+            // Afficher la version corrigée
+            displayOutput(correctedText);
+
+            // Cacher le mode correction
+            document.getElementById('correctionContainer').classList.remove('visible');
+            document.getElementById('outputContent').classList.add('visible');
+
+            hideValidationActions();
+            showToast('Correction validée et sauvegardée');
+        }
+
+        // ==================== History Management ====================
+
+        const HISTORY_KEY = 'mediletter_history';
+        const DRAFT_KEY = 'mediletter_draft';
+        let currentHistoryItem = null;
+
+        // ==================== Persistance localStorage (Brouillon) ====================
+
+        function saveToLocalStorage() {
+            const draft = {
+                contextText: document.getElementById('contextText')?.value || '',
+                extraInfo: document.getElementById('extraInfo')?.value || '',
+                notesText: document.getElementById('notesText')?.value || '',
+                crText: document.getElementById('crText')?.value || '',
+                letterType: document.getElementById('letterType')?.value || 'sortie',
+                modelSelect: document.getElementById('modelSelect')?.value || 'claude-sonnet-4-20250514',
+                generatedSections: generatedSections,
+                validatedProblems: validatedProblems,
+                validatedDiagnostic: validatedDiagnostic,
+                currentSessionId: currentSessionId
+            };
+            try {
+                localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+            } catch (e) {
+                console.warn('Erreur sauvegarde localStorage:', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const draft = JSON.parse(localStorage.getItem(DRAFT_KEY));
+                if (!draft) return;
+
+                if (draft.contextText) document.getElementById('contextText').value = draft.contextText;
+                if (draft.extraInfo) document.getElementById('extraInfo').value = draft.extraInfo;
+                if (draft.notesText) document.getElementById('notesText').value = draft.notesText;
+                if (draft.crText) document.getElementById('crText').value = draft.crText;
+                if (draft.letterType) document.getElementById('letterType').value = draft.letterType;
+                if (draft.modelSelect) document.getElementById('modelSelect').value = draft.modelSelect;
+
+                if (draft.generatedSections && draft.generatedSections.length > 0) {
+                    generatedSections = draft.generatedSections;
+                    validatedProblems = draft.validatedProblems || [];
+                    validatedDiagnostic = draft.validatedDiagnostic || '';
+                    currentSessionId = draft.currentSessionId || null;
+
+                    // Si des sections existent, afficher la section de review
+                    hideFormSection();
+                    showSectionsReview();
+                    renderSectionsList();
+                    updateProgress();
+                }
+            } catch (e) {
+                console.warn('Erreur chargement localStorage:', e);
+            }
+        }
+
+        function clearDraft() {
+            if (!confirm('Effacer toutes les données saisies et les sections en cours ?')) return;
+            localStorage.removeItem(DRAFT_KEY);
+            document.getElementById('contextText').value = '';
+            document.getElementById('extraInfo').value = '';
+            document.getElementById('notesText').value = '';
+            document.getElementById('crText').value = '';
+            uploadedImages = [];
+            uploadedPdfs = [];
+            renderPreviews();
+            renderPdfPreviews();
+            generatedSections = [];
+            validatedProblems = [];
+            validatedDiagnostic = '';
+            extractedProblems = [];
+            extractedDiagnostic = '';
+            extractedData = {};
+            currentSessionId = null;
+            // Cacher les sections de validation et review
+            hideValidationSection();
+            hideSectionsReview();
+            // Réafficher le formulaire
+            document.querySelector('.input-section').classList.remove('hidden');
+            document.getElementById('generateBtn').classList.remove('hidden');
+            document.getElementById('backToFormBtn').classList.remove('visible');
+            showToast('Données effacées');
+        }
+
+        function setupAutoSave() {
+            const fields = ['contextText', 'extraInfo', 'notesText', 'crText', 'letterType', 'modelSelect'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', saveToLocalStorage);
+                    el.addEventListener('change', saveToLocalStorage);
+                }
+            });
+        }
+
+        function getHistory() {
+            try {
+                return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            } catch {
+                return [];
+            }
+        }
+
+        function saveToHistoryWithStatus(input, outputGenere, statut, outputCorrige = null) {
+            const history = getHistory();
+
+            // Structure de base
+            const item = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                letterType: document.getElementById('letterType').value,
+                model: document.getElementById('modelSelect').value,
+                statut: statut,
+                input: {
+                    context: input.context,
+                    extraInfo: input.extraInfo,
+                    notes: input.notes,
+                    cr: input.cr,
+                    imagesCount: input.imagesCount,
+                    pdfsCount: input.pdfsCount,
+                    extractedData: input.extractedData || null
+                }
+            };
+
+            // Ajouter les champs output selon le statut
+            if (statut === 'valide') {
+                item.output = outputGenere;
+            } else if (statut === 'corrige') {
+                item.output_genere = outputGenere;
+                item.output_corrige = outputCorrige;
+            }
+
+            // Garder max 50 entrées pour ne pas surcharger localStorage
+            history.unshift(item);
+            if (history.length > 50) {
+                history.pop();
+            }
+
+            try {
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            } catch (e) {
+                // Si localStorage est plein, supprimer les anciennes entrées
+                console.warn('localStorage plein, suppression des anciennes entrées');
+                history.splice(25);
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            }
+
+            renderHistoryList();
+        }
+
+        function renderHistoryList() {
+            const history = getHistory();
+            const container = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                container.innerHTML = '<div class="history-empty">Aucune lettre générée pour l\'instant</div>';
+                return;
+            }
+
+            container.innerHTML = history.map(item => {
+                const date = new Date(item.date);
+                const dateStr = date.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const typeLabel = item.letterType === 'transfert' ? 'Transfert' : 'Sortie';
+
+                // Gérer les deux formats (ancien et nouveau)
+                const outputText = item.output_corrige || item.output || item.output_genere || '';
+                const preview = outputText.substring(0, 150).replace(/[#*]/g, '') + '...';
+
+                // Statut de validation
+                const statut = item.statut || 'valide'; // Rétrocompatibilité
+                const statutLabel = statut === 'corrige' ? 'Corrigé' : 'Validé';
+
+                return `
+                    <div class="history-item" onclick="openHistoryItem(${item.id})">
+                        <div class="history-item-header">
+                            <span class="history-item-date">${dateStr}</span>
+                            <span class="history-item-type">${typeLabel}</span>
+                            <span class="history-item-status ${statut}">${statutLabel}</span>
+                        </div>
+                        <div class="history-item-preview">${preview}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openHistoryItem(id) {
+            const history = getHistory();
+            const item = history.find(h => h.id === id);
+            if (!item) return;
+
+            currentHistoryItem = item;
+
+            const date = new Date(item.date);
+            const dateStr = date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            document.getElementById('historyModalTitle').textContent = `Lettre du ${dateStr}`;
+
+            let bodyHtml = '';
+
+            // Input sections
+            if (item.input.context) {
+                bodyHtml += `<div class="history-modal-section"><h4>Contexte / Lettre d'entrée</h4><pre>${escapeHtml(item.input.context)}</pre></div>`;
+            }
+            if (item.input.extraInfo) {
+                bodyHtml += `<div class="history-modal-section"><h4>Informations complémentaires</h4><pre>${escapeHtml(item.input.extraInfo)}</pre></div>`;
+            }
+            if (item.input.notes) {
+                bodyHtml += `<div class="history-modal-section"><h4>Notes de suite</h4><pre>${escapeHtml(item.input.notes)}</pre></div>`;
+            }
+            if (item.input.cr) {
+                bodyHtml += `<div class="history-modal-section"><h4>Comptes rendus</h4><pre>${escapeHtml(item.input.cr)}</pre></div>`;
+            }
+
+            // Files info
+            if (item.input.imagesCount > 0 || item.input.pdfsCount > 0) {
+                let filesInfo = '';
+                if (item.input.imagesCount > 0) filesInfo += `${item.input.imagesCount} image(s)`;
+                if (item.input.pdfsCount > 0) filesInfo += `${filesInfo ? ', ' : ''}${item.input.pdfsCount} PDF(s)`;
+                bodyHtml += `<div class="history-modal-section"><h4>Fichiers joints</h4><pre>${filesInfo}</pre></div>`;
+            }
+
+            // Extracted data from files (if any)
+            if (item.input.extractedData) {
+                bodyHtml += `<div class="history-modal-section"><h4>Données extraites des fichiers</h4><pre>${escapeHtml(item.input.extractedData)}</pre></div>`;
+            }
+
+            // Output selon le statut
+            const statut = item.statut || 'valide'; // Rétrocompatibilité
+
+            if (statut === 'corrige' && item.output_genere && item.output_corrige) {
+                // Afficher les deux versions pour une lettre corrigée
+                bodyHtml += `<div class="history-modal-section"><h4>Lettre générée (originale)</h4><pre style="opacity: 0.7; border-left: 3px solid rgba(245, 158, 11, 0.5); padding-left: 1rem;">${escapeHtml(item.output_genere)}</pre></div>`;
+                bodyHtml += `<div class="history-modal-section"><h4>Lettre corrigée (finale)</h4><pre style="border-left: 3px solid #10b981; padding-left: 1rem;">${escapeHtml(item.output_corrige)}</pre></div>`;
+            } else {
+                // Lettre validée directement (ou ancien format)
+                const outputText = item.output || item.output_genere || '';
+                bodyHtml += `<div class="history-modal-section"><h4>Lettre générée</h4><pre>${escapeHtml(outputText)}</pre></div>`;
+            }
+
+            document.getElementById('historyModalBody').innerHTML = bodyHtml;
+            document.getElementById('historyModal').classList.add('show');
+        }
+
+        function closeHistoryModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('historyModal').classList.remove('show');
+        }
+
+        function copyHistoryLetter() {
+            if (!currentHistoryItem) return;
+            // Copier la version finale (corrigée si elle existe, sinon l'originale)
+            const textToCopy = currentHistoryItem.output_corrige || currentHistoryItem.output || currentHistoryItem.output_genere || '';
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast('Lettre copiée dans le presse-papier');
+            });
+        }
+
+        function reloadHistoryItem() {
+            if (!currentHistoryItem) return;
+
+            // Remplir les champs avec les données de l'historique
+            document.getElementById('contextText').value = currentHistoryItem.input.context || '';
+            document.getElementById('extraInfo').value = currentHistoryItem.input.extraInfo || '';
+            document.getElementById('notesText').value = currentHistoryItem.input.notes || '';
+            document.getElementById('crText').value = currentHistoryItem.input.cr || '';
+            document.getElementById('letterType').value = currentHistoryItem.letterType || 'sortie';
+
+            closeHistoryModal();
+            showToast('Données rechargées dans le formulaire');
+
+            // Scroll vers le haut
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function exportHistory() {
+            const history = getHistory();
+            if (history.length === 0) {
+                alert('Aucun historique à exporter');
+                return;
+            }
+
+            const dataStr = JSON.stringify(history, null, 2);
+            // Ajouter le BOM UTF-8 pour garantir l'encodage correct des caractères accentués
+            const bom = '\uFEFF';
+            const blob = new Blob([bom + dataStr], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mediletter_history_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Historique exporté');
+        }
+
+        function clearHistory() {
+            if (!confirm('Supprimer tout l\'historique ? Cette action est irréversible.')) return;
+            localStorage.removeItem(HISTORY_KEY);
+            renderHistoryList();
+            showToast('Historique vidé');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.querySelector('span').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            initSpeechRecognition();
+            renderHistoryList();
+            loadFromLocalStorage();
+            setupAutoSave();
+        });
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
