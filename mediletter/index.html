@@ -2403,22 +2403,16 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 section: null,
                 sectionDisplay: '',
                 validated: false,
-                generating: true,
+                generating: idx === 0, // Only first section starts generating
                 error: false,
-                startTime: Date.now()
+                startTime: idx === 0 ? Date.now() : null
             }));
 
             goToPage(2);
             renderEditor();
-            startCountdownTimer();
 
-            // Generate all sections in parallel
-            const promises = validatedProblems.map((probleme, idx) =>
-                generateSingleSection(probleme, idx, idx === 0)
-            );
-
-            await Promise.all(promises);
-            stopCountdownTimer();
+            // Generate ONLY the first section - user must validate before next one generates
+            await generateSingleSection(validatedProblems[0], 0, true);
 
             // Reset button
             if (btn) {
@@ -2426,36 +2420,24 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 btn.disabled = false;
             }
 
-            // Check if all sections generated successfully
-            const successCount = generatedSections.filter(s => !s.error).length;
-            if (successCount === generatedSections.length) {
-                // Update progress to show completion
-                const progressText = document.getElementById('editorProgressText');
-                const progressFill = document.getElementById('editorProgressFill');
-
-                if (progressText) progressText.innerHTML = '<strong>Termine !</strong> Assemblage de la lettre...';
-                if (progressFill) progressFill.style.width = '100%';
-
-                // Auto-validate all sections
-                generatedSections.forEach(s => {
-                    s.validated = true;
-                    if (!s.sectionDisplay) s.sectionDisplay = s.section;
-                });
-
-                // Update dots to show all done
-                renderEditorDots();
-
-                // Wait 1 second then go to final letter
-                setTimeout(() => {
-                    generateFinalLetter();
-                }, 1000);
+            // Check if first section generated successfully
+            const firstSection = generatedSections[0];
+            if (firstSection && firstSection.error) {
+                showToast('Erreur lors de la generation', 'error');
             } else {
-                showToast('Certaines sections ont echoue', 'error');
+                renderEditor();
             }
         }
 
         async function generateSingleSection(probleme, index, isDiagnosticPrincipal) {
             const section = generatedSections.find(s => s.index === index);
+
+            // Mark section as generating
+            if (section) {
+                section.generating = true;
+                section.startTime = Date.now();
+                renderEditor();
+            }
 
             try {
                 const response = await fetch(`${BACKEND_URL}/generer-section`, {
@@ -2652,6 +2634,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 } else if (i === currentEditorIndex) {
                     classes += ' active';
                     title += ' (En edition)';
+                } else if (!s.section) {
+                    classes += ' pending';
+                    title += ' (En attente)';
                 }
 
                 return `<div class="${classes}" onclick="goToEditorIndex(${i})" title="${title}"></div>`;
@@ -2686,6 +2671,14 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         }
 
         function goToEditorIndex(index) {
+            const targetSection = generatedSections[index];
+
+            // Don't allow navigation to sections that haven't been generated yet
+            if (!targetSection.section && !targetSection.generating && !targetSection.validated) {
+                showToast('Cette section n\'est pas encore disponible', 'warning');
+                return;
+            }
+
             // Save current
             const current = generatedSections[currentEditorIndex];
             const textarea = document.getElementById('editorTextarea');
@@ -2697,10 +2690,17 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             renderEditor();
         }
 
-        function nextProblem() {
+        async function nextProblem() {
             const current = generatedSections[currentEditorIndex];
             const textarea = document.getElementById('editorTextarea');
 
+            // Don't proceed if current section is still generating
+            if (current && current.generating) {
+                showToast('Veuillez attendre la fin de la generation', 'warning');
+                return;
+            }
+
+            // Save and validate current section
             if (current && textarea && !current.generating) {
                 current.section = textarea.value;
                 current.sectionDisplay = textarea.value;
@@ -2708,26 +2708,33 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             }
 
             saveToLocalStorage();
+            showToast('Section validee', 'success');
+            renderEditorDots();
 
-            // Find next unvalidated
-            const nextIdx = generatedSections.findIndex((s, i) => i > currentEditorIndex && !s.validated && !s.error);
-            if (nextIdx !== -1) {
+            // Check if this was the last section
+            const allValidated = generatedSections.every(s => s.validated);
+            if (allValidated) {
+                // ALL sections validated by user - NOW go to final letter
+                generateFinalLetter();
+                return;
+            }
+
+            // Find next section to process
+            const nextIdx = currentEditorIndex + 1;
+            if (nextIdx < generatedSections.length) {
                 currentEditorIndex = nextIdx;
-                renderEditor();
-                showToast('Section validee', 'success');
-            } else {
-                // Check if all are validated
-                const allValidated = generatedSections.every(s => s.validated);
-                if (allValidated) {
-                    generateFinalLetter();
-                } else {
-                    // Find any unvalidated
-                    const anyUnvalidated = generatedSections.findIndex(s => !s.validated && !s.error);
-                    if (anyUnvalidated !== -1) {
-                        currentEditorIndex = anyUnvalidated;
-                        renderEditor();
-                    }
+                const nextSection = generatedSections[nextIdx];
+
+                // If next section hasn't been generated yet, generate it now
+                if (!nextSection.section && !nextSection.generating && !nextSection.error) {
+                    renderEditor(); // Show "generating" state
+                    await generateSingleSection(
+                        nextSection.probleme,
+                        nextIdx,
+                        nextIdx === 0
+                    );
                 }
+                renderEditor();
             }
         }
 
@@ -3265,6 +3272,11 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             background: var(--violet);
             box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
             transform: scale(1.2);
+        }
+        .editor-dot.pending {
+            background: var(--border);
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; transform: scale(1); }
