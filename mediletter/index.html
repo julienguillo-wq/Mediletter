@@ -2227,13 +2227,33 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 }));
                 extractedData = data.donnees_extraites;
 
-                hideLoadingOverlay(true);
+                // Update loading overlay to show completion
+                document.getElementById('loadingTitle').textContent = 'Analyse terminee !';
+                document.getElementById('loadingCountdown').textContent = `${extractedProblems.length} probleme(s) detecte(s)`;
+                document.getElementById('loadingProgressBar').style.width = '100%';
 
+                // Mark all steps as done
+                document.querySelectorAll('.loading-step').forEach(step => {
+                    step.classList.remove('active');
+                    step.classList.add('done');
+                    step.querySelector('.loading-step-icon').innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
+                });
+
+                // Wait then hide overlay and go to problems page
                 setTimeout(() => {
+                    document.getElementById('loadingOverlay').classList.remove('visible');
+
+                    // Clear the loading interval
+                    if (loadingInterval) {
+                        clearInterval(loadingInterval);
+                        loadingInterval = null;
+                    }
+
+                    // Now render problems and navigate to page 2
                     renderProblemsPage();
                     goToPage(1);
-                    showToast(`${extractedProblems.length} probleme(s) detecte(s)`, 'success');
-                }, 600);
+                    showToast(`${extractedProblems.length} probleme(s) detecte(s) - Validez puis cliquez sur "Rediger les sections"`, 'success');
+                }, 800);
 
             } catch (error) {
                 console.error('Error:', error);
