@@ -1913,6 +1913,167 @@
             box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
         }
 
+        /* ==================== Vue Wizard - Focus par problème ==================== */
+
+        .wizard-validated-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .wizard-validated-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: #10b981;
+        }
+
+        .wizard-validated-item svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .wizard-validated-item span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .wizard-progress {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--gradient-subtle);
+            border-radius: var(--radius-sm);
+        }
+
+        .wizard-progress-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .wizard-current-problem {
+            background: var(--bg-glass);
+            border: 2px solid rgba(0, 245, 255, 0.4);
+            border-radius: var(--radius);
+            overflow: hidden;
+            animation: wizardFadeIn 0.3s ease;
+        }
+
+        @keyframes wizardFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .wizard-problem-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-glass-strong);
+            border-bottom: var(--border-glass);
+        }
+
+        .wizard-problem-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .wizard-problem-number {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .wizard-problem-content {
+            padding: 1.5rem;
+        }
+
+        .wizard-problem-content .section-edit-textarea {
+            margin-top: 0;
+            min-height: 200px;
+        }
+
+        .wizard-validate-btn {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.25s ease;
+            margin-top: 1rem;
+        }
+
+        .wizard-validate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+        }
+
+        .wizard-validate-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .wizard-generating {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: var(--radius);
+        }
+
+        .wizard-generating svg {
+            animation: spin 0.8s linear infinite;
+        }
+
+        .wizard-all-done {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius);
+        }
+
+        .wizard-all-done h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+
+        .wizard-all-done p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
         .section-validate-btn svg {
             width: 16px;
             height: 16px;
@@ -2260,7 +2421,7 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
 
             <button class="generate-btn" id="generateBtn" onclick="analyzeDocuments()">
                 <span class="btn-content">
-                    <span>Analyser les documents</span>
+                    <span>Rechercher les problèmes</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
@@ -3125,62 +3286,88 @@ Avis cardio (16.01): ECG sinusal, pas de modification ST. Echo à programmer."
 
         function renderSectionsList() {
             const container = document.getElementById('sectionsList');
-            container.innerHTML = generatedSections.map(section => {
-                const statusClass = section.generating ? 'generating' : (section.validated ? 'validated' : 'ready');
-                const statusText = section.generating ? 'Génération...' : (section.validated ? 'Validée' : 'À valider');
-                const expandedClass = !section.generating && !section.validated ? 'expanded' : '';
 
-                return `
-                    <div class="section-review-item ${statusClass} ${expandedClass}" data-index="${section.index}">
-                        <div class="section-review-header" onclick="toggleSectionExpand(${section.index})">
-                            <div class="section-review-title">
-                                <span class="section-review-number">${section.index}</span>
-                                <span class="section-review-name">${truncateText(section.probleme, 60)}</span>
-                            </div>
-                            <div class="section-review-status">
-                                <span class="section-status-badge ${statusClass}">${statusText}</span>
-                                <button class="section-toggle-btn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"/>
-                                    </svg>
-                                </button>
+            // Séparer les sections validées et non validées
+            const validatedSections = generatedSections.filter(s => s.validated);
+            const pendingSections = generatedSections.filter(s => !s.validated && !s.generating);
+            const generatingSections = generatedSections.filter(s => s.generating);
+
+            const total = generatedSections.length;
+            const currentIndex = validatedSections.length + 1;
+
+            // Trouver le premier problème non validé et non en génération
+            const currentProblem = pendingSections[0];
+
+            let html = '';
+
+            // 1. Afficher les problèmes validés en miniature
+            if (validatedSections.length > 0) {
+                html += `<div class="wizard-validated-list">`;
+                html += validatedSections.map(section => `
+                    <div class="wizard-validated-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>${section.index}. ${truncateText(section.probleme, 30)}</span>
+                    </div>
+                `).join('');
+                html += `</div>`;
+            }
+
+            // 2. Si des sections sont en cours de génération
+            if (generatingSections.length > 0) {
+                html += `
+                    <div class="wizard-generating">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color: var(--accent-purple);">
+                            <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                            <path d="M12 2a10 10 0 0 1 10 10"/>
+                        </svg>
+                        <p style="margin-top: 1rem; color: var(--text-muted);">
+                            Génération des sections en cours... (${generatedSections.filter(s => !s.generating).length}/${total})
+                        </p>
+                    </div>
+                `;
+            }
+            // 3. Si tous sont validés
+            else if (!currentProblem) {
+                html += `
+                    <div class="wizard-all-done">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color: #10b981;">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <h3 style="margin-top: 1rem;">Tous les problèmes sont validés !</h3>
+                        <p>Cliquez sur "Générer la lettre finale" ci-dessous.</p>
+                    </div>
+                `;
+            }
+            // 4. Afficher le problème courant en grand
+            else {
+                html += `
+                    <div class="wizard-progress">
+                        <span class="wizard-progress-text">Problème ${currentIndex} sur ${total}</span>
+                    </div>
+                    <div class="wizard-current-problem">
+                        <div class="wizard-problem-header">
+                            <div class="wizard-problem-title">
+                                <span class="wizard-problem-number">${currentProblem.index}</span>
+                                <span>${currentProblem.probleme}</span>
                             </div>
                         </div>
-                        <div class="section-review-content">
-                            ${section.generating ? `
-                                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                                    <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32" style="animation: spin 0.8s linear infinite;">
-                                        <circle cx="12" cy="12" r="10" opacity="0.3"/>
-                                        <path d="M12 2a10 10 0 0 1 10 10"/>
-                                    </svg>
-                                    <p style="margin-top: 1rem;">Génération en cours...</p>
-                                </div>
-                            ` : `
-                                ${!section.validated ? `
-                                    <textarea class="section-edit-textarea" id="sectionTextarea-${section.index}">${escapeHtml(section.section)}</textarea>
-                                    <div class="section-edit-actions">
-                                        <button class="section-validate-btn" onclick="validateSectionWithText(${section.index})">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                                <polyline points="20 6 9 17 4 12"/>
-                                            </svg>
-                                            Valider
-                                        </button>
-                                    </div>
-                                ` : `
-                                    <div class="section-text">${formatSectionText(section.section)}</div>
-                                    <div style="text-align: center; padding: 0.5rem; color: #10b981;">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="24" height="24">
-                                            <polyline points="20 6 9 17 4 12"/>
-                                        </svg>
-                                        <span style="margin-left: 0.5rem; font-weight: 500;">Section validée</span>
-                                    </div>
-                                `}
-                            `}
+                        <div class="wizard-problem-content">
+                            <textarea class="section-edit-textarea" id="sectionTextarea-${currentProblem.index}">${escapeHtml(currentProblem.section || '')}</textarea>
+                            <button class="wizard-validate-btn" onclick="validateSectionWithText(${currentProblem.index})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Valider ce problème
+                            </button>
                         </div>
                     </div>
                 `;
-            }).join('');
+            }
 
+            container.innerHTML = html;
             updateFinalButtonState();
         }
 
