@@ -695,6 +695,95 @@
         }
 
         /* ============================================
+           UPLOADED FILES LIST
+           ============================================ */
+        .uploaded-files-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .uploaded-files-list:empty {
+            display: none;
+        }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 13px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .file-thumbnail {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: var(--gray-100);
+        }
+
+        .file-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            border-radius: 6px;
+            color: white;
+        }
+
+        .file-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .file-name {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .file-remove {
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: var(--gray-400);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .file-remove:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--red);
+        }
+
+        .file-remove svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ============================================
            BUTTONS
            ============================================ */
         .btn-wrapper {
@@ -1474,6 +1563,8 @@
                                 <span class="upload-hint">Resultats labo</span>
                             </div>
                         </div>
+                        <div class="uploaded-files-list" id="uploadedImagesList"></div>
+                        <div class="uploaded-files-list" id="uploadedPdfsList"></div>
                     </div>
                 </div>
             </div>
@@ -2115,6 +2206,61 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     pdfZone.style.borderStyle = 'dashed';
                 }
             }
+
+            // Render uploaded files lists
+            renderUploadedFiles();
+        }
+
+        function renderUploadedFiles() {
+            const imagesList = document.getElementById('uploadedImagesList');
+            const pdfsList = document.getElementById('uploadedPdfsList');
+
+            // Render images
+            if (imagesList) {
+                imagesList.innerHTML = uploadedImages.map((img, index) => `
+                    <div class="uploaded-file" data-index="${index}">
+                        <img src="${img.data}" class="file-thumbnail" alt="${img.name}" />
+                        <span class="file-name" title="${img.name}">${truncateFileName(img.name)}</span>
+                        <button class="file-remove" onclick="removeFile('images', ${index})" title="Supprimer">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            // Render PDFs
+            if (pdfsList) {
+                pdfsList.innerHTML = uploadedPdfs.map((pdf, index) => `
+                    <div class="uploaded-file" data-index="${index}">
+                        <div class="file-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <span class="file-name" title="${pdf.name}">${truncateFileName(pdf.name)}</span>
+                        <button class="file-remove" onclick="removeFile('pdfs', ${index})" title="Supprimer">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function truncateFileName(name, maxLength = 20) {
+            if (name.length <= maxLength) return name;
+            const ext = name.split('.').pop();
+            const nameWithoutExt = name.slice(0, name.lastIndexOf('.'));
+            const truncated = nameWithoutExt.slice(0, maxLength - ext.length - 4) + '...';
+            return truncated + '.' + ext;
+        }
+
+        function removeFile(type, index) {
+            if (type === 'images') {
+                uploadedImages.splice(index, 1);
+            } else if (type === 'pdfs') {
+                uploadedPdfs.splice(index, 1);
+            }
+            updateUploadZoneStatus();
+            saveToLocalStorage();
+            showToast('Fichier supprime', 'success');
         }
 
         // ==================== Speech Recognition ====================
