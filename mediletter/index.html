@@ -1454,18 +1454,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Qualite</label>
-                            <div class="select-wrapper">
-                                <select class="select" id="quality">
-                                    <option>Haute Qualite</option>
-                                    <option>Ultra Haute Qualite</option>
-                                </select>
-                                <div class="select-icon">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                </div>
-                            </div>
-                        </div>
                         <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
                             <label class="form-label">Infos complementaires</label>
                             <div class="textarea-wrapper" style="flex: 1;">
@@ -3287,7 +3275,6 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 followUpNotes: document.getElementById('followUpNotes')?.value || '',
                 reports: document.getElementById('reports')?.value || '',
                 letterType: document.getElementById('letterType')?.value || 'Lettre de sortie',
-                quality: document.getElementById('quality')?.value || 'Haute Qualite',
                 generatedSections: generatedSections,
                 extractedProblems: extractedProblems,
                 currentSessionId: currentSessionId
@@ -3309,7 +3296,6 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 if (draft.followUpNotes) document.getElementById('followUpNotes').value = draft.followUpNotes;
                 if (draft.reports) document.getElementById('reports').value = draft.reports;
                 if (draft.letterType) document.getElementById('letterType').value = draft.letterType;
-                if (draft.quality) document.getElementById('quality').value = draft.quality;
 
                 if (draft.generatedSections && draft.generatedSections.length > 0) {
                     generatedSections = draft.generatedSections;
@@ -3324,7 +3310,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         }
 
         function setupAutoSave() {
-            ['patientContext', 'additionalInfo', 'followUpNotes', 'reports', 'letterType', 'quality'].forEach(id => {
+            ['patientContext', 'additionalInfo', 'followUpNotes', 'reports', 'letterType'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     el.addEventListener('input', saveToLocalStorage);

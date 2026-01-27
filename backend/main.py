@@ -363,9 +363,9 @@ async def analyser(request: AnalyserRequest):
         if not content:
             raise HTTPException(status_code=400, detail="Aucun contenu à analyser")
 
-        # Appel à Claude pour extraction
+        # Appel à Claude pour extraction (UHQ forcé pour l'analyse)
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=MODELS["ultra_haute_qualite"],  # UHQ pour la recherche des problèmes
             max_tokens=8000,
             system=PROMPT_EXTRACTION,
             messages=[{"role": "user", "content": content}]
@@ -602,9 +602,9 @@ async def generer_section(request: GenererSectionRequest):
 ## DONNÉES EXTRAITES (structurées)
 {json.dumps(session_data['donnees_extraites'], ensure_ascii=False, indent=2)}"""
 
-        # Appel à Claude pour générer cette section
+        # Appel à Claude pour générer cette section (HQ forcé pour la rédaction)
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=MODELS["haute_qualite"],  # HQ pour la rédaction des sections
             max_tokens=4000,
             system=PROMPT_SECTIONS,
             messages=[{
