@@ -398,6 +398,155 @@
             color: var(--gray-500);
         }
 
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: var(--gray-200);
+        }
+
+        .tab.active {
+            background: var(--violet);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Corrections */
+        .correction-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--gray-100);
+        }
+
+        .correction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .correction-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .correction-type.problems {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+
+        .correction-type.section {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8B5CF6;
+        }
+
+        .correction-time {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .diff-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .diff-column {
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .diff-original {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .diff-validated {
+            background: rgba(34, 197, 94, 0.05);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .diff-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .diff-original .diff-label {
+            color: var(--red);
+        }
+
+        .diff-validated .diff-label {
+            color: var(--green);
+        }
+
+        .section-index {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-left: 12px;
+        }
+
+        .corrections-stats {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 12px;
+        }
+
+        .corrections-stat {
+            text-align: center;
+        }
+
+        .corrections-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--violet);
+        }
+
+        .corrections-stat-label {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
         .spinner {
             display: inline-block;
             width: 24px;
@@ -465,29 +614,58 @@
             </div>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Requêtes aujourd'hui</h3>
-                <div class="stat-value" id="todayRequests">-</div>
-                <div class="stat-sub" id="todayTokens">- tokens</div>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('requests')">Requêtes API</button>
+            <button class="tab" onclick="switchTab('corrections')">Corrections</button>
+        </div>
+
+        <!-- Tab Requêtes -->
+        <div class="tab-content active" id="tab-requests">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Requêtes aujourd'hui</h3>
+                    <div class="stat-value" id="todayRequests">-</div>
+                    <div class="stat-sub" id="todayTokens">- tokens</div>
+                </div>
+                <div class="stat-card cost">
+                    <h3>Coût aujourd'hui</h3>
+                    <div class="stat-value" id="todayCost">-</div>
+                    <div class="stat-sub" id="todaySuccessRate">- taux de succès</div>
+                </div>
+                <div class="stat-card">
+                    <h3>7 derniers jours</h3>
+                    <div class="stat-value" id="weekRequests">-</div>
+                    <div class="stat-sub" id="weekCost">Coût : -</div>
+                </div>
             </div>
-            <div class="stat-card cost">
-                <h3>Coût aujourd'hui</h3>
-                <div class="stat-value" id="todayCost">-</div>
-                <div class="stat-sub" id="todaySuccessRate">- taux de succès</div>
-            </div>
-            <div class="stat-card">
-                <h3>7 derniers jours</h3>
-                <div class="stat-value" id="weekRequests">-</div>
-                <div class="stat-sub" id="weekCost">Coût : -</div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>20 dernières requêtes</h2>
+                </div>
+                <div id="tableContent">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Chargement...</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="table-container">
-            <div class="table-header">
-                <h2>20 dernières requêtes</h2>
+        <!-- Tab Corrections -->
+        <div class="tab-content" id="tab-corrections">
+            <div class="corrections-stats" id="correctionsStats">
+                <div class="corrections-stat">
+                    <div class="corrections-stat-value" id="totalCorrections">-</div>
+                    <div class="corrections-stat-label">Total corrections</div>
+                </div>
+                <div class="corrections-stat">
+                    <div class="corrections-stat-value" id="correctionsWithChanges">-</div>
+                    <div class="corrections-stat-label">Avec modifications</div>
+                </div>
             </div>
-            <div id="tableContent">
+
+            <div id="correctionsContent">
                 <div class="loading">
                     <div class="spinner"></div>
                     <p>Chargement...</p>
@@ -526,6 +704,96 @@
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('dashboard').classList.add('active');
             loadStats();
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            // Load data if needed
+            if (tabName === 'corrections') {
+                loadCorrections();
+            }
+        }
+
+        async function loadCorrections() {
+            const content = document.getElementById('correctionsContent');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/corrections`);
+                const data = await response.json();
+
+                // Update stats
+                document.getElementById('totalCorrections').textContent = data.total;
+                document.getElementById('correctionsWithChanges').textContent = data.with_changes;
+
+                if (!data.corrections || data.corrections.length === 0) {
+                    content.innerHTML = '<div class="empty-state">Aucune correction avec modifications</div>';
+                    return;
+                }
+
+                let html = '';
+                data.corrections.forEach(correction => {
+                    const typeClass = correction.type === 'problems' ? 'problems' : 'section';
+                    const typeLabel = correction.type === 'problems' ? 'Problèmes' : 'Section';
+                    const sectionInfo = correction.section_index ? `<span class="section-index">Section ${correction.section_index}</span>` : '';
+
+                    let originalContent = '';
+                    let validatedContent = '';
+
+                    if (correction.type === 'problems') {
+                        // For problems, show lists
+                        const generated = Array.isArray(correction.generated) ? correction.generated : [];
+                        const validated = Array.isArray(correction.validated) ? correction.validated : [];
+                        originalContent = generated.map((p, i) => `${i + 1}. ${escapeHtml(p)}`).join('\n');
+                        validatedContent = validated.map((p, i) => `${i + 1}. ${escapeHtml(p)}`).join('\n');
+                    } else {
+                        // For sections, show text
+                        originalContent = escapeHtml(correction.generated || '');
+                        validatedContent = escapeHtml(correction.validated || '');
+                    }
+
+                    html += `
+                        <div class="correction-card">
+                            <div class="correction-header">
+                                <div>
+                                    <span class="correction-type ${typeClass}">${typeLabel}</span>
+                                    ${sectionInfo}
+                                </div>
+                                <span class="correction-time">${formatTime(correction.timestamp)}</span>
+                            </div>
+                            <div class="diff-container">
+                                <div class="diff-column diff-original">
+                                    <div class="diff-label">Généré par Claude</div>
+                                    ${originalContent}
+                                </div>
+                                <div class="diff-column diff-validated">
+                                    <div class="diff-label">Validé par l'utilisateur</div>
+                                    ${validatedContent}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                content.innerHTML = html;
+
+            } catch (error) {
+                console.error('Erreur chargement corrections:', error);
+                content.innerHTML = '<div class="empty-state">Erreur de connexion à l\'API</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function formatNumber(num) {

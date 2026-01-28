@@ -1927,8 +1927,27 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         // Session and problems state
         let currentSessionId = null;
         let extractedProblems = [];
+        let originalProblemsGenerated = []; // Stocke les problèmes originaux générés par Claude
         let extractedDiagnostic = '';
         let extractedData = {};
+
+        // Function to log corrections to backend
+        async function logCorrection(type, generated, validated, sectionIndex = null) {
+            try {
+                await fetch(`${BACKEND_URL}/log-corrections`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: type,
+                        generated: generated,
+                        validated: validated,
+                        section_index: sectionIndex
+                    })
+                });
+            } catch (error) {
+                console.warn('Erreur logging correction:', error);
+            }
+        }
 
         // Sections review state
         let generatedSections = [];
@@ -2507,6 +2526,8 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     text: p,
                     checked: true
                 }));
+                // Stocker les problèmes originaux pour comparaison ultérieure
+                originalProblemsGenerated = [...data.problemes];
                 extractedData = data.donnees_extraites;
 
                 // Update loading overlay to show completion
@@ -2684,6 +2705,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 return;
             }
 
+            // Log les corrections de problèmes (comparaison originaux vs validés)
+            logCorrection('problems', originalProblemsGenerated, validatedProblems);
+
             // Update button state
             const btn = event.target.closest('.btn');
             if (btn) {
@@ -2700,6 +2724,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 probleme: probleme,
                 section: null,
                 sectionDisplay: '',
+                sectionOriginal: null, // Stocke le texte original généré par Claude
                 validated: false,
                 generating: idx === 0, // Only first section starts generating
                 prefetching: false, // For background pre-generation
@@ -2794,6 +2819,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
                 if (section) {
                     section.section = data.section;
+                    section.sectionOriginal = data.section; // Stocker le texte original pour comparaison
                     section.generating = false;
                     section.error = false;
 
@@ -2900,6 +2926,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
                 // Store the generated content silently
                 section.section = data.section;
+                section.sectionOriginal = data.section; // Stocker le texte original pour comparaison
                 section.sectionDisplay = data.section;
                 section.prefetching = false;
                 section.error = false;
@@ -3119,9 +3146,15 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
             // Save and validate current section
             if (current && textarea && !current.generating) {
-                current.section = textarea.value;
-                current.sectionDisplay = textarea.value;
+                const validatedText = textarea.value;
+                current.section = validatedText;
+                current.sectionDisplay = validatedText;
                 current.validated = true;
+
+                // Log la correction de section (texte original vs texte validé)
+                if (current.sectionOriginal) {
+                    logCorrection('section', current.sectionOriginal, validatedText, currentEditorIndex + 1);
+                }
             }
 
             saveToLocalStorage();
@@ -3363,6 +3396,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             uploadedPdfs = [];
             updateUploadZoneStatus();
             extractedProblems = [];
+            originalProblemsGenerated = [];
             generatedSections = [];
             currentSessionId = null;
             goToPage(0);

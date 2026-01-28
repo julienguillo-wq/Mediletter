@@ -62,12 +62,15 @@ executor = ThreadPoolExecutor(max_workers=10)
 
 LOGS_DIR = Path(__file__).parent / "logs"
 USAGE_FILE = LOGS_DIR / "usage.json"
+CORRECTIONS_FILE = LOGS_DIR / "corrections.json"
 
 def ensure_logs_dir():
     """Crée le répertoire logs s'il n'existe pas."""
     LOGS_DIR.mkdir(exist_ok=True)
     if not USAGE_FILE.exists():
         USAGE_FILE.write_text("[]", encoding="utf-8")
+    if not CORRECTIONS_FILE.exists():
+        CORRECTIONS_FILE.write_text("[]", encoding="utf-8")
 
 # Tarifs par million de tokens (USD)
 PRICING = {
@@ -245,6 +248,13 @@ class AssemblerResponse(BaseModel):
     session_id: str
     letter: str
     status: str
+
+
+class LogCorrectionRequest(BaseModel):
+    type: str  # "problems" ou "section"
+    generated: str | list  # Texte ou liste générée par Claude
+    validated: str | list  # Texte ou liste après modifications utilisateur
+    section_index: Optional[int] = None  # Numéro de section (pour type="section")
 
 
 # ==============================================================================
@@ -469,6 +479,73 @@ async def root():
 async def admin_stats():
     """Retourne les statistiques d'utilisation de l'API."""
     return get_usage_stats()
+
+
+@app.post("/log-corrections")
+async def log_corrections(request: LogCorrectionRequest):
+    """
+    Enregistre les corrections apportées par l'utilisateur.
+    Permet de suivre les différences entre le texte généré et le texte validé.
+    """
+    ensure_logs_dir()
+
+    # Déterminer si des changements ont été apportés
+    if request.type == "problems":
+        # Comparer les listes de problèmes
+        gen_list = request.generated if isinstance(request.generated, list) else []
+        val_list = request.validated if isinstance(request.validated, list) else []
+        has_changes = gen_list != val_list
+    else:
+        # Comparer les textes de section
+        has_changes = str(request.generated).strip() != str(request.validated).strip()
+
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "type": request.type,
+        "generated": request.generated,
+        "validated": request.validated,
+        "section_index": request.section_index,
+        "has_changes": has_changes
+    }
+
+    try:
+        # Lire les corrections existantes
+        corrections = json.loads(CORRECTIONS_FILE.read_text(encoding="utf-8"))
+        corrections.append(entry)
+
+        # Garder seulement les 500 dernières entrées
+        if len(corrections) > 500:
+            corrections = corrections[-500:]
+
+        CORRECTIONS_FILE.write_text(json.dumps(corrections, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        return {"status": "logged", "has_changes": has_changes}
+    except Exception as e:
+        print(f"Erreur logging correction: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur logging: {str(e)}")
+
+
+@app.get("/admin/corrections")
+async def admin_corrections():
+    """
+    Retourne les corrections qui ont des changements (has_changes: true).
+    """
+    ensure_logs_dir()
+
+    try:
+        corrections = json.loads(CORRECTIONS_FILE.read_text(encoding="utf-8"))
+    except:
+        corrections = []
+
+    # Filtrer pour ne garder que les corrections avec changements
+    corrections_with_changes = [c for c in corrections if c.get("has_changes", False)]
+
+    # Retourner les 50 dernières corrections avec changements (les plus récentes en premier)
+    return {
+        "total": len(corrections),
+        "with_changes": len(corrections_with_changes),
+        "corrections": corrections_with_changes[-50:][::-1]
+    }
 
 
 @app.post("/analyser", response_model=AnalyserResponse)
