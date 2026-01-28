@@ -95,12 +95,14 @@ def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
     return round(cost_eur, 4)
 
 def log_usage(endpoint: str, model: str = None, tokens_input: int = 0, tokens_output: int = 0,
-              cost_eur: float = 0, images_count: int = 0, pdfs_count: int = 0, success: bool = True):
+              cost_eur: float = 0, images_count: int = 0, pdfs_count: int = 0, success: bool = True,
+              session_id: str = None):
     """Enregistre une requête dans le fichier de logs."""
     ensure_logs_dir()
 
     entry = {
         "timestamp": datetime.now().isoformat(),
+        "session_id": session_id,
         "endpoint": endpoint,
         "model": get_model_type(model) if model else None,
         "tokens_input": tokens_input,
@@ -548,6 +550,110 @@ async def admin_corrections():
     }
 
 
+@app.get("/admin/sessions")
+async def admin_sessions():
+    """
+    Retourne les logs regroupés par session (lettre).
+    Chaque session représente une lettre générée.
+    """
+    ensure_logs_dir()
+
+    try:
+        logs = json.loads(USAGE_FILE.read_text(encoding="utf-8"))
+    except:
+        logs = []
+
+    # Regrouper par session_id
+    sessions_dict = {}
+    for log in logs:
+        sid = log.get("session_id")
+        if not sid:
+            continue
+
+        if sid not in sessions_dict:
+            sessions_dict[sid] = {
+                "session_id": sid,
+                "start_time": log.get("timestamp"),
+                "end_time": log.get("timestamp"),
+                "requests": [],
+                "requests_count": 0,
+                "total_tokens": 0,
+                "total_cost": 0,
+                "images_count": 0,
+                "pdfs_count": 0,
+                "success": True
+            }
+
+        session = sessions_dict[sid]
+        session["requests"].append(log)
+        session["requests_count"] += 1
+        session["total_tokens"] += log.get("tokens", 0)
+        session["total_cost"] += log.get("cost_eur", 0) or 0
+        session["images_count"] = max(session["images_count"], log.get("images_count", 0))
+        session["pdfs_count"] = max(session["pdfs_count"], log.get("pdfs_count", 0))
+
+        # Mettre à jour end_time
+        if log.get("timestamp", "") > session["end_time"]:
+            session["end_time"] = log.get("timestamp")
+
+        # Si une requête échoue, la session est marquée comme échouée
+        if not log.get("success", True):
+            session["success"] = False
+
+    # Convertir en liste et trier par date de début (plus récent en premier)
+    sessions_list = list(sessions_dict.values())
+    sessions_list.sort(key=lambda x: x["start_time"], reverse=True)
+
+    # Arrondir les coûts et retirer les détails des requêtes pour la liste
+    for session in sessions_list:
+        session["total_cost"] = round(session["total_cost"], 4)
+        del session["requests"]  # On garde juste le résumé pour la liste
+
+    return {
+        "sessions_count": len(sessions_list),
+        "sessions": sessions_list[:50]  # Les 50 dernières sessions
+    }
+
+
+@app.get("/admin/session/{session_id}")
+async def admin_session_detail(session_id: str):
+    """
+    Retourne les détails d'une session spécifique.
+    """
+    ensure_logs_dir()
+
+    try:
+        logs = json.loads(USAGE_FILE.read_text(encoding="utf-8"))
+    except:
+        logs = []
+
+    # Filtrer les logs pour cette session
+    session_logs = [log for log in logs if log.get("session_id") == session_id]
+
+    if not session_logs:
+        raise HTTPException(status_code=404, detail="Session non trouvée")
+
+    # Calculer les totaux
+    total_tokens = sum(log.get("tokens", 0) for log in session_logs)
+    total_cost = sum(log.get("cost_eur", 0) or 0 for log in session_logs)
+    images_count = max((log.get("images_count", 0) for log in session_logs), default=0)
+    pdfs_count = max((log.get("pdfs_count", 0) for log in session_logs), default=0)
+    success = all(log.get("success", True) for log in session_logs)
+
+    return {
+        "session_id": session_id,
+        "start_time": session_logs[0].get("timestamp") if session_logs else None,
+        "end_time": session_logs[-1].get("timestamp") if session_logs else None,
+        "requests_count": len(session_logs),
+        "total_tokens": total_tokens,
+        "total_cost": round(total_cost, 4),
+        "images_count": images_count,
+        "pdfs_count": pdfs_count,
+        "success": success,
+        "requests": session_logs
+    }
+
+
 @app.post("/analyser", response_model=AnalyserResponse)
 async def analyser(request: AnalyserRequest):
     """
@@ -627,7 +733,7 @@ async def analyser(request: AnalyserRequest):
         }
 
         # Logger la requête
-        log_usage("/analyser", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True)
+        log_usage("/analyser", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True, session_id=request.session_id)
 
         return AnalyserResponse(
             session_id=request.session_id,
@@ -639,7 +745,7 @@ async def analyser(request: AnalyserRequest):
 
     except anthropic.APIError as e:
         # Logger l'échec
-        log_usage("/analyser", MODELS["ultra_haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False)
+        log_usage("/analyser", MODELS["ultra_haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False, session_id=request.session_id)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
@@ -844,7 +950,7 @@ async def generer_section(request: GenererSectionRequest):
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/generer-section", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True)
+        log_usage("/generer-section", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id)
 
         return GenererSectionResponse(
             session_id=request.session_id,
@@ -854,7 +960,7 @@ async def generer_section(request: GenererSectionRequest):
         )
 
     except anthropic.APIError as e:
-        log_usage("/generer-section", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False)
+        log_usage("/generer-section", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False, session_id=request.session_id)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
@@ -967,7 +1073,7 @@ async def assembler(request: AssemblerRequest):
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/assembler", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True)
+        log_usage("/assembler", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id)
 
         return AssemblerResponse(
             session_id=request.session_id,
@@ -976,7 +1082,7 @@ async def assembler(request: AssemblerRequest):
         )
 
     except anthropic.APIError as e:
-        log_usage("/assembler", model_used, 0, 0, 0, 0, 0, success=False)
+        log_usage("/assembler", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")

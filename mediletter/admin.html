@@ -547,6 +547,85 @@
             color: var(--gray-500);
         }
 
+        /* Session details */
+        .session-id {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 11px;
+            color: var(--gray-500);
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-details {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-details:hover {
+            background: var(--violet);
+            color: white;
+        }
+
+        .btn-back {
+            padding: 8px 16px;
+            font-size: 13px;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-back:hover {
+            background: var(--gray-200);
+        }
+
+        .session-detail-header {
+            background: var(--white);
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .session-detail-header h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .session-detail-stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .session-detail-stat {
+            text-align: center;
+        }
+
+        .session-detail-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--violet);
+        }
+
+        .session-detail-stat-label {
+            font-size: 11px;
+            color: var(--gray-500);
+        }
+
         .spinner {
             display: inline-block;
             width: 24px;
@@ -609,18 +688,18 @@
         <div class="header">
             <h1>MediLetter Admin</h1>
             <div class="header-actions">
-                <button class="btn btn-refresh" onclick="loadStats()">Actualiser</button>
+                <button class="btn btn-refresh" onclick="loadStats(); loadSessions();">Actualiser</button>
                 <button class="btn btn-logout" onclick="logout()">Déconnexion</button>
             </div>
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('requests')">Requêtes API</button>
+            <button class="tab active" onclick="switchTab('sessions')">Lettres (Sessions)</button>
             <button class="tab" onclick="switchTab('corrections')">Corrections</button>
         </div>
 
-        <!-- Tab Requêtes -->
-        <div class="tab-content active" id="tab-requests">
+        <!-- Tab Sessions -->
+        <div class="tab-content active" id="tab-sessions">
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Requêtes aujourd'hui</h3>
@@ -641,9 +720,9 @@
 
             <div class="table-container">
                 <div class="table-header">
-                    <h2>20 dernières requêtes</h2>
+                    <h2 id="sessionsTableTitle">Dernières lettres générées</h2>
                 </div>
-                <div id="tableContent">
+                <div id="sessionsContent">
                     <div class="loading">
                         <div class="spinner"></div>
                         <p>Chargement...</p>
@@ -704,6 +783,7 @@
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('dashboard').classList.add('active');
             loadStats();
+            loadSessions();
         }
 
         function switchTab(tabName) {
@@ -718,6 +798,163 @@
             // Load data if needed
             if (tabName === 'corrections') {
                 loadCorrections();
+            } else if (tabName === 'sessions') {
+                loadSessions();
+            }
+        }
+
+        async function loadSessions() {
+            const content = document.getElementById('sessionsContent');
+            const title = document.getElementById('sessionsTableTitle');
+            title.textContent = 'Dernières lettres générées';
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/sessions`);
+                const data = await response.json();
+
+                if (!data.sessions || data.sessions.length === 0) {
+                    content.innerHTML = '<div class="empty-state">Aucune session enregistrée</div>';
+                    return;
+                }
+
+                let tableHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date/Heure</th>
+                                <th>Session ID</th>
+                                <th>Requêtes</th>
+                                <th>Tokens</th>
+                                <th>Coût</th>
+                                <th>Images</th>
+                                <th>PDFs</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                data.sessions.forEach(session => {
+                    const tokens = session.total_tokens ? formatNumber(session.total_tokens) : '-';
+                    const cost = session.total_cost ? session.total_cost.toFixed(2) + '€' : '-';
+                    const shortId = session.session_id.substring(0, 8) + '...';
+
+                    tableHtml += `
+                        <tr>
+                            <td class="time-cell">${formatTime(session.start_time)}</td>
+                            <td><span class="session-id" title="${session.session_id}">${shortId}</span></td>
+                            <td>${session.requests_count}</td>
+                            <td class="tokens-cell">${tokens}</td>
+                            <td class="cost-cell">${cost}</td>
+                            <td>${session.images_count || 0}</td>
+                            <td>${session.pdfs_count || 0}</td>
+                            <td>
+                                <span class="badge ${session.success ? 'badge-success' : 'badge-error'}">
+                                    ${session.success ? 'Succès' : 'Échec'}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn-details" onclick="showSessionDetail('${session.session_id}')">Détails</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += '</tbody></table>';
+                content.innerHTML = tableHtml;
+
+            } catch (error) {
+                console.error('Erreur chargement sessions:', error);
+                content.innerHTML = '<div class="empty-state">Erreur de connexion à l\'API</div>';
+            }
+        }
+
+        async function showSessionDetail(sessionId) {
+            const content = document.getElementById('sessionsContent');
+            const title = document.getElementById('sessionsTableTitle');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/session/${sessionId}`);
+                const session = await response.json();
+
+                title.textContent = 'Détails de la session';
+
+                let html = `
+                    <button class="btn-back" onclick="loadSessions()">
+                        ← Retour aux sessions
+                    </button>
+
+                    <div class="session-detail-header">
+                        <h3>Session: ${sessionId}</h3>
+                        <div class="session-detail-stats">
+                            <div class="session-detail-stat">
+                                <div class="session-detail-stat-value">${session.requests_count}</div>
+                                <div class="session-detail-stat-label">Requêtes</div>
+                            </div>
+                            <div class="session-detail-stat">
+                                <div class="session-detail-stat-value">${formatNumber(session.total_tokens)}</div>
+                                <div class="session-detail-stat-label">Tokens</div>
+                            </div>
+                            <div class="session-detail-stat">
+                                <div class="session-detail-stat-value">${session.total_cost.toFixed(2)}€</div>
+                                <div class="session-detail-stat-label">Coût</div>
+                            </div>
+                            <div class="session-detail-stat">
+                                <div class="session-detail-stat-value">${session.images_count}</div>
+                                <div class="session-detail-stat-label">Images</div>
+                            </div>
+                            <div class="session-detail-stat">
+                                <div class="session-detail-stat-value">${session.pdfs_count}</div>
+                                <div class="session-detail-stat-label">PDFs</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date/Heure</th>
+                                <th>Endpoint</th>
+                                <th>Modèle</th>
+                                <th>Tokens</th>
+                                <th>Coût</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                session.requests.forEach(req => {
+                    const tokens = req.tokens ? formatNumber(req.tokens) : '-';
+                    const model = req.model || '-';
+                    const modelHtml = model !== '-' ? `<span class="model-badge model-${model}">${model}</span>` : '-';
+                    const cost = req.cost_eur ? req.cost_eur.toFixed(4) + '€' : '-';
+
+                    html += `
+                        <tr>
+                            <td class="time-cell">${formatTime(req.timestamp)}</td>
+                            <td><span class="endpoint">${req.endpoint}</span></td>
+                            <td>${modelHtml}</td>
+                            <td class="tokens-cell">${tokens}</td>
+                            <td class="cost-cell">${cost}</td>
+                            <td>
+                                <span class="badge ${req.success ? 'badge-success' : 'badge-error'}">
+                                    ${req.success ? 'Succès' : 'Échec'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                content.innerHTML = html;
+
+            } catch (error) {
+                console.error('Erreur chargement session:', error);
+                content.innerHTML = '<div class="empty-state">Erreur de connexion à l\'API</div>';
             }
         }
 
@@ -841,71 +1078,8 @@
                 document.getElementById('weekRequests').textContent = data.last_7_days.requests;
                 document.getElementById('weekCost').textContent = 'Coût : ' + (data.last_7_days.cost_eur || 0).toFixed(2) + '€';
 
-                // Update table
-                const tableContent = document.getElementById('tableContent');
-
-                if (!data.last_20_requests || data.last_20_requests.length === 0) {
-                    tableContent.innerHTML = '<div class="empty-state">Aucune requête enregistrée</div>';
-                    return;
-                }
-
-                let tableHtml = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date/Heure</th>
-                                <th>Endpoint</th>
-                                <th>Modèle</th>
-                                <th>Tokens</th>
-                                <th>Capacité</th>
-                                <th>Coût</th>
-                                <th>Images</th>
-                                <th>PDFs</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-
-                data.last_20_requests.forEach(req => {
-                    const tokensRaw = req.tokens || req.tokens_real || 0;
-                    const tokens = tokensRaw ? formatNumber(tokensRaw) : '-';
-                    const capacity = getCapacityInfo(tokensRaw);
-                    const capacityHtml = tokensRaw ? `
-                        <div class="capacity-percent" style="color: ${capacity.color}">${capacity.percent}%</div>
-                        <div class="capacity-bar">
-                            <div class="capacity-bar-fill" style="width: ${Math.min(capacity.percent, 100)}%; background: ${capacity.color}"></div>
-                        </div>
-                    ` : '-';
-                    const model = req.model || '-';
-                    const modelHtml = model !== '-' ? `<span class="model-badge model-${model}">${model}</span>` : '-';
-                    const cost = req.cost_eur ? req.cost_eur.toFixed(2) + '€' : '-';
-                    tableHtml += `
-                        <tr>
-                            <td class="time-cell">${formatTime(req.timestamp)}</td>
-                            <td><span class="endpoint">${req.endpoint}</span></td>
-                            <td>${modelHtml}</td>
-                            <td class="tokens-cell">${tokens}</td>
-                            <td class="capacity-cell">${capacityHtml}</td>
-                            <td class="cost-cell">${cost}</td>
-                            <td>${req.images_count || 0}</td>
-                            <td>${req.pdfs_count || 0}</td>
-                            <td>
-                                <span class="badge ${req.success ? 'badge-success' : 'badge-error'}">
-                                    ${req.success ? 'Succès' : 'Échec'}
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                tableHtml += '</tbody></table>';
-                tableContent.innerHTML = tableHtml;
-
             } catch (error) {
                 console.error('Erreur chargement stats:', error);
-                document.getElementById('tableContent').innerHTML =
-                    '<div class="empty-state">Erreur de connexion à l\'API</div>';
             }
         }
 
@@ -921,6 +1095,10 @@
         setInterval(() => {
             if (document.getElementById('dashboard').classList.contains('active')) {
                 loadStats();
+                // Reload sessions only if on sessions tab
+                if (document.getElementById('tab-sessions').classList.contains('active')) {
+                    loadSessions();
+                }
             }
         }, 30000);
     </script>
