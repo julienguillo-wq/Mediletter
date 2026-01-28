@@ -335,6 +335,29 @@
             color: var(--gray-500);
         }
 
+        .capacity-cell {
+            min-width: 80px;
+        }
+
+        .capacity-percent {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .capacity-bar {
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .capacity-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -494,6 +517,19 @@
             return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
         }
 
+        function getCapacityInfo(tokens) {
+            const capacity = (tokens / 200000) * 100;
+            let color;
+            if (capacity < 50) {
+                color = '#10b981'; // Vert
+            } else if (capacity <= 80) {
+                color = '#f59e0b'; // Orange
+            } else {
+                color = '#ef4444'; // Rouge
+            }
+            return { percent: Math.round(capacity), color };
+        }
+
         async function loadStats() {
             try {
                 const response = await fetch(`${API_URL}/admin/stats`);
@@ -524,6 +560,7 @@
                                 <th>Date/Heure</th>
                                 <th>Endpoint</th>
                                 <th>Tokens</th>
+                                <th>Capacité</th>
                                 <th>Images</th>
                                 <th>PDFs</th>
                                 <th>Statut</th>
@@ -533,12 +570,21 @@
                 `;
 
                 data.last_20_requests.forEach(req => {
-                    const tokens = req.tokens || req.tokens_real ? formatNumber(req.tokens || req.tokens_real) : '-';
+                    const tokensRaw = req.tokens || req.tokens_real || 0;
+                    const tokens = tokensRaw ? formatNumber(tokensRaw) : '-';
+                    const capacity = getCapacityInfo(tokensRaw);
+                    const capacityHtml = tokensRaw ? `
+                        <div class="capacity-percent" style="color: ${capacity.color}">${capacity.percent}%</div>
+                        <div class="capacity-bar">
+                            <div class="capacity-bar-fill" style="width: ${Math.min(capacity.percent, 100)}%; background: ${capacity.color}"></div>
+                        </div>
+                    ` : '-';
                     tableHtml += `
                         <tr>
                             <td class="time-cell">${formatTime(req.timestamp)}</td>
                             <td><span class="endpoint">${req.endpoint}</span></td>
                             <td class="tokens-cell">${tokens}</td>
+                            <td class="capacity-cell">${capacityHtml}</td>
                             <td>${req.images_count || 0}</td>
                             <td>${req.pdfs_count || 0}</td>
                             <td>
