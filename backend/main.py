@@ -14,6 +14,8 @@ import json
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
+from pathlib import Path
 
 # Charger les variables d'environnement depuis .env
 load_dotenv()
@@ -53,6 +55,97 @@ MODELS = {
 
 # Thread pool pour parallélisation des appels API
 executor = ThreadPoolExecutor(max_workers=10)
+
+# ==============================================================================
+# Logging Usage
+# ==============================================================================
+
+LOGS_DIR = Path(__file__).parent / "logs"
+USAGE_FILE = LOGS_DIR / "usage.json"
+
+def ensure_logs_dir():
+    """Crée le répertoire logs s'il n'existe pas."""
+    LOGS_DIR.mkdir(exist_ok=True)
+    if not USAGE_FILE.exists():
+        USAGE_FILE.write_text("[]", encoding="utf-8")
+
+def estimate_tokens(text: str = "", images_count: int = 0, pdfs_count: int = 0) -> int:
+    """Estime le nombre de tokens pour une requête."""
+    # ~4 caractères par token pour le texte
+    text_tokens = len(text) // 4 if text else 0
+    # ~1500 tokens par image compressée (estimation moyenne)
+    image_tokens = images_count * 1500
+    # ~3000 tokens par page PDF (estimation ~2 pages par PDF)
+    pdf_tokens = pdfs_count * 6000
+    return text_tokens + image_tokens + pdf_tokens
+
+def log_usage(endpoint: str, tokens_estimated: int, images_count: int = 0,
+              pdfs_count: int = 0, success: bool = True):
+    """Enregistre une requête dans le fichier de logs."""
+    ensure_logs_dir()
+
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "endpoint": endpoint,
+        "tokens_estimated": tokens_estimated,
+        "images_count": images_count,
+        "pdfs_count": pdfs_count,
+        "success": success
+    }
+
+    try:
+        # Lire les logs existants
+        logs = json.loads(USAGE_FILE.read_text(encoding="utf-8"))
+        logs.append(entry)
+
+        # Garder seulement les 1000 dernières entrées
+        if len(logs) > 1000:
+            logs = logs[-1000:]
+
+        USAGE_FILE.write_text(json.dumps(logs, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception as e:
+        print(f"Erreur logging: {e}")
+
+def get_usage_stats() -> dict:
+    """Retourne les statistiques d'utilisation."""
+    ensure_logs_dir()
+
+    try:
+        logs = json.loads(USAGE_FILE.read_text(encoding="utf-8"))
+    except:
+        logs = []
+
+    now = datetime.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_ago = now - timedelta(days=7)
+
+    today_logs = []
+    week_logs = []
+
+    for log in logs:
+        try:
+            ts = datetime.fromisoformat(log["timestamp"])
+            if ts >= today_start:
+                today_logs.append(log)
+            if ts >= week_ago:
+                week_logs.append(log)
+        except:
+            continue
+
+    return {
+        "today": {
+            "requests": len(today_logs),
+            "tokens": sum(l.get("tokens_estimated", 0) for l in today_logs),
+            "success_rate": round(sum(1 for l in today_logs if l.get("success")) / len(today_logs) * 100, 1) if today_logs else 100
+        },
+        "last_7_days": {
+            "requests": len(week_logs),
+            "tokens": sum(l.get("tokens_estimated", 0) for l in week_logs),
+            "success_rate": round(sum(1 for l in week_logs if l.get("success")) / len(week_logs) * 100, 1) if week_logs else 100
+        },
+        "last_20_requests": logs[-20:][::-1] if logs else [],
+        "last_request": logs[-1] if logs else None
+    }
 
 
 # ==============================================================================
@@ -348,6 +441,12 @@ async def root():
     return {"message": "MediLetter API v2.1.0 - Parallélisé", "status": "ok"}
 
 
+@app.get("/admin/stats")
+async def admin_stats():
+    """Retourne les statistiques d'utilisation de l'API."""
+    return get_usage_stats()
+
+
 @app.post("/analyser", response_model=AnalyserResponse)
 async def analyser(request: AnalyserRequest):
     """
@@ -403,6 +502,10 @@ async def analyser(request: AnalyserRequest):
             if key in extraction and key not in donnees_extraites:
                 donnees_extraites[key] = extraction[key]
 
+        # Compter les fichiers
+        images_count = len(request.images_base64) if request.images_base64 else 0
+        pdfs_count = len(request.pdfs_base64) if request.pdfs_base64 else 0
+
         # Stocker en session
         sessions[request.session_id] = {
             "context": request.context,
@@ -412,9 +515,14 @@ async def analyser(request: AnalyserRequest):
             "diagnostic_principal": diagnostic_principal,
             "problemes": problemes,
             "donnees_extraites": donnees_extraites,
-            "images_count": len(request.images_base64) if request.images_base64 else 0,
-            "pdfs_count": len(request.pdfs_base64) if request.pdfs_base64 else 0
+            "images_count": images_count,
+            "pdfs_count": pdfs_count
         }
+
+        # Logger la requête
+        text_content = f"{request.context or ''}{request.extra_info or ''}{request.notes or ''}{request.cr or ''}"
+        tokens = estimate_tokens(text_content, images_count, pdfs_count)
+        log_usage("/analyser", tokens, images_count, pdfs_count, success=True)
 
         return AnalyserResponse(
             session_id=request.session_id,
@@ -425,6 +533,12 @@ async def analyser(request: AnalyserRequest):
         )
 
     except anthropic.APIError as e:
+        # Logger l'échec
+        images_count = len(request.images_base64) if request.images_base64 else 0
+        pdfs_count = len(request.pdfs_base64) if request.pdfs_base64 else 0
+        text_content = f"{request.context or ''}{request.extra_info or ''}{request.notes or ''}{request.cr or ''}"
+        tokens = estimate_tokens(text_content, images_count, pdfs_count)
+        log_usage("/analyser", tokens, images_count, pdfs_count, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")

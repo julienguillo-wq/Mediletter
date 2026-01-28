@@ -1,0 +1,3 @@
+# Ignore les logs mais garde le dossier
+*.json
+!.gitignore
