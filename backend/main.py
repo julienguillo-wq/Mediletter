@@ -69,15 +69,41 @@ def ensure_logs_dir():
     if not USAGE_FILE.exists():
         USAGE_FILE.write_text("[]", encoding="utf-8")
 
-def log_usage(endpoint: str, tokens: int = None,
-              images_count: int = 0, pdfs_count: int = 0, success: bool = True):
+# Tarifs par million de tokens (USD)
+PRICING = {
+    "opus": {"input": 15, "output": 75},
+    "sonnet": {"input": 3, "output": 15}
+}
+EUR_RATE = 0.92
+
+def get_model_type(model_id: str) -> str:
+    """Retourne le type de modèle (opus/sonnet) depuis l'ID."""
+    if "opus" in model_id.lower():
+        return "opus"
+    return "sonnet"
+
+def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
+    """Calcule le coût en euros."""
+    model_type = get_model_type(model)
+    pricing = PRICING.get(model_type, PRICING["sonnet"])
+
+    cost_usd = (input_tokens * pricing["input"] / 1_000_000) + (output_tokens * pricing["output"] / 1_000_000)
+    cost_eur = cost_usd * EUR_RATE
+    return round(cost_eur, 4)
+
+def log_usage(endpoint: str, model: str = None, tokens_input: int = 0, tokens_output: int = 0,
+              cost_eur: float = 0, images_count: int = 0, pdfs_count: int = 0, success: bool = True):
     """Enregistre une requête dans le fichier de logs."""
     ensure_logs_dir()
 
     entry = {
         "timestamp": datetime.now().isoformat(),
         "endpoint": endpoint,
-        "tokens": tokens,
+        "model": get_model_type(model) if model else None,
+        "tokens_input": tokens_input,
+        "tokens_output": tokens_output,
+        "tokens": tokens_input + tokens_output,
+        "cost_eur": cost_eur,
         "images_count": images_count,
         "pdfs_count": pdfs_count,
         "success": success
@@ -125,15 +151,20 @@ def get_usage_stats() -> dict:
     def get_tokens(log):
         return log.get("tokens") or log.get("tokens_real") or 0
 
+    def get_cost(log):
+        return log.get("cost_eur", 0) or 0
+
     return {
         "today": {
             "requests": len(today_logs),
             "tokens": sum(get_tokens(l) for l in today_logs),
+            "cost_eur": round(sum(get_cost(l) for l in today_logs), 2),
             "success_rate": round(sum(1 for l in today_logs if l.get("success")) / len(today_logs) * 100, 1) if today_logs else 100
         },
         "last_7_days": {
             "requests": len(week_logs),
             "tokens": sum(get_tokens(l) for l in week_logs),
+            "cost_eur": round(sum(get_cost(l) for l in week_logs), 2),
             "success_rate": round(sum(1 for l in week_logs if l.get("success")) / len(week_logs) * 100, 1) if week_logs else 100
         },
         "last_20_requests": logs[-20:][::-1] if logs else [],
@@ -467,8 +498,11 @@ async def analyser(request: AnalyserRequest):
             messages=[{"role": "user", "content": content}]
         )
 
-        # Récupérer les tokens
-        tokens = response.usage.input_tokens + response.usage.output_tokens
+        # Récupérer les tokens et calculer le coût
+        tokens_input = response.usage.input_tokens
+        tokens_output = response.usage.output_tokens
+        model_used = MODELS["ultra_haute_qualite"]
+        cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
 
         extraction_text = response.content[0].text
 
@@ -516,7 +550,7 @@ async def analyser(request: AnalyserRequest):
         }
 
         # Logger la requête
-        log_usage("/analyser", tokens, images_count, pdfs_count, success=True)
+        log_usage("/analyser", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True)
 
         return AnalyserResponse(
             session_id=request.session_id,
@@ -528,7 +562,7 @@ async def analyser(request: AnalyserRequest):
 
     except anthropic.APIError as e:
         # Logger l'échec
-        log_usage("/analyser", None, images_count, pdfs_count, success=False)
+        log_usage("/analyser", MODELS["ultra_haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
@@ -706,17 +740,34 @@ async def generer_section(request: GenererSectionRequest):
 ## DONNÉES EXTRAITES (structurées)
 {json.dumps(session_data['donnees_extraites'], ensure_ascii=False, indent=2)}"""
 
-        # Appel à Claude pour générer cette section (HQ forcé pour la rédaction)
+        model_used = MODELS["haute_qualite"]
+
+        # Appel à Claude pour générer cette section avec prompt caching
         response = client.messages.create(
-            model=MODELS["haute_qualite"],  # HQ pour la rédaction des sections
+            model=model_used,
             max_tokens=4000,
-            system=PROMPT_SECTIONS,
             messages=[{
                 "role": "user",
-                "content": generation_context
+                "content": [
+                    {
+                        "type": "text",
+                        "text": PROMPT_SECTIONS,
+                        "cache_control": {"type": "ephemeral"}
+                    },
+                    {
+                        "type": "text",
+                        "text": generation_context
+                    }
+                ]
             }]
         )
         section_text = response.content[0].text
+
+        # Logger la requête
+        tokens_input = response.usage.input_tokens
+        tokens_output = response.usage.output_tokens
+        cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
+        log_usage("/generer-section", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True)
 
         return GenererSectionResponse(
             session_id=request.session_id,
@@ -726,6 +777,7 @@ async def generer_section(request: GenererSectionRequest):
         )
 
     except anthropic.APIError as e:
+        log_usage("/generer-section", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
@@ -816,13 +868,15 @@ async def assembler(request: AssemblerRequest):
             detail="Session non trouvée."
         )
 
+    model_used = MODELS["haute_qualite"]
+
     try:
         # Joindre toutes les sections
         sections_text = "\n\n".join(request.sections)
 
         # Appel à Claude pour assemblage final
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=model_used,
             max_tokens=8000,
             system=PROMPT_ASSEMBLAGE,
             messages=[{
@@ -832,6 +886,12 @@ async def assembler(request: AssemblerRequest):
         )
         letter = response.content[0].text
 
+        # Logger la requête
+        tokens_input = response.usage.input_tokens
+        tokens_output = response.usage.output_tokens
+        cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
+        log_usage("/assembler", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True)
+
         return AssemblerResponse(
             session_id=request.session_id,
             letter=letter,
@@ -839,6 +899,7 @@ async def assembler(request: AssemblerRequest):
         )
 
     except anthropic.APIError as e:
+        log_usage("/assembler", model_used, 0, 0, 0, 0, 0, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
