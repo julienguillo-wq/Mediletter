@@ -2064,42 +2064,68 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             });
         }
 
+        // Compression adaptative selon le nombre d'images
+        function getCompressionSettings(totalImages) {
+            if (totalImages <= 5) return { maxWidth: 1200, quality: 0.6, level: 'normal' };
+            if (totalImages <= 10) return { maxWidth: 1000, quality: 0.5, level: 'optimisé' };
+            return { maxWidth: 800, quality: 0.4, level: 'compression maximale' };
+        }
+
         function handleImageFiles(files) {
-            Array.from(files).forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    compressImage(file).then(compressedBase64 => {
-                        uploadedImages.push({
-                            name: file.name,
-                            data: compressedBase64,
-                            type: 'image/jpeg'
-                        });
-                        updateUploadZoneStatus();
-                        saveToLocalStorage();
+            const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+            if (imageFiles.length === 0) return;
+
+            const futureTotal = uploadedImages.length + imageFiles.length;
+            const settings = getCompressionSettings(futureTotal);
+
+            // Si on change de niveau de compression, recompresser les images existantes
+            const currentSettings = getCompressionSettings(uploadedImages.length);
+            if (uploadedImages.length > 0 && settings.level !== currentSettings.level) {
+                showToast(`Optimisation: passage en mode "${settings.level}"`, 'info');
+            }
+
+            imageFiles.forEach(file => {
+                compressImage(file, settings.maxWidth, settings.quality).then(compressedBase64 => {
+                    uploadedImages.push({
+                        name: file.name,
+                        data: compressedBase64,
+                        type: 'image/jpeg'
                     });
-                }
+                    updateUploadZoneStatus();
+                    saveToLocalStorage();
+                }).catch(err => {
+                    console.error('Erreur compression image:', err);
+                    showToast(`Erreur lors du traitement de "${file.name}"`, 'error');
+                });
             });
         }
 
         function compressImage(file, maxWidth = 1200, quality = 0.6) {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 const reader = new FileReader();
+                reader.onerror = () => reject(new Error('Erreur lecture fichier'));
                 reader.onload = (e) => {
                     const img = new Image();
+                    img.onerror = () => reject(new Error('Erreur chargement image'));
                     img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
+                        try {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
 
-                        if (width > maxWidth) {
-                            height = (height * maxWidth) / width;
-                            width = maxWidth;
+                            if (width > maxWidth) {
+                                height = (height * maxWidth) / width;
+                                width = maxWidth;
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            resolve(canvas.toDataURL('image/jpeg', quality));
+                        } catch (err) {
+                            reject(err);
                         }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        resolve(canvas.toDataURL('image/jpeg', quality));
                     };
                     img.src = e.target.result;
                 };
@@ -2167,7 +2193,12 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 const title = imgZone.querySelector('.upload-title');
                 const hint = imgZone.querySelector('.upload-hint');
                 if (uploadedImages.length > 0) {
-                    title.textContent = `${uploadedImages.length} image(s)`;
+                    const settings = getCompressionSettings(uploadedImages.length);
+                    if (settings.level === 'normal') {
+                        title.textContent = `${uploadedImages.length} image(s)`;
+                    } else {
+                        title.textContent = `${uploadedImages.length} images (${settings.level})`;
+                    }
                     hint.textContent = 'Cliquez pour ajouter';
                     imgZone.style.borderColor = 'var(--green)';
                     imgZone.style.borderStyle = 'solid';
@@ -2535,7 +2566,16 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             } catch (error) {
                 console.error('Error:', error);
                 hideLoadingOverlay(false);
-                showToast('Erreur: ' + error.message, 'error');
+
+                // Gestion spécifique des erreurs liées aux images/données trop volumineuses
+                const errorMsg = error.message.toLowerCase();
+                if (errorMsg.includes('too large') || errorMsg.includes('payload') ||
+                    errorMsg.includes('token') || errorMsg.includes('size') ||
+                    errorMsg.includes('request entity') || errorMsg.includes('413')) {
+                    showToast('❌ Trop de données. Veuillez retirer quelques images ou PDF.', 'error');
+                } else {
+                    showToast('Erreur: ' + error.message, 'error');
+                }
             } finally {
                 btn.classList.remove('loading');
                 btn.disabled = false;
