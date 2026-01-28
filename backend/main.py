@@ -69,26 +69,7 @@ def ensure_logs_dir():
     if not USAGE_FILE.exists():
         USAGE_FILE.write_text("[]", encoding="utf-8")
 
-def estimate_tokens_from_content(text: str = "", images_base64: list = None, pdfs_base64: list = None) -> int:
-    """Estime le nombre de tokens basé sur la taille réelle des données."""
-    # ~4 caractères par token pour le texte
-    text_tokens = len(text) // 4 if text else 0
-
-    # Pour les images : taille base64 / 4 (approximation)
-    image_tokens = 0
-    if images_base64:
-        for img in images_base64:
-            image_tokens += len(img) // 4
-
-    # Pour les PDFs : taille base64 / 4 (approximation)
-    pdf_tokens = 0
-    if pdfs_base64:
-        for pdf in pdfs_base64:
-            pdf_tokens += len(pdf) // 4
-
-    return text_tokens + image_tokens + pdf_tokens
-
-def log_usage(endpoint: str, tokens_estimated: int, tokens_real: int = None,
+def log_usage(endpoint: str, tokens: int = None,
               images_count: int = 0, pdfs_count: int = 0, success: bool = True):
     """Enregistre une requête dans le fichier de logs."""
     ensure_logs_dir()
@@ -96,8 +77,7 @@ def log_usage(endpoint: str, tokens_estimated: int, tokens_real: int = None,
     entry = {
         "timestamp": datetime.now().isoformat(),
         "endpoint": endpoint,
-        "tokens_estimated": tokens_estimated,
-        "tokens_real": tokens_real,
+        "tokens": tokens,
         "images_count": images_count,
         "pdfs_count": pdfs_count,
         "success": success
@@ -142,21 +122,18 @@ def get_usage_stats() -> dict:
         except:
             continue
 
-    # Utilise tokens_real si disponible, sinon tokens_estimated
     def get_tokens(log):
-        return log.get("tokens_real") or log.get("tokens_estimated", 0)
+        return log.get("tokens") or log.get("tokens_real") or 0
 
     return {
         "today": {
             "requests": len(today_logs),
             "tokens": sum(get_tokens(l) for l in today_logs),
-            "tokens_estimated": sum(l.get("tokens_estimated", 0) for l in today_logs),
             "success_rate": round(sum(1 for l in today_logs if l.get("success")) / len(today_logs) * 100, 1) if today_logs else 100
         },
         "last_7_days": {
             "requests": len(week_logs),
             "tokens": sum(get_tokens(l) for l in week_logs),
-            "tokens_estimated": sum(l.get("tokens_estimated", 0) for l in week_logs),
             "success_rate": round(sum(1 for l in week_logs if l.get("success")) / len(week_logs) * 100, 1) if week_logs else 100
         },
         "last_20_requests": logs[-20:][::-1] if logs else [],
@@ -471,15 +448,9 @@ async def analyser(request: AnalyserRequest):
     - Appelle Claude pour extraire les informations structurées
     - Stocke les données pour l'étape suivante
     """
-    # Compter les fichiers et estimer les tokens AVANT l'appel
+    # Compter les fichiers
     images_count = len(request.images_base64) if request.images_base64 else 0
     pdfs_count = len(request.pdfs_base64) if request.pdfs_base64 else 0
-    text_content = f"{request.context or ''}{request.extra_info or ''}{request.notes or ''}{request.cr or ''}"
-    tokens_estimated = estimate_tokens_from_content(
-        text_content,
-        request.images_base64,
-        request.pdfs_base64
-    )
 
     try:
         # Construire le contenu pour Claude
@@ -496,8 +467,8 @@ async def analyser(request: AnalyserRequest):
             messages=[{"role": "user", "content": content}]
         )
 
-        # Récupérer les tokens réels
-        tokens_real = response.usage.input_tokens + response.usage.output_tokens
+        # Récupérer les tokens
+        tokens = response.usage.input_tokens + response.usage.output_tokens
 
         extraction_text = response.content[0].text
 
@@ -544,8 +515,8 @@ async def analyser(request: AnalyserRequest):
             "pdfs_count": pdfs_count
         }
 
-        # Logger la requête avec tokens estimés ET réels
-        log_usage("/analyser", tokens_estimated, tokens_real, images_count, pdfs_count, success=True)
+        # Logger la requête
+        log_usage("/analyser", tokens, images_count, pdfs_count, success=True)
 
         return AnalyserResponse(
             session_id=request.session_id,
@@ -556,8 +527,8 @@ async def analyser(request: AnalyserRequest):
         )
 
     except anthropic.APIError as e:
-        # Logger l'échec (pas de tokens réels disponibles)
-        log_usage("/analyser", tokens_estimated, None, images_count, pdfs_count, success=False)
+        # Logger l'échec
+        log_usage("/analyser", None, images_count, pdfs_count, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")

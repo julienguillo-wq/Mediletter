@@ -2064,28 +2064,12 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             });
         }
 
-        // Compression adaptative selon le nombre d'images
-        function getCompressionSettings(totalImages) {
-            if (totalImages <= 6) return { maxWidth: 1200, quality: 0.6, level: 'normal' };
-            if (totalImages <= 12) return { maxWidth: 1000, quality: 0.5, level: 'optimisé' };
-            return { maxWidth: 900, quality: 0.45, level: 'compression maximale' };
-        }
-
         function handleImageFiles(files) {
             const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
             if (imageFiles.length === 0) return;
 
-            const futureTotal = uploadedImages.length + imageFiles.length;
-            const settings = getCompressionSettings(futureTotal);
-
-            // Si on change de niveau de compression, recompresser les images existantes
-            const currentSettings = getCompressionSettings(uploadedImages.length);
-            if (uploadedImages.length > 0 && settings.level !== currentSettings.level) {
-                showToast(`Optimisation: passage en mode "${settings.level}"`, 'info');
-            }
-
             imageFiles.forEach(file => {
-                compressImage(file, settings.maxWidth, settings.quality).then(compressedBase64 => {
+                compressImage(file).then(compressedBase64 => {
                     uploadedImages.push({
                         name: file.name,
                         data: compressedBase64,
@@ -2100,7 +2084,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             });
         }
 
-        function compressImage(file, maxWidth = 1200, quality = 0.6) {
+        function compressImage(file) {
+            const maxWidth = 1200;
+            const quality = 0.6;
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onerror = () => reject(new Error('Erreur lecture fichier'));
@@ -2193,12 +2179,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 const title = imgZone.querySelector('.upload-title');
                 const hint = imgZone.querySelector('.upload-hint');
                 if (uploadedImages.length > 0) {
-                    const settings = getCompressionSettings(uploadedImages.length);
-                    if (settings.level === 'normal') {
-                        title.textContent = `${uploadedImages.length} image(s)`;
-                    } else {
-                        title.textContent = `${uploadedImages.length} images (${settings.level})`;
-                    }
+                    title.textContent = `${uploadedImages.length} image(s)`;
                     hint.textContent = 'Cliquez pour ajouter';
                     imgZone.style.borderColor = 'var(--green)';
                     imgZone.style.borderStyle = 'solid';
