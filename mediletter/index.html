@@ -2066,9 +2066,9 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
         // Compression adaptative selon le nombre d'images
         function getCompressionSettings(totalImages) {
-            if (totalImages <= 5) return { maxWidth: 1200, quality: 0.6, level: 'normal' };
-            if (totalImages <= 10) return { maxWidth: 1000, quality: 0.5, level: 'optimisé' };
-            return { maxWidth: 800, quality: 0.4, level: 'compression maximale' };
+            if (totalImages <= 6) return { maxWidth: 1200, quality: 0.6, level: 'normal' };
+            if (totalImages <= 12) return { maxWidth: 1000, quality: 0.5, level: 'optimisé' };
+            return { maxWidth: 900, quality: 0.45, level: 'compression maximale' };
         }
 
         function handleImageFiles(files) {
