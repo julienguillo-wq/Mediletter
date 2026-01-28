@@ -531,7 +531,8 @@
                             <tr>
                                 <th>Heure</th>
                                 <th>Endpoint</th>
-                                <th>Tokens</th>
+                                <th>Tokens (réel)</th>
+                                <th>Tokens (est.)</th>
                                 <th>Images</th>
                                 <th>PDFs</th>
                                 <th>Statut</th>
@@ -541,11 +542,14 @@
                 `;
 
                 data.last_20_requests.forEach(req => {
+                    const tokensReal = req.tokens_real ? formatNumber(req.tokens_real) : '-';
+                    const tokensEst = formatNumber(req.tokens_estimated || 0);
                     tableHtml += `
                         <tr>
                             <td class="time-cell">${formatTime(req.timestamp)}</td>
                             <td><span class="endpoint">${req.endpoint}</span></td>
-                            <td class="tokens-cell">${formatNumber(req.tokens_estimated)}</td>
+                            <td class="tokens-cell">${tokensReal}</td>
+                            <td style="color: var(--gray-400)">${tokensEst}</td>
                             <td>${req.images_count || 0}</td>
                             <td>${req.pdfs_count || 0}</td>
                             <td>
