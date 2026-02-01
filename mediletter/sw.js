@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medhub-v27';
+const CACHE_NAME = 'medhub-v28';
 const ASSETS = [
     './',
     './index.html',
@@ -25,8 +25,11 @@ self.addEventListener('activate', (e) => {
 
 // Fetch
 self.addEventListener('fetch', (e) => {
+    // Ne pas intercepter les requêtes POST/PUT/DELETE (appels API backend)
+    if (e.request.method !== 'GET') return;
+
     if (e.request.url.includes('api.anthropic.com')) return;
-    
+
     e.respondWith(
         caches.match(e.request)
             .then(cached => cached || fetch(e.request))
