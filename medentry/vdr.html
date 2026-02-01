@@ -1192,7 +1192,7 @@
                 pdfs_base64: uploadedFiles.pdfs.map(f => f.data)
             };
 
-            const response = await fetch(`${API_BASE}/generer-entree`, {
+            const response = await fetch(API_BASE + '/generer-entree', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -1225,7 +1225,7 @@
                 pdfs_base64: uploadedFiles.pdfs.map(f => f.data)
             };
 
-            const response = await fetch(`${API_BASE}/generer-entree`, {
+            const response = await fetch(API_BASE + '/generer-entree', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
