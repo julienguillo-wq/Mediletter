@@ -3471,9 +3471,15 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             document.getElementById('exportLetterBtn')?.addEventListener('click', exportLetter);
         });
 
-        // PWA Service Worker
+        // PWA Service Worker - force update
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(r => r.unregister());
+            }).then(() => {
+                return caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+            }).then(() => {
+                navigator.serviceWorker.register('sw.js');
+            }).catch(() => {});
         }
     </script>
 
