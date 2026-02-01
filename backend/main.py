@@ -252,6 +252,13 @@ class AssemblerResponse(BaseModel):
     status: str
 
 
+class GenererEntreeRequest(BaseModel):
+    transcription: str
+    langue: str = "italien"  # "italien" ou "francais"
+    images_base64: Optional[list[str]] = None
+    pdfs_base64: Optional[list[str]] = None
+
+
 class LogCorrectionRequest(BaseModel):
     type: str  # "problems" ou "section"
     generated: str | list  # Texte ou liste générée par Claude
@@ -1083,6 +1090,127 @@ async def assembler(request: AssemblerRequest):
 
     except anthropic.APIError as e:
         log_usage("/assembler", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id)
+        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+
+# ==============================================================================
+# VDR - Dictée Vocale Réadaptation
+# ==============================================================================
+
+SYSTEM_PROMPT_VDR = """Tu es un médecin spécialiste en réadaptation musculo-squelettique. Tu reçois une transcription vocale (potentiellement en italien ou en français) d'une dictée médicale concernant un patient en réadaptation.
+
+Ton rôle est de transformer cette transcription brute en une lettre médicale professionnelle et bien structurée.
+
+## INSTRUCTIONS
+
+1. **Langue de sortie** : Rédige TOUJOURS la lettre en FRANÇAIS, même si la transcription est en italien. Traduis le contenu médical avec précision.
+
+2. **Structure de la lettre** :
+   - **En-tête** : Nom du patient, date de naissance, date d'entrée, date de sortie (si mentionnés)
+   - **Motif d'hospitalisation / Motif de prise en charge**
+   - **Antécédents** (si mentionnés)
+   - **Histoire de la maladie / Anamnèse**
+   - **Examen clinique d'entrée** (si mentionné)
+   - **Évolution et prise en charge en réadaptation** :
+     - Kinésithérapie / Physiothérapie
+     - Ergothérapie (si mentionné)
+     - Autres thérapies (logopédie, psychologie, etc.)
+   - **Bilan de sortie / État à la sortie**
+   - **Traitement de sortie** (si mentionné)
+   - **Recommandations / Suite de la prise en charge**
+
+3. **Style** :
+   - Professionnel et concis
+   - Utilise la terminologie médicale appropriée
+   - Phrases complètes, pas de style télégraphique
+   - Pas d'inventions : utilise UNIQUEMENT les informations fournies dans la transcription
+   - Si une information n'est pas mentionnée, ne l'invente pas et ne crée pas la section correspondante
+
+4. **Si des documents (images/PDF) sont joints**, intègre les informations pertinentes qu'ils contiennent dans la lettre.
+
+5. Ne mets PAS de crochets ou de placeholders. Si une information manque, omets-la simplement.
+"""
+
+
+@app.post("/generer-entree")
+async def generer_entree(request: GenererEntreeRequest):
+    """
+    Génère une lettre d'entrée/sortie formatée à partir d'une transcription vocale.
+    Utilisé par le module VDR (Voix Dictée Réadaptation).
+    """
+    images_count = len(request.images_base64) if request.images_base64 else 0
+    pdfs_count = len(request.pdfs_base64) if request.pdfs_base64 else 0
+
+    try:
+        # Construire les blocs de contenu
+        content = []
+
+        # Images
+        if request.images_base64:
+            for img_b64 in request.images_base64:
+                if img_b64.startswith("data:"):
+                    header, data = img_b64.split(",", 1)
+                    media_type = header.split(":")[1].split(";")[0]
+                else:
+                    media_type = "image/jpeg"
+                    data = img_b64
+
+                content.append({
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": media_type,
+                        "data": data
+                    }
+                })
+
+        # PDFs
+        if request.pdfs_base64:
+            for pdf_b64 in request.pdfs_base64:
+                if pdf_b64.startswith("data:"):
+                    _, data = pdf_b64.split(",", 1)
+                else:
+                    data = pdf_b64
+
+                content.append({
+                    "type": "document",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "application/pdf",
+                        "data": data
+                    }
+                })
+
+        # Transcription
+        langue_label = "italien" if request.langue == "italien" else "français"
+        content.append({
+            "type": "text",
+            "text": f"## Transcription vocale (langue source : {langue_label})\n\n{request.transcription}"
+        })
+
+        model_used = "claude-sonnet-4-20250514"
+
+        response = client.messages.create(
+            model=model_used,
+            max_tokens=4096,
+            system=SYSTEM_PROMPT_VDR,
+            messages=[{"role": "user", "content": content}]
+        )
+
+        lettre = response.content[0].text
+
+        # Log usage
+        tokens_input = response.usage.input_tokens
+        tokens_output = response.usage.output_tokens
+        cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
+        log_usage("/generer-entree", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True)
+
+        return {"lettre": lettre}
+
+    except anthropic.APIError as e:
+        log_usage("/generer-entree", "claude-sonnet-4-20250514", 0, 0, 0, images_count, pdfs_count, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
