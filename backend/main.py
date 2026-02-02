@@ -1350,8 +1350,20 @@ async def analyser_entree(request: AnalyserEntreeRequest):
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
         log_usage("/analyser-entree", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True)
 
+        # Nettoyer les éventuelles fences markdown (```json ... ```)
+        cleaned = raw_json.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("\n", 1)[0] if "\n" in cleaned else cleaned[:-3]
+        cleaned = cleaned.strip()
+
         # Parser le JSON
-        donnees = json.loads(raw_json)
+        try:
+            donnees = json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            print(f"[/analyser-entree] Erreur parsing JSON. Réponse brute:\n{raw_json[:2000]}")
+            raise HTTPException(status_code=500, detail=f"Erreur parsing JSON de l'extraction: {str(e)}")
 
         type_lettre = donnees.get("type_lettre", donnees.get("type", "MI")).upper()
         if type_lettre not in VDR_PROMPTS:
@@ -1370,8 +1382,6 @@ async def analyser_entree(request: AnalyserEntreeRequest):
     except anthropic.APIError as e:
         log_usage("/analyser-entree", "claude-sonnet-4-20250514", 0, 0, 0, images_count, pdfs_count, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
-    except json.JSONDecodeError as e:
-        raise HTTPException(status_code=500, detail=f"Erreur parsing JSON de l'extraction: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
