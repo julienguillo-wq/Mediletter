@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medhub-v15';
+const CACHE_NAME = 'medhub-v16';
 const ASSETS = [
     './',
     './index.html',
@@ -35,6 +35,9 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
     // Ne pas intercepter les requêtes POST/PUT/DELETE (appels API backend)
     if (e.request.method !== 'GET') return;
+
+    // Ne pas intercepter les appels API admin (GET JSON, pas des assets statiques)
+    if (e.request.url.includes('/admin/')) return;
 
     if (e.request.url.includes('api.anthropic.com')) return;
 
