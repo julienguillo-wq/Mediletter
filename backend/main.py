@@ -1118,6 +1118,11 @@ MISSION : Extraire et structurer les données en JSON.
    - MSQ : PTH, PTG, fracture, prothèse, post-opératoire orthopédique
    - ANAM_MSQ : anamnèse/admission d'un patient MSQ
 
+IMPORTANT pour la classification :
+- ANAM_MSQ = UNIQUEMENT si la dictée concerne l'admission/entrée du patient, sans données d'évolution ni de sortie
+- MSQ = si la dictée contient des données d'évolution en réadaptation, des scores de sortie, une date de sortie, des résultats de physiothérapie/ergothérapie
+- En cas de doute entre ANAM_MSQ et MSQ, choisis MSQ
+
 2. Identifie le SEXE du patient : M ou F
 
 3. Extrais TOUTES les données médicales mentionnées, organisées par catégorie :
@@ -1343,6 +1348,7 @@ async def analyser_entree(request: AnalyserEntreeRequest):
         )
 
         raw_json = response.content[0].text
+        print(f"[/analyser-entree] Réponse brute Claude ({len(raw_json)} chars):\n{raw_json[:3000]}")
 
         # Log usage
         tokens_input = response.usage.input_tokens
@@ -1372,6 +1378,8 @@ async def analyser_entree(request: AnalyserEntreeRequest):
         sexe = donnees.get("sexe", donnees.get("identite", {}).get("sexe", "M")).upper()
         if sexe not in ("M", "F"):
             sexe = "M"
+
+        print(f"[/analyser-entree] Type détecté: {type_lettre} | Sexe: {sexe} | Clés JSON: {list(donnees.keys())}")
 
         return {
             "donnees_json": donnees,
