@@ -252,11 +252,17 @@ class AssemblerResponse(BaseModel):
     status: str
 
 
-class GenererEntreeRequest(BaseModel):
+class AnalyserEntreeRequest(BaseModel):
     transcription: str
     langue: str = "italien"  # "italien" ou "francais"
     images_base64: Optional[list[str]] = None
     pdfs_base64: Optional[list[str]] = None
+
+
+class GenererEntreeRequest(BaseModel):
+    donnees_json: dict
+    type_lettre: str  # "NEURO", "MI", "MSQ", "ANAM_MSQ"
+    sexe: str = "M"  # "M" ou "F"
 
 
 class LogCorrectionRequest(BaseModel):
@@ -1096,43 +1102,69 @@ async def assembler(request: AssemblerRequest):
 
 
 # ==============================================================================
-# VDR - Dictée Vocale Réadaptation
+# VDR - Dictée Vocale Réadaptation (Pipeline 2 étapes)
 # ==============================================================================
 
-SYSTEM_PROMPT_VDR = """Tu es un médecin spécialiste en réadaptation. Tu reçois une transcription vocale (potentiellement en italien ou en français) d'une dictée médicale concernant un patient.
+# --- ÉTAPE 1 : PROMPT D'EXTRACTION ---
 
-Ton rôle est de transformer cette transcription brute en une lettre médicale professionnelle qui respecte STRICTEMENT le chablon (template) correspondant au type de prise en charge.
+PROMPT_VDR_EXTRACTION = """Tu es un assistant médical spécialisé en réadaptation.
+Tu reçois une transcription vocale (en italien ou en français) d'une dictée médicale.
 
-## ÉTAPE 1 : IDENTIFIER LE TYPE DE LETTRE
+MISSION : Extraire et structurer les données en JSON.
 
-À partir de la dictée, identifie le type parmi :
-- **NEURO** : Neurologie (AVC, Parkinson, SEP, Guillain-Barré, déficit neurologique)
-- **MI** : Médecine interne (réadaptation générale, déconditionnement, chutes sans contexte neuro)
-- **MSQ** : Musculo-squelettique (PTH, PTG, fracture, prothèse, post-opératoire orthopédique)
-- **ANAM_MSQ** : Anamnèse d'admission musculo-squelettique (si la dictée concerne spécifiquement l'admission/entrée d'un patient MSQ)
+1. Identifie le TYPE de lettre parmi : NEURO, MI, MSQ, ANAM_MSQ
+   - NEURO : AVC, Parkinson, SEP, Guillain-Barré, déficit neurologique
+   - MI : réadaptation générale, déconditionnement, chutes sans contexte neuro
+   - MSQ : PTH, PTG, fracture, prothèse, post-opératoire orthopédique
+   - ANAM_MSQ : anamnèse/admission d'un patient MSQ
 
-## ÉTAPE 2 : IDENTIFIER LE SEXE DU PATIENT
+2. Identifie le SEXE du patient : M ou F
 
-Adapte systématiquement toutes les formulations :
-- Homme : "le patient", "il", "un patient", "adressé", "connu pour", "autonome"
-- Femme : "la patiente", "elle", "une patiente", "adressée", "connue pour", "autonome"
+3. Extrais TOUTES les données médicales mentionnées, organisées par catégorie :
+   - identite (âge, sexe)
+   - antecedents (liste)
+   - antecedents_chirurgicaux (liste)
+   - contexte_admission (date, motif, provenance, chirurgien, hôpital)
+   - status_neurologique_entree (si NEURO)
+   - status_neurologique_sortie (si NEURO)
+   - scores (MIF, SPPB, Tinetti, TUG, CIRS, NIHSS, UPDRS, EDSS - ce qui est mentionné)
+   - biologie (toutes les valeurs avec unités)
+   - imagerie (résultats)
+   - mobilite (transferts, marche, distance, moyen auxiliaire, escaliers, charge)
+   - evolution_medicale (pansement, cicatrice, antalgie, thromboprophylaxie, complications)
+   - physiotherapie (exercices, résultats, périmètre marche)
+   - ergotherapie (évaluations, résultats AIVQ)
+   - autres_disciplines (nutrition, neuropsy, logo, social)
+   - social (lieu de vie, aides, autonomie antérieure, escaliers, ascenseur)
+   - consignes_postop (si MSQ/ANAM_MSQ)
+   - propositions (suivi, RDV, prescriptions)
+   - traitement_sortie (médicaments)
 
-## ÉTAPE 3 : RÉDIGER SELON LE CHABLON EXACT
+RÈGLES :
+- Traduis tout en français même si la source est en italien
+- N'invente RIEN : n'extrais que ce qui est explicitement dit
+- Pour chaque donnée, utilise la valeur exacte mentionnée
+- Réponds UNIQUEMENT en JSON valide, sans markdown, sans commentaire"""
 
-### RÈGLES STRICTES :
-1. **Langue de sortie** : TOUJOURS en FRANÇAIS, même si la dictée est en italien
-2. **Respecte la structure exacte** du chablon correspondant ci-dessous
-3. **Remplis les données mentionnées** dans la dictée aux bons endroits du template
-4. **Garde les crochets [...]** pour les données NON mentionnées dans la dictée
-5. **N'invente RIEN** : si une information n'est pas dictée, laisse le placeholder
-6. **Respecte les formulations exactes** du chablon (ne reformule pas les phrases-types)
-7. **Si des documents (images/PDF) sont joints**, intègre les informations pertinentes dans les bonnes sections
+# --- ÉTAPE 2 : PROMPTS DE RÉDACTION PAR CHABLON ---
 
----
+_VDR_REDACTION_HEADER = """Tu es un médecin spécialiste en réadaptation.
+Tu reçois des données structurées extraites d'une dictée médicale.
 
-## CHABLON NEURO (Filière neurologie)
+MISSION : Rédige la lettre selon le chablon ci-dessous.
 
-### Structure :
+RÈGLES ABSOLUES :
+1. Reproduis la structure EXACTE du chablon ci-dessous
+2. Remplace les crochets [...] par les données fournies quand elles existent
+3. GARDE les crochets [...] pour les données NON fournies - ne les supprime pas
+4. NE REFORMULE PAS les phrases-types du chablon - copie-les mot pour mot
+5. Adapte uniquement le genre (il/elle, patient/patiente) selon le sexe indiqué
+6. N'ajoute AUCUNE introduction ni conclusion hors du chablon
+7. N'invente AUCUNE donnée"""
+
+PROMPT_VDR_NEURO = _VDR_REDACTION_HEADER + """
+
+CHABLON À SUIVRE EXACTEMENT :
 
 **Contexte :**
 Patient(e) âgé(e) de …, connu(e) pour (comorbidités/antécédents pertinents), transféré(e) le … à notre unité pour réadaptation neurologique dans les suites de/post (AVC ischémique/hémorragique, Syndrome de Guillain-Barré, SEP, etc…). Il/Elle aurait présenté le … un déficit moteur/sensitif, trouble de la parole, de l'équilibre en lien avec un AVC/maladie de Parkinson, etc… d'origine cardio-embolique, athéromateuse, …en péjoration sur infection. Détails de l'hospitalisation cf. Lit A.
@@ -1175,13 +1207,11 @@ Sur le plan socio-administratif : [organisation du retour à domicile, aides, or
 - RDV en Neurologie PRT/CDF le … à …
 - Poursuite physio, ergo, logo, neuropsy en ambulatoire
 - Autres RDVs prévus
-- Arrêt de travail à 100% jusqu'à … puis reprise progressive à …% ou à réévaluer par le médecin traitant
+- Arrêt de travail à 100% jusqu'à … puis reprise progressive à …% ou à réévaluer par le médecin traitant"""
 
----
+PROMPT_VDR_MI = _VDR_REDACTION_HEADER + """
 
-## CHABLON MI (Entrée Médecine interne)
-
-### Structure :
+CHABLON À SUIVRE EXACTEMENT :
 
 **Discussion :**
 À son admission, nous sommes en présence d'un(e) patient(e) à l'état général conservé. Sur l'évaluation CIRS, le/la patient(e) présente un score à [] points. À son arrivée, il/elle réalise ses transferts de manière indépendante/sous surveillance et se déplace en chambre en charge [] avec [moyen auxiliaire].
@@ -1195,13 +1225,11 @@ Sur le plan social, le retour à domicile s'organise avec/sans aide.
 
 Sur le plan fonctionnel, le/la patient(e) présente une mesure d'indépendance fonctionnelle (MIF) globale de []/126 à l'admission. En fin de séjour, on note une amélioration dans l'acquisition d'indépendance de la vie quotidienne. Il/Elle nécessite de l'aide/est indépendant(e) pour [les transferts, la toilette, l'habillage] et marche avec/sans moyen auxiliaire. La MIF globale à la sortie est mesurée à []/126.
 
-L'évolution est favorable permettant un retour à domicile le []
+L'évolution est favorable permettant un retour à domicile le []"""
 
----
+PROMPT_VDR_MSQ = _VDR_REDACTION_HEADER + """
 
-## CHABLON MSQ (Musculo-squelettique Réadaptation)
-
-### Structure :
+CHABLON À SUIVRE EXACTEMENT :
 
 **Problème : réadaptation musculo-squelettique après (pose de PTH/PTG, fracture, etc.)**
 
@@ -1226,13 +1254,11 @@ L'évolution est favorable permettant un retour à domicile le []
 **Propositions :**
 - Poursuite de physiothérapie en ambulatoire
 - Consultation de contrôle chez le Dr … à 6 semaines
-- [Autres propositions]
+- [Autres propositions]"""
 
----
+PROMPT_VDR_ANAM_MSQ = _VDR_REDACTION_HEADER + """
 
-## CHABLON ANAM_MSQ (Anamnèse d'admission musculo-squelettique)
-
-### Structure :
+CHABLON À SUIVRE EXACTEMENT :
 
 **Anamnèse admission :**
 Patient(e) de [] ans, réa_, connu(e) pour [antécédents/comorbidités], qui est adressé(e) en réadaptation le [] dans les suites [de ___] dans le contexte [de __]. L'intervention s'est déroulée le [], sans complications, par le Dr [] à l'hôpital de [].
@@ -1242,31 +1268,26 @@ Les suites post-opératoires immédiates ont été marquées par [___]
 Sur le plan social, le/la patient(e) vit seul(e)/avec [___] dans un appartement/maison avec/sans ascenseur et _ marches d'escalier. Avant l'intervention, le/la patient(e) était autonome pour les AVQ et AIVQ / il/elle bénéficiait de soins à domicile [_ par jour pour ___]. Il/Elle se déplaçait avec/sans moyen auxiliaire.
 
 **Consignes post-opératoires :**
-- [consignes dictées]
+- [consignes dictées]"""
 
----
-
-## RAPPELS IMPORTANTS :
-- Utilise UNIQUEMENT les informations de la transcription vocale et des documents joints
-- Respecte le CHABLON correspondant à la lettre, ne reformule PAS les phrases-types
-- Adapte le genre (homme/femme) dans TOUTES les formulations
-- Les crochets [] indiquent des données à remplir si disponibles dans la dictée, sinon les LAISSER tels quels
-- Ne mets PAS d'introduction ni de conclusion qui ne font pas partie du chablon
-- La sortie doit ressembler exactement au template, avec les données du patient insérées aux bons endroits
-"""
+# Mapping type -> prompt
+VDR_PROMPTS = {
+    "NEURO": PROMPT_VDR_NEURO,
+    "MI": PROMPT_VDR_MI,
+    "MSQ": PROMPT_VDR_MSQ,
+    "ANAM_MSQ": PROMPT_VDR_ANAM_MSQ,
+}
 
 
-@app.post("/generer-entree")
-async def generer_entree(request: GenererEntreeRequest):
+@app.post("/analyser-entree")
+async def analyser_entree(request: AnalyserEntreeRequest):
     """
-    Génère une lettre d'entrée/sortie formatée à partir d'une transcription vocale.
-    Utilisé par le module VDR (Voix Dictée Réadaptation).
+    Étape 1 VDR : Classification + extraction JSON depuis transcription vocale.
     """
     images_count = len(request.images_base64) if request.images_base64 else 0
     pdfs_count = len(request.pdfs_base64) if request.pdfs_base64 else 0
 
     try:
-        # Construire les blocs de contenu
         content = []
 
         # Images
@@ -1317,8 +1338,67 @@ async def generer_entree(request: GenererEntreeRequest):
         response = client.messages.create(
             model=model_used,
             max_tokens=4096,
-            system=SYSTEM_PROMPT_VDR,
+            system=PROMPT_VDR_EXTRACTION,
             messages=[{"role": "user", "content": content}]
+        )
+
+        raw_json = response.content[0].text
+
+        # Log usage
+        tokens_input = response.usage.input_tokens
+        tokens_output = response.usage.output_tokens
+        cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
+        log_usage("/analyser-entree", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True)
+
+        # Parser le JSON
+        donnees = json.loads(raw_json)
+
+        type_lettre = donnees.get("type_lettre", donnees.get("type", "MI")).upper()
+        if type_lettre not in VDR_PROMPTS:
+            type_lettre = "MI"
+
+        sexe = donnees.get("sexe", donnees.get("identite", {}).get("sexe", "M")).upper()
+        if sexe not in ("M", "F"):
+            sexe = "M"
+
+        return {
+            "donnees_json": donnees,
+            "type_lettre": type_lettre,
+            "sexe": sexe
+        }
+
+    except anthropic.APIError as e:
+        log_usage("/analyser-entree", "claude-sonnet-4-20250514", 0, 0, 0, images_count, pdfs_count, success=False)
+        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail=f"Erreur parsing JSON de l'extraction: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+
+@app.post("/generer-entree")
+async def generer_entree(request: GenererEntreeRequest):
+    """
+    Étape 2 VDR : Rédaction de la lettre à partir du JSON structuré + type de chablon.
+    """
+    try:
+        type_lettre = request.type_lettre.upper()
+        if type_lettre not in VDR_PROMPTS:
+            raise HTTPException(status_code=400, detail=f"Type de lettre inconnu: {type_lettre}. Valeurs acceptées: NEURO, MI, MSQ, ANAM_MSQ")
+
+        system_prompt = VDR_PROMPTS[type_lettre]
+
+        json_str = json.dumps(request.donnees_json, ensure_ascii=False, indent=2)
+
+        user_message = f"SEXE DU PATIENT : {request.sexe}\n\nDONNÉES EXTRAITES :\n{json_str}"
+
+        model_used = "claude-sonnet-4-20250514"
+
+        response = client.messages.create(
+            model=model_used,
+            max_tokens=4096,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_message}]
         )
 
         lettre = response.content[0].text
@@ -1327,12 +1407,12 @@ async def generer_entree(request: GenererEntreeRequest):
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/generer-entree", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True)
+        log_usage("/generer-entree", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True)
 
         return {"lettre": lettre}
 
     except anthropic.APIError as e:
-        log_usage("/generer-entree", "claude-sonnet-4-20250514", 0, 0, 0, images_count, pdfs_count, success=False)
+        log_usage("/generer-entree", "claude-sonnet-4-20250514", 0, 0, 0, 0, 0, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")

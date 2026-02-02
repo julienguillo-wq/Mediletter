@@ -551,6 +551,17 @@
             letter-spacing: 0.05em;
         }
 
+        .badge-type {
+            padding: 4px 10px;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         .letter-textarea {
             width: 100%;
             min-height: 400px;
@@ -836,6 +847,7 @@
                 <div class="letter-header">
                     <h2>📄 Lettre format&eacute;e</h2>
                     <span class="badge-ai">G&eacute;n&eacute;r&eacute;e par IA</span>
+                    <span class="badge-type" id="badgeType" style="display:none;"></span>
                 </div>
 
                 <textarea class="letter-textarea" id="letterText"></textarea>
@@ -890,6 +902,9 @@
     let finalTranscript = '';
     let interimTranscript = '';
     let uploadedFiles = { images: [], pdfs: [] };
+
+    // VDR 2-step pipeline state
+    let lastExtraction = null;  // { donnees_json, type_lettre, sexe }
 
     const API_BASE = '';
 
@@ -1053,6 +1068,7 @@
     function clearText() {
         finalTranscript = '';
         interimTranscript = '';
+        lastExtraction = null;
         document.getElementById('transcriptionText').value = '';
         updateCharCount();
         updateAnalyzeBtn();
@@ -1182,29 +1198,41 @@
         const transcription = document.getElementById('transcriptionText').value.trim();
         if (!transcription) return;
 
-        showLoading('Analyse et mise en forme par IA...');
+        showLoading('Étape 1/2 — Extraction des données...');
 
         try {
-            const body = {
+            // === ÉTAPE 1 : Extraction ===
+            const bodyExtract = {
                 transcription: transcription,
                 langue: currentLang === 'it-IT' ? 'italien' : 'francais',
                 images_base64: uploadedFiles.images.map(f => f.data),
                 pdfs_base64: uploadedFiles.pdfs.map(f => f.data)
             };
 
-            const response = await fetch(API_BASE + '/generer-entree', {
+            const resp1 = await fetch(API_BASE + '/analyser-entree', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                body: JSON.stringify(bodyExtract)
             });
 
-            if (!response.ok) {
-                const err = await response.json().catch(() => ({}));
-                throw new Error(err.detail || `Erreur ${response.status}`);
+            if (!resp1.ok) {
+                const err = await resp1.json().catch(() => ({}));
+                throw new Error(err.detail || `Erreur extraction ${resp1.status}`);
             }
 
-            const data = await response.json();
-            document.getElementById('letterText').value = data.lettre;
+            const extraction = await resp1.json();
+            lastExtraction = extraction;
+
+            // Afficher le badge type
+            const badge = document.getElementById('badgeType');
+            badge.textContent = extraction.type_lettre;
+            badge.style.display = 'inline-block';
+
+            // === ÉTAPE 2 : Rédaction ===
+            showLoading('Étape 2/2 — Rédaction de la lettre...');
+
+            const lettre = await callGenererEntree(extraction);
+            document.getElementById('letterText').value = lettre;
             hideLoading();
             goToPage(2);
         } catch (err) {
@@ -1213,31 +1241,39 @@
         }
     }
 
+    async function callGenererEntree(extraction) {
+        const bodyGen = {
+            donnees_json: extraction.donnees_json,
+            type_lettre: extraction.type_lettre,
+            sexe: extraction.sexe
+        };
+
+        const resp = await fetch(API_BASE + '/generer-entree', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bodyGen)
+        });
+
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || `Erreur génération ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        return data.lettre;
+    }
+
     async function regenerate() {
-        showLoading('Régénération en cours...');
+        if (!lastExtraction) {
+            alert('Aucune extraction disponible. Veuillez relancer l\'analyse complète.');
+            return;
+        }
+
+        showLoading('Régénération de la lettre...');
 
         try {
-            const transcription = document.getElementById('transcriptionText').value.trim();
-            const body = {
-                transcription: transcription,
-                langue: currentLang === 'it-IT' ? 'italien' : 'francais',
-                images_base64: uploadedFiles.images.map(f => f.data),
-                pdfs_base64: uploadedFiles.pdfs.map(f => f.data)
-            };
-
-            const response = await fetch(API_BASE + '/generer-entree', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            if (!response.ok) {
-                const err = await response.json().catch(() => ({}));
-                throw new Error(err.detail || `Erreur ${response.status}`);
-            }
-
-            const data = await response.json();
-            document.getElementById('letterText').value = data.lettre;
+            const lettre = await callGenererEntree(lastExtraction);
+            document.getElementById('letterText').value = lettre;
             hideLoading();
         } catch (err) {
             hideLoading();
@@ -1280,6 +1316,7 @@
         clearText();
         document.getElementById('letterText').value = '';
         document.getElementById('finalLetter').textContent = '';
+        document.getElementById('badgeType').style.display = 'none';
         goToPage(1);
     }
 
