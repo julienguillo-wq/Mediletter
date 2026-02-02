@@ -667,6 +667,79 @@ async def admin_session_detail(session_id: str):
     }
 
 
+VDR_ENDPOINTS = {"/analyser-entree", "/generer-entree"}
+
+
+@app.get("/admin/vdr/stats")
+async def admin_vdr_stats():
+    """Retourne les statistiques d'utilisation VDR uniquement."""
+    ensure_logs_dir()
+
+    try:
+        logs = json.loads(USAGE_FILE.read_text(encoding="utf-8"))
+    except:
+        logs = []
+
+    vdr_logs = [l for l in logs if l.get("endpoint") in VDR_ENDPOINTS]
+
+    now = datetime.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_ago = now - timedelta(days=7)
+
+    today_logs = []
+    week_logs = []
+
+    for log in vdr_logs:
+        try:
+            ts = datetime.fromisoformat(log["timestamp"])
+            if ts >= today_start:
+                today_logs.append(log)
+            if ts >= week_ago:
+                week_logs.append(log)
+        except:
+            continue
+
+    def get_tokens(log):
+        return log.get("tokens") or 0
+
+    def get_cost(log):
+        return log.get("cost_eur", 0) or 0
+
+    return {
+        "today": {
+            "requests": len(today_logs),
+            "tokens": sum(get_tokens(l) for l in today_logs),
+            "cost_eur": round(sum(get_cost(l) for l in today_logs), 2),
+            "success_rate": round(sum(1 for l in today_logs if l.get("success")) / len(today_logs) * 100, 1) if today_logs else 100
+        },
+        "last_7_days": {
+            "requests": len(week_logs),
+            "tokens": sum(get_tokens(l) for l in week_logs),
+            "cost_eur": round(sum(get_cost(l) for l in week_logs), 2),
+            "success_rate": round(sum(1 for l in week_logs if l.get("success")) / len(week_logs) * 100, 1) if week_logs else 100
+        }
+    }
+
+
+@app.get("/admin/vdr/logs")
+async def admin_vdr_logs():
+    """Retourne les derniers appels VDR."""
+    ensure_logs_dir()
+
+    try:
+        logs = json.loads(USAGE_FILE.read_text(encoding="utf-8"))
+    except:
+        logs = []
+
+    vdr_logs = [l for l in logs if l.get("endpoint") in VDR_ENDPOINTS]
+
+    # Retourner les 100 derniers, plus récents en premier
+    return {
+        "total": len(vdr_logs),
+        "logs": vdr_logs[-100:][::-1]
+    }
+
+
 @app.post("/analyser", response_model=AnalyserResponse)
 async def analyser(request: AnalyserRequest):
     """
