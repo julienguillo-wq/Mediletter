@@ -12,7 +12,7 @@
 // Configuration Supabase — À modifier avec vos propres valeurs
 const SUPABASE_CONFIG = {
     url: window.MEDHUB_SUPABASE_URL || 'https://otbspumwtokomwcmbyuz.supabase.co',
-    anonKey: window.MEDHUB_SUPABASE_ANON_KEY || 'sb_publishable_i2_Grqoz93j4FMTSX0vRZQ_ryw10_vD'
+    anonKey: window.MEDHUB_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90YnNwdW13dG9rb213Y21ieXV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDQxNTMsImV4cCI6MjA4NjA4MDE1M30.EersoPWDzdUARytIwBxhy-R2jCGTNqRQJe_INse5EP8'
 };
 
 
