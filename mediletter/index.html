@@ -1931,6 +1931,15 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
         let extractedDiagnostic = '';
         let extractedData = {};
 
+        // User email for logging
+        let currentUserEmail = null;
+        (async () => {
+            try {
+                const { user } = await getUser();
+                if (user) currentUserEmail = user.email;
+            } catch(e) {}
+        })();
+
         // Function to log corrections to backend
         async function logCorrection(type, generated, validated, sectionIndex = null) {
             try {
@@ -2504,6 +2513,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         session_id: currentSessionId,
+                        user_email: currentUserEmail,
                         context: patientContext || null,
                         extra_info: additionalInfo || null,
                         notes: followUpNotes || null,
@@ -2798,6 +2808,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         session_id: currentSessionId,
+                        user_email: currentUserEmail,
                         probleme: probleme,
                         probleme_index: index + 1,
                         is_diagnostic_principal: isDiagnosticPrincipal
@@ -2911,6 +2922,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         session_id: currentSessionId,
+                        user_email: currentUserEmail,
                         probleme: probleme,
                         probleme_index: index + 1,
                         is_diagnostic_principal: isDiagnosticPrincipal
@@ -3238,6 +3250,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         session_id: currentSessionId,
+                        user_email: currentUserEmail,
                         letter_type: letterType,
                         diagnostic_principal: validatedDiagnostic,
                         sections: sectionsOrdered

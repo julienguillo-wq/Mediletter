@@ -823,6 +823,7 @@
                         <thead>
                             <tr>
                                 <th>Date/Heure</th>
+                                <th>Utilisateur</th>
                                 <th>Session ID</th>
                                 <th>Requêtes</th>
                                 <th>Tokens</th>
@@ -844,6 +845,7 @@
                     tableHtml += `
                         <tr>
                             <td class="time-cell">${formatTime(session.start_time)}</td>
+                            <td>${session.user_email || '-'}</td>
                             <td><span class="session-id" title="${session.session_id}">${shortId}</span></td>
                             <td>${session.requests_count}</td>
                             <td class="tokens-cell">${tokens}</td>
@@ -889,6 +891,7 @@
 
                     <div class="session-detail-header">
                         <h3>Session: ${sessionId}</h3>
+                        <p style="color: var(--gray-500); font-size: 14px; margin-bottom: 12px;">Utilisateur : ${session.user_email || '-'}</p>
                         <div class="session-detail-stats">
                             <div class="session-detail-stat">
                                 <div class="session-detail-stat-value">${session.requests_count}</div>

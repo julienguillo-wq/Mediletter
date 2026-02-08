@@ -96,13 +96,14 @@ def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
 
 def log_usage(endpoint: str, model: str = None, tokens_input: int = 0, tokens_output: int = 0,
               cost_eur: float = 0, images_count: int = 0, pdfs_count: int = 0, success: bool = True,
-              session_id: str = None):
+              session_id: str = None, user_email: str = None):
     """Enregistre une requête dans le fichier de logs."""
     ensure_logs_dir()
 
     entry = {
         "timestamp": datetime.now().isoformat(),
         "session_id": session_id,
+        "user_email": user_email,
         "endpoint": endpoint,
         "model": get_model_type(model) if model else None,
         "tokens_input": tokens_input,
@@ -183,6 +184,7 @@ def get_usage_stats() -> dict:
 
 class AnalyserRequest(BaseModel):
     session_id: str
+    user_email: Optional[str] = None
     context: Optional[str] = None
     extra_info: Optional[str] = None
     notes: Optional[str] = None
@@ -218,6 +220,7 @@ class GenererResponse(BaseModel):
 
 class GenererSectionRequest(BaseModel):
     session_id: str
+    user_email: Optional[str] = None
     probleme: str  # Un seul problème
     probleme_index: int  # Index du problème (1-based)
     is_diagnostic_principal: bool = False  # Si c'est le diagnostic principal
@@ -232,6 +235,7 @@ class GenererSectionResponse(BaseModel):
 
 class RegenerationSectionRequest(BaseModel):
     session_id: str
+    user_email: Optional[str] = None
     probleme: str
     probleme_index: int
     section_actuelle: str
@@ -241,6 +245,7 @@ class RegenerationSectionRequest(BaseModel):
 
 class AssemblerRequest(BaseModel):
     session_id: str
+    user_email: Optional[str] = None
     letter_type: str = "sortie"
     diagnostic_principal: str
     sections: list[str]  # Liste des sections déjà générées dans l'ordre
@@ -586,6 +591,7 @@ async def admin_sessions():
         if sid not in sessions_dict:
             sessions_dict[sid] = {
                 "session_id": sid,
+                "user_email": log.get("user_email"),
                 "start_time": log.get("timestamp"),
                 "end_time": log.get("timestamp"),
                 "requests": [],
@@ -653,8 +659,16 @@ async def admin_session_detail(session_id: str):
     pdfs_count = max((log.get("pdfs_count", 0) for log in session_logs), default=0)
     success = all(log.get("success", True) for log in session_logs)
 
+    # Récupérer l'email du premier log qui en contient un
+    user_email = None
+    for log in session_logs:
+        if log.get("user_email"):
+            user_email = log["user_email"]
+            break
+
     return {
         "session_id": session_id,
+        "user_email": user_email,
         "start_time": session_logs[0].get("timestamp") if session_logs else None,
         "end_time": session_logs[-1].get("timestamp") if session_logs else None,
         "requests_count": len(session_logs),
@@ -819,7 +833,7 @@ async def analyser(request: AnalyserRequest):
         }
 
         # Logger la requête
-        log_usage("/analyser", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True, session_id=request.session_id)
+        log_usage("/analyser", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True, session_id=request.session_id, user_email=request.user_email)
 
         return AnalyserResponse(
             session_id=request.session_id,
@@ -831,7 +845,7 @@ async def analyser(request: AnalyserRequest):
 
     except anthropic.APIError as e:
         # Logger l'échec
-        log_usage("/analyser", MODELS["ultra_haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False, session_id=request.session_id)
+        log_usage("/analyser", MODELS["ultra_haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False, session_id=request.session_id, user_email=request.user_email)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
@@ -1036,7 +1050,7 @@ async def generer_section(request: GenererSectionRequest):
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/generer-section", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id)
+        log_usage("/generer-section", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email)
 
         return GenererSectionResponse(
             session_id=request.session_id,
@@ -1046,7 +1060,7 @@ async def generer_section(request: GenererSectionRequest):
         )
 
     except anthropic.APIError as e:
-        log_usage("/generer-section", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False, session_id=request.session_id)
+        log_usage("/generer-section", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=request.user_email)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
@@ -1159,7 +1173,7 @@ async def assembler(request: AssemblerRequest):
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/assembler", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id)
+        log_usage("/assembler", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email)
 
         return AssemblerResponse(
             session_id=request.session_id,
@@ -1168,7 +1182,7 @@ async def assembler(request: AssemblerRequest):
         )
 
     except anthropic.APIError as e:
-        log_usage("/assembler", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id)
+        log_usage("/assembler", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=request.user_email)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
