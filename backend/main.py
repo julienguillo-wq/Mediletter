@@ -23,7 +23,7 @@ load_dotenv()
 
 # Client Supabase (service role pour bypass RLS)
 supabase_client = create_client(
-    os.getenv("NEXT_PUBLIC_SUPABASE_URL"),
+    os.getenv("SUPABASE_URL"),
     os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 )
 
