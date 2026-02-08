@@ -16,11 +16,35 @@ from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from pathlib import Path
+from supabase import create_client
 
 # Charger les variables d'environnement depuis .env
 load_dotenv()
 
-from prompts import PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
+# Client Supabase (service role pour bypass RLS)
+supabase_client = create_client(
+    os.getenv("NEXT_PUBLIC_SUPABASE_URL"),
+    os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+)
+
+
+def get_prompts(user_email: str = None):
+    """Récupère les prompts selon le service_type de l'utilisateur."""
+    service_type = 'geriatrie'
+    if user_email:
+        try:
+            result = supabase_client.table('mediletter_user_config').select('service_type').eq('user_email', user_email).execute()
+            if result.data:
+                service_type = result.data[0]['service_type']
+        except Exception as e:
+            print(f"Erreur récupération config utilisateur: {e}")
+
+    if service_type == 'readaptation':
+        from prompts.readaptation import PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
+    else:
+        from prompts.geriatrie import PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
+
+    return PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
 
 # ==============================================================================
 # Configuration
@@ -383,7 +407,8 @@ def generer_section_probleme_sync(
     donnees_extraites: dict,
     textes_originaux: str,
     model: str,
-    est_diagnostic_principal: bool = False
+    est_diagnostic_principal: bool = False,
+    prompt_sections: str = None
 ) -> dict:
     """
     Génère la section pour UN problème spécifique (version synchrone).
@@ -449,10 +474,10 @@ Génère maintenant la section pour ce problème uniquement."""
     response = client.messages.create(
         model=model,
         max_tokens=4000,
-        system=PROMPT_SECTIONS,
+        system=prompt_sections,
         messages=[{"role": "user", "content": prompt_user}]
     )
-    
+
     return {
         "numero": numero,
         "probleme": probleme,
@@ -466,7 +491,8 @@ async def generer_section_probleme_async(
     donnees_extraites: dict,
     textes_originaux: str,
     model: str,
-    est_diagnostic_principal: bool = False
+    est_diagnostic_principal: bool = False,
+    prompt_sections: str = None
 ) -> dict:
     """
     Version async qui exécute la fonction sync dans un thread pool.
@@ -481,7 +507,8 @@ async def generer_section_probleme_async(
         donnees_extraites,
         textes_originaux,
         model,
-        est_diagnostic_principal
+        est_diagnostic_principal,
+        prompt_sections
     )
 
 
@@ -767,6 +794,9 @@ async def analyser(request: AnalyserRequest):
     pdfs_count = len(request.pdfs_base64) if request.pdfs_base64 else 0
 
     try:
+        # Récupérer les prompts selon le service de l'utilisateur
+        PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(request.user_email)
+
         # Construire le contenu pour Claude
         content = build_content_blocks(request)
 
@@ -821,6 +851,7 @@ async def analyser(request: AnalyserRequest):
 
         # Stocker en session
         sessions[request.session_id] = {
+            "user_email": request.user_email,
             "context": request.context,
             "extra_info": request.extra_info,
             "notes": request.notes,
@@ -867,7 +898,10 @@ async def generer(request: GenererRequest):
         )
 
     session_data = sessions[request.session_id]
-    
+
+    # Récupérer les prompts selon le service de l'utilisateur
+    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(session_data.get('user_email'))
+
     # Sélectionner le modèle selon la qualité demandée
     model = MODELS.get(request.qualite, MODELS["haute_qualite"])
 
@@ -895,14 +929,15 @@ async def generer(request: GenererRequest):
         tasks = []
         for i, probleme in enumerate(request.problemes_valides):
             est_diagnostic_principal = (i == 0)
-            
+
             task = generer_section_probleme_async(
                 probleme=probleme,
                 numero=i + 1,
                 donnees_extraites=donnees_extraites,
                 textes_originaux=textes_section,
                 model=model,
-                est_diagnostic_principal=est_diagnostic_principal
+                est_diagnostic_principal=est_diagnostic_principal,
+                prompt_sections=PROMPT_SECTIONS
             )
             tasks.append(task)
         
@@ -994,6 +1029,10 @@ async def generer_section(request: GenererSectionRequest):
 
     session_data = sessions[request.session_id]
 
+    # Récupérer les prompts selon le service de l'utilisateur
+    user_email = request.user_email or session_data.get('user_email')
+    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+
     try:
         # Construire les sections de texte original
         textes_originaux = []
@@ -1079,6 +1118,10 @@ async def regenerer_section(request: RegenerationSectionRequest):
 
     session_data = sessions[request.session_id]
 
+    # Récupérer les prompts selon le service de l'utilisateur
+    user_email = request.user_email or session_data.get('user_email')
+    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+
     try:
         # Construire les sections de texte original
         textes_originaux = []
@@ -1150,6 +1193,11 @@ async def assembler(request: AssemblerRequest):
             status_code=404,
             detail="Session non trouvée."
         )
+
+    # Récupérer les prompts selon le service de l'utilisateur
+    session_data = sessions[request.session_id]
+    user_email = request.user_email or session_data.get('user_email')
+    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(user_email)
 
     model_used = MODELS["haute_qualite"]
 

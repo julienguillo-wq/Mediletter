@@ -4,3 +4,4 @@ anthropic>=0.18.1
 python-dotenv>=1.0.1
 pydantic>=2.5.3
 Pillow>=10.2.0
+supabase>=2.0.0
