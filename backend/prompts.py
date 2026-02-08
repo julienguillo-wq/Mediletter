@@ -1,6 +1,7 @@
 """
 Prompts pour le pipeline multi-étapes de génération de lettres médicales MediLetter.
 Version corrigée avec templates exacts de Giulia et obligation d'utiliser les valeurs labo/ECG.
+Version améliorée avec règles issues de l'analyse de 53 corrections médecin.
 """
 
 # ==============================================================================
@@ -172,6 +173,14 @@ Cherche SYSTÉMATIQUEMENT ces problèmes même s'ils semblent secondaires :
 - "Presbyacousie"
 - "Isolement social"
 
+### RÈGLES POUR LES NOMS DE PROBLÈMES (issues des corrections médecin)
+- Fusionner les troubles électrolytiques en un seul problème (ex: "Déséquilibre électrolytique avec hyponatrémie légère et hypophosphatémie"), ne pas séparer chaque anomalie
+- Ne pas créer de problème déjà couvert par un autre (ex: pas de "Perte de poids" si "Dénutrition" existe, pas de "Constipation" si déjà dans un problème digestif plus large)
+- Pour les fractures en réadaptation : préfixer par "Réadaptation post [type de fracture], intervention le [date] par [type d'intervention]"
+- Ne JAMAIS deviner ou inventer un diagnostic non explicitement mentionné dans les données fournies
+- Quand le contexte est un état confusionnel SUR un trouble neurocognitif, formuler "État confusionnel sur trouble neurocognitif majeur" plutôt que de les séparer en deux problèmes distincts
+- Vérifier que le type d'infection correspond exactement aux données (ex: ne pas écrire "SARS-COV2" si le frottis montre "Influenza A")
+
 Extrais maintenant les données des documents fournis."""
 
 
@@ -190,6 +199,18 @@ Génère la section pour le problème demandé en utilisant :
 ## RÈGLE ABSOLUE
 Tu DOIS inclure TOUTES les valeurs de laboratoire, ECG et examens disponibles dans les données.
 Ne jamais écrire "cf rapport" ou "cf annexe" - toujours mettre les valeurs.
+
+## RÈGLES DE RÉDACTION ISSUES DES CORRECTIONS MÉDECIN (PRIORITAIRE)
+- Si une donnée n'est pas disponible dans les données fournies, OMETTRE LA PHRASE OU LA LIGNE ENTIÈRE plutôt que d'écrire "non disponible" ou "non documenté"
+- Utiliser les valeurs biologiques EXACTES telles que fournies dans les données, ne JAMAIS les arrondir ni les modifier (ex: si créatinine = 348, écrire 348, pas 307)
+- Pas de formatage markdown (## ### **) dans le texte généré — texte brut uniquement, titres sur une ligne séparée sans marqueur
+- Nommer les médicaments par leur nom commercial exact tel que fourni dans les données (ex: "Abasaglar 25U et NovoRapid" et non "insuline")
+- Toujours donner les valeurs chiffrées même si elles sont dans la norme, ne pas écrire "dans la norme" sans les valeurs
+- Utiliser "Contexte :" comme en-tête de section, pas "Contexte / discussion :" sauf si une vraie discussion clinique suit avec un raisonnement médical
+- Quand c'est pertinent, commencer le contexte par "Patient de [âge] ans connu pour les antécédents susmentionnés" pour ancrer le texte
+- Ne jamais reformuler ni résumer les données du médecin — les restituer fidèlement telles que fournies
+- Pour les scores gériatriques (MNA, NRS, CDR, etc.), utiliser le score EXACT des données, ne jamais l'estimer ou le modifier
+- Inclure systématiquement les facteurs de risque pertinents en les listant exhaustivement, ne pas les simplifier ou les regrouper vaguement
 
 ---
 
@@ -253,7 +274,7 @@ Suivi de la créatininémie, consultation ambulatoire auprès d'un néphrologue.
 Insuffisance rénale chronique KDIGO [G3a/G3b/G4/G5] d'origine [hypertensive/diabétique/mixte]
 
 Contexte :
-Le bilan biologique d'entrée a objectivé une insuffisance rénale chronique G[X] selon KDIGO. [Si pas d'antériorité :] Cependant, l'antériorité des valeurs de la créatinine et du GFR remontent à [date]. En l'absence d'échographie, il est impossible pour le moment de définir s'il s'agit d'une IRA ou IRC.
+Le bilan biologique d'entrée a objectivé une insuffisance rénale chronique G[X] selon KDIGO. [Si antériorité connue :] L'antériorité des valeurs de la créatinine est entre [X] µmol/l et [X] µmol/l et du GFR entre [X] ml/min et [X] ml/min.
 
 Investigations :
 - Laboratoire : à son arrivée créatinine à [X] µmol/l soit clairance selon Cockroft à [X] ml/min. Na à [X] mmol/l. K à [X] mmol/l.
@@ -387,8 +408,8 @@ Calcium 500 mg et vitamine D 800 unités par jour en prévention.
 
 Contexte :
 À domicile poids stable entre [X] et [X] kg.
-[A priori pas de perte pondérale sur poids sec / Perte pondérale de X kg sur X mois]
-[Nausées importantes dans un contexte de...] / [Appétit conservé et pas de perte pondérale décrite]
+[A priori pas de perte pondérale sur poids sec / Perte pondérale de X kg sur X mois soit X% de son poids]
+[Nausées importantes dans un contexte de...] / [Appétit conservé et pas de perte pondérale décrite / Appétit diminué depuis X semaines]
 Mini-MNA à [X]/14.
 NRS à [X]/7.
 BMI [X] kg/m².
@@ -402,7 +423,7 @@ Facteurs de risque retenus pour la dénutrition : [troubles cognitifs, dépressi
 Évaluation par notre diététicienne :
 Diagnostic nutritionnel : E44.1 Malnutrition protéino-énergétique [légère/modérée/sévère] selon critères Swiss DRG
 Suivi nutritionnel : hebdomadaire
-Objectif : [maintien/renutrition] par ingestion de [X] kcal/j avec la prise de [X] suppléments nutritifs oraux
+Objectif : [maintien/renutrition] par ingestion de [X] kcal/j avec la prise de [X] supplément(s) nutritif(s) oral/oraux
 
 Évolution en réadaptation :
 [X]x Fresubin 2kcal compact prescrit dès le [date], consommés et appréciés.
@@ -487,9 +508,10 @@ Propositions :
 
 1. Utilise le template EXACT correspondant au problème demandé
 2. Remplace TOUS les crochets [X] par les valeurs réelles des données
-3. Si une valeur n'est pas disponible, écris "non disponible" mais NE SUPPRIME PAS la ligne
+3. Si une valeur n'est pas disponible dans les données, OMETTRE LA LIGNE ENTIÈRE plutôt que d'écrire "non disponible"
 4. Adapte le genre (patient/patiente, il/elle) selon le sexe du patient
 5. N'ajoute JAMAIS d'introduction ou de conclusion - seulement le contenu du template
+6. N'utilise JAMAIS de formatage markdown (## ### **) - texte brut uniquement
 
 Génère maintenant la section pour le problème demandé."""
 
@@ -508,6 +530,7 @@ Assemble les sections générées en une lettre médicale cohérente.
 2. NE PAS ajouter de conclusion après les problèmes (pas de "En résumé", "Pour conclure", etc.)
 3. Garder UNIQUEMENT la formule d'appel et la signature
 4. Les sections des problèmes sont déjà complètes - ne pas les modifier
+5. NE PAS utiliser de formatage markdown (## ### **) - texte brut uniquement
 
 ## FORMAT EXACT
 
@@ -520,12 +543,12 @@ Nous vous adressons ce compte-rendu concernant votre patient(e) [Nom], [âge] an
 
 ---
 
-**Habitus/Social :**
+Habitus/Social :
 [Alcool, tabac, habitat, escaliers, ascenseur, avec qui vit le patient, aide à domicile, repas, ménage, déplacements, moyen auxiliaire]
 
-**PROJET GLOBAL :** [RAD / CTR / EMS / Transfert]
+PROJET GLOBAL : [RAD / CTR / EMS / Transfert]
 
-**Bilan gériatrique standardisé :**
+Bilan gériatrique standardisé :
 
 | Examen | Date | Score | Interprétation |
 |--------|------|-------|----------------|
@@ -541,10 +564,10 @@ Nous vous adressons ce compte-rendu concernant votre patient(e) [Nom], [âge] an
 
 ---
 
-**Éléments à surveiller après l'hospitalisation :**
+Éléments à surveiller après l'hospitalisation :
 [Liste à puces consolidant TOUTES les propositions de chaque section]
 
-**Traitement de sortie :**
+Traitement de sortie :
 [Liste des médicaments avec posologie exacte]
 
 ---
@@ -565,5 +588,6 @@ RHNe - Réseau Hospitalier Neuchâtelois
 - ❌ "En résumé, le séjour a permis de..."
 - ❌ "Nous espérons que ces informations vous seront utiles..."
 - ❌ Toute phrase de liaison ou de transition entre les problèmes
+- ❌ Formatage markdown (## ### **) dans le texte
 
 Assemble maintenant la lettre finale."""
