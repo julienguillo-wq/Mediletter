@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563EB">
+    <title>Authentification en cours — MedHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-glow: rgba(37, 99, 235, 0.25);
+            --accent-teal: #0D9488;
+            --error: #E11D48;
+            --bg-primary: #F8FAFC;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --radius-sm: 12px;
+            --radius-lg: 24px;
+            --shadow-xl: 0 25px 60px rgba(0,0,0,0.12), 0 10px 24px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .callback-container {
+            min-height: 100vh; display: flex;
+            align-items: center; justify-content: center;
+            padding: 2rem;
+        }
+
+        .callback-card {
+            text-align: center; max-width: 400px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .callback-logo {
+            display: flex; align-items: center;
+            justify-content: center; gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .callback-logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+        .callback-logo-icon svg { width: 24px; height: 24px; color: white; }
+        .callback-logo-text {
+            font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--primary), var(--accent-teal));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Spinner de chargement */
+        .loading-spinner {
+            width: 48px; height: 48px; margin: 0 auto 1.5rem;
+            border: 3px solid rgba(37, 99, 235, 0.15);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .callback-title {
+            font-size: 1.25rem; font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .callback-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* État d'erreur */
+        .callback-error {
+            display: none;
+        }
+        .callback-error.visible {
+            display: block;
+        }
+        .error-icon {
+            width: 48px; height: 48px; margin: 0 auto 1rem;
+            background: #FFF1F2; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .error-icon svg { width: 24px; height: 24px; color: var(--error); }
+        .error-message {
+            color: var(--error); font-size: 0.9rem;
+            margin-bottom: 1.5rem; line-height: 1.5;
+        }
+        .btn-back {
+            display: inline-block; padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600; font-size: 0.9rem;
+            transition: transform 0.2s ease;
+        }
+        .btn-back:hover { transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <div class="callback-card">
+            <!-- Logo -->
+            <div class="callback-logo">
+                <div class="callback-logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <span class="callback-logo-text">MedHub</span>
+            </div>
+
+            <!-- État de chargement -->
+            <div id="loading-state">
+                <div class="loading-spinner"></div>
+                <h1 class="callback-title">Authentification en cours</h1>
+                <p class="callback-subtitle">Veuillez patienter quelques instants...</p>
+            </div>
+
+            <!-- État d'erreur (masqué par défaut) -->
+            <div id="error-state" class="callback-error">
+                <div class="error-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                </div>
+                <h1 class="callback-title">Erreur d'authentification</h1>
+                <p class="error-message" id="error-message">
+                    Une erreur est survenue lors de l'authentification.
+                </p>
+                <a href="../login.html" class="btn-back">Retour à la connexion</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../js/supabase-config.js"></script>
+
+    <script>
+        // ==========================================
+        // Callback d'authentification OAuth / Reset password
+        // ==========================================
+        // Cette page gère :
+        // 1. Le retour OAuth (Google) — échange du code contre une session
+        // 2. Le retour du lien de réinitialisation de mot de passe
+        // ==========================================
+
+        (async function handleCallback() {
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
+
+            /**
+             * Afficher l'état d'erreur
+             */
+            function afficherErreur(message) {
+                loadingState.style.display = 'none';
+                errorMessage.textContent = message;
+                errorState.classList.add('visible');
+            }
+
+            try {
+                const client = getSupabase();
+                if (!client) {
+                    afficherErreur('Supabase n\'est pas configuré.');
+                    return;
+                }
+
+                // Vérifier s'il y a un hash ou des paramètres d'URL
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const searchParams = new URLSearchParams(window.location.search);
+
+                // Vérifier les erreurs dans l'URL
+                const errorParam = hashParams.get('error') || searchParams.get('error');
+                const errorDescription = hashParams.get('error_description') || searchParams.get('error_description');
+
+                if (errorParam) {
+                    afficherErreur(errorDescription || 'Erreur d\'authentification.');
+                    return;
+                }
+
+                // Vérifier s'il y a un type de récupération (reset password)
+                const type = hashParams.get('type') || searchParams.get('type');
+
+                if (type === 'recovery') {
+                    // Réinitialisation de mot de passe — rediriger vers la page de nouveau mot de passe
+                    // Supabase va automatiquement gérer le token via detectSessionInUrl
+                    // On attend que la session soit établie, puis on redirige
+                    const { data, error } = await client.auth.getSession();
+
+                    if (error) {
+                        afficherErreur('Lien de réinitialisation invalide ou expiré.');
+                        return;
+                    }
+
+                    // Rediriger vers la page de profil ou un formulaire de nouveau mot de passe
+                    window.location.replace('../profil.html?action=reset-password');
+                    return;
+                }
+
+                // Pour OAuth : Supabase gère automatiquement l'échange de code
+                // grâce à detectSessionInUrl: true dans la config
+                // Attendre un court instant pour que la session soit établie
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const { session } = await getSession();
+
+                if (session) {
+                    // Récupérer la redirection sauvegardée
+                    const redirect = sessionStorage.getItem('medhub_redirect_after_login');
+                    sessionStorage.removeItem('medhub_redirect_after_login');
+                    window.location.replace(redirect || '../index.html');
+                } else {
+                    // Deuxième tentative après un délai plus long
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    const { session: retrySession } = await getSession();
+
+                    if (retrySession) {
+                        const redirect = sessionStorage.getItem('medhub_redirect_after_login');
+                        sessionStorage.removeItem('medhub_redirect_after_login');
+                        window.location.replace(redirect || '../index.html');
+                    } else {
+                        afficherErreur('Impossible d\'établir la session. Veuillez réessayer.');
+                    }
+                }
+
+            } catch (err) {
+                console.error('[Callback]', err);
+                afficherErreur('Une erreur inattendue est survenue.');
+            }
+        })();
+    </script>
+</body>
+</html>

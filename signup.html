@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563EB">
+    <title>Inscription — MedHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-light: #3B82F6;
+            --primary-lighter: #93C5FD;
+            --primary-dark: #1D4ED8;
+            --primary-glow: rgba(37, 99, 235, 0.25);
+            --accent-teal: #0D9488;
+            --success: #10B981;
+            --error: #E11D48;
+            --error-bg: #FFF1F2;
+            --bg-primary: #F8FAFC;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F1F5F9;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --border: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-xl: 0 25px 60px rgba(0,0,0,0.12), 0 10px 24px rgba(0,0,0,0.08);
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .bg-decoration {
+            position: fixed; inset: 0; overflow: hidden;
+            pointer-events: none; z-index: 0;
+        }
+        .bg-gradient-orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(80px); opacity: 0.5;
+            animation: float 20s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 600px; height: 600px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(59,130,246,0.1));
+            top: -200px; right: -200px;
+        }
+        .orb-2 {
+            width: 500px; height: 500px;
+            background: linear-gradient(135deg, rgba(13,148,136,0.12), rgba(20,184,166,0.08));
+            bottom: -150px; left: -150px; animation-delay: -7s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-10px, 15px) scale(0.98); }
+        }
+
+        .auth-container {
+            position: relative; z-index: 1;
+            min-height: 100vh; display: flex;
+            align-items: center; justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .auth-card {
+            width: 100%; max-width: 480px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-light);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-logo {
+            display: flex; align-items: center;
+            justify-content: center; gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .auth-logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: var(--shadow-md), 0 0 30px var(--primary-glow);
+        }
+        .auth-logo-icon svg { width: 24px; height: 24px; color: white; }
+        .auth-logo-text {
+            font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--primary), var(--accent-teal));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-title {
+            text-align: center; font-size: 1.5rem;
+            font-weight: 700; margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .auth-subtitle {
+            text-align: center; color: var(--text-secondary);
+            font-size: 0.9rem; margin-bottom: 2rem;
+        }
+
+        /* Grille 2 colonnes pour prénom/nom */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block; font-size: 0.85rem;
+            font-weight: 600; color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%; padding: 0.75rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem; font-family: inherit;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all 0.2s ease; outline: none;
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            background: white;
+        }
+        .form-input::placeholder { color: var(--text-muted); }
+        .form-input.error {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+        }
+
+        /* Select personnalisé */
+        .form-select {
+            width: 100%; padding: 0.75rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem; font-family: inherit;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all 0.2s ease; outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+        }
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            background-color: white;
+        }
+
+        /* Indicateur de force du mot de passe */
+        .password-strength {
+            display: flex; gap: 4px; margin-top: 0.5rem;
+        }
+        .strength-bar {
+            flex: 1; height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 100px;
+            transition: background 0.3s ease;
+        }
+        .strength-bar.active-weak { background: #EF4444; }
+        .strength-bar.active-medium { background: #F59E0B; }
+        .strength-bar.active-strong { background: #10B981; }
+        .strength-text {
+            font-size: 0.75rem; color: var(--text-muted);
+            margin-top: 0.25rem; font-weight: 500;
+        }
+
+        .btn-primary {
+            width: 100%; padding: 0.875rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; border: none; border-radius: var(--radius-sm);
+            font-size: 0.95rem; font-weight: 600;
+            font-family: inherit; cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-md), 0 4px 16px var(--primary-glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg), 0 8px 24px var(--primary-glow);
+        }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled {
+            opacity: 0.6; cursor: not-allowed; transform: none;
+        }
+
+        .auth-separator {
+            display: flex; align-items: center;
+            margin: 1.5rem 0; gap: 1rem;
+        }
+        .auth-separator::before, .auth-separator::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+        .auth-separator span {
+            font-size: 0.8rem; color: var(--text-muted);
+            font-weight: 500; white-space: nowrap;
+        }
+
+        .btn-google {
+            width: 100%; padding: 0.75rem;
+            background: white; color: var(--text-primary);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem; font-weight: 600;
+            font-family: inherit; cursor: pointer;
+            display: flex; align-items: center;
+            justify-content: center; gap: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .btn-google:hover {
+            background: var(--bg-tertiary);
+            border-color: rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-google svg { width: 20px; height: 20px; }
+
+        .alert-error {
+            background: var(--error-bg);
+            border: 1px solid rgba(225, 29, 72, 0.15);
+            color: var(--error); padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem; font-weight: 500;
+            margin-bottom: 1.25rem;
+            display: none; align-items: center; gap: 0.5rem;
+        }
+        .alert-error.visible { display: flex; }
+        .alert-error svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        .alert-success {
+            background: #F0FDF4;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #065F46; padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem; font-weight: 500;
+            margin-bottom: 1.25rem;
+            display: none; align-items: center; gap: 0.5rem;
+        }
+        .alert-success.visible { display: flex; }
+
+        .auth-footer {
+            text-align: center; margin-top: 1.5rem;
+            font-size: 0.85rem; color: var(--text-secondary);
+        }
+        .auth-footer a {
+            color: var(--primary); font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-footer a:hover { text-decoration: underline; }
+
+        .spinner {
+            display: inline-block; width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .auth-card { padding: 2rem 1.5rem; border-radius: 20px; }
+            .auth-title { font-size: 1.3rem; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration">
+        <div class="bg-gradient-orb orb-1"></div>
+        <div class="bg-gradient-orb orb-2"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Logo -->
+            <div class="auth-logo">
+                <div class="auth-logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <span class="auth-logo-text">MedHub</span>
+            </div>
+
+            <h1 class="auth-title">Créer un compte</h1>
+            <p class="auth-subtitle">Rejoignez MedHub en quelques instants</p>
+
+            <!-- Messages -->
+            <div class="alert-error" id="alert-error" role="alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                <span id="error-message"></span>
+            </div>
+
+            <div class="alert-success" id="alert-success" role="status">
+                <span id="success-message"></span>
+            </div>
+
+            <!-- Formulaire d'inscription -->
+            <form id="form-signup" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="first_name">Prénom</label>
+                        <input class="form-input" type="text" id="first_name" name="first_name"
+                               placeholder="Prénom" required autocomplete="given-name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="last_name">Nom</label>
+                        <input class="form-input" type="text" id="last_name" name="last_name"
+                               placeholder="Nom" required autocomplete="family-name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Adresse email</label>
+                    <input class="form-input" type="email" id="email" name="email"
+                           placeholder="docteur@exemple.fr" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="specialty">Spécialité médicale</label>
+                    <select class="form-select" id="specialty" name="specialty" required>
+                        <option value="" disabled selected>Sélectionnez votre spécialité</option>
+                        <option value="Gériatrie">Gériatrie</option>
+                        <option value="Médecine générale">Médecine générale</option>
+                        <option value="Médecine interne">Médecine interne</option>
+                        <option value="Cardiologie">Cardiologie</option>
+                        <option value="Neurologie">Neurologie</option>
+                        <option value="Pneumologie">Pneumologie</option>
+                        <option value="Néphrologie">Néphrologie</option>
+                        <option value="Endocrinologie">Endocrinologie</option>
+                        <option value="Rhumatologie">Rhumatologie</option>
+                        <option value="Oncologie">Oncologie</option>
+                        <option value="Psychiatrie">Psychiatrie</option>
+                        <option value="Chirurgie">Chirurgie</option>
+                        <option value="Urgences">Urgences</option>
+                        <option value="Rééducation">Rééducation (MPR)</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Mot de passe</label>
+                    <input class="form-input" type="password" id="password" name="password"
+                           placeholder="Minimum 8 caractères" required autocomplete="new-password">
+                    <!-- Indicateur de force -->
+                    <div class="password-strength" id="password-strength">
+                        <div class="strength-bar" id="str-1"></div>
+                        <div class="strength-bar" id="str-2"></div>
+                        <div class="strength-bar" id="str-3"></div>
+                        <div class="strength-bar" id="str-4"></div>
+                    </div>
+                    <div class="strength-text" id="strength-text"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password_confirm">Confirmer le mot de passe</label>
+                    <input class="form-input" type="password" id="password_confirm" name="password_confirm"
+                           placeholder="Retapez votre mot de passe" required autocomplete="new-password">
+                </div>
+
+                <button type="submit" class="btn-primary" id="btn-submit">
+                    Créer mon compte
+                </button>
+            </form>
+
+            <!-- Séparateur -->
+            <div class="auth-separator">
+                <span>ou continuer avec</span>
+            </div>
+
+            <!-- Bouton Google -->
+            <button class="btn-google" id="btn-google">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                S'inscrire avec Google
+            </button>
+
+            <p class="auth-footer">
+                Déjà un compte ? <a href="./login.html">Se connecter</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="./js/supabase-config.js"></script>
+
+    <script>
+        // ==========================================
+        // Logique de la page d'inscription
+        // ==========================================
+
+        const form = document.getElementById('form-signup');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnGoogle = document.getElementById('btn-google');
+        const alertError = document.getElementById('alert-error');
+        const errorMessage = document.getElementById('error-message');
+        const alertSuccess = document.getElementById('alert-success');
+        const successMessage = document.getElementById('success-message');
+        const passwordInput = document.getElementById('password');
+
+        // Si déjà connecté, rediriger
+        (async () => {
+            const { session } = await getSession();
+            if (session) window.location.replace('./index.html');
+        })();
+
+        /**
+         * Afficher un message d'erreur
+         */
+        function afficherErreur(message) {
+            errorMessage.textContent = message;
+            alertError.classList.add('visible');
+            alertSuccess.classList.remove('visible');
+            // Scroller vers le message
+            alertError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        /**
+         * Afficher un message de succès
+         */
+        function afficherSucces(message) {
+            successMessage.textContent = message;
+            alertSuccess.classList.add('visible');
+            alertError.classList.remove('visible');
+        }
+
+        /**
+         * Masquer les messages
+         */
+        function masquerMessages() {
+            alertError.classList.remove('visible');
+            alertSuccess.classList.remove('visible');
+        }
+
+        /**
+         * Évaluer la force du mot de passe
+         */
+        function evaluerForceMotDePasse(password) {
+            let score = 0;
+            if (password.length >= 8) score++;
+            if (password.length >= 12) score++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+            if (/\d/.test(password)) score++;
+            if (/[^a-zA-Z0-9]/.test(password)) score++;
+
+            // Normaliser sur 4
+            return Math.min(4, score);
+        }
+
+        /**
+         * Mettre à jour l'indicateur visuel de force
+         */
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+            const force = evaluerForceMotDePasse(password);
+            const bars = ['str-1', 'str-2', 'str-3', 'str-4'];
+            const textes = ['', 'Faible', 'Moyen', 'Bon', 'Excellent'];
+            const classes = ['', 'active-weak', 'active-medium', 'active-strong', 'active-strong'];
+            const textEl = document.getElementById('strength-text');
+
+            bars.forEach((id, i) => {
+                const bar = document.getElementById(id);
+                bar.className = 'strength-bar';
+                if (password.length > 0 && i < force) {
+                    bar.classList.add(classes[force]);
+                }
+            });
+
+            textEl.textContent = password.length > 0 ? textes[force] : '';
+        });
+
+        /**
+         * Valider le formulaire côté client
+         */
+        function validerFormulaire() {
+            const prenom = document.getElementById('first_name').value.trim();
+            const nom = document.getElementById('last_name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const specialite = document.getElementById('specialty').value;
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password_confirm').value;
+
+            if (!prenom) { afficherErreur('Veuillez entrer votre prénom.'); return false; }
+            if (!nom) { afficherErreur('Veuillez entrer votre nom.'); return false; }
+
+            if (!email) { afficherErreur('Veuillez entrer votre adresse email.'); return false; }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) { afficherErreur('Format d\'email invalide.'); return false; }
+
+            if (!specialite) { afficherErreur('Veuillez sélectionner votre spécialité.'); return false; }
+
+            if (!password) { afficherErreur('Veuillez entrer un mot de passe.'); return false; }
+            if (password.length < 8) {
+                afficherErreur('Le mot de passe doit contenir au moins 8 caractères.');
+                return false;
+            }
+
+            if (password !== passwordConfirm) {
+                afficherErreur('Les mots de passe ne correspondent pas.');
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Soumission du formulaire d'inscription
+         */
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            masquerMessages();
+
+            if (!validerFormulaire()) return;
+
+            const prenom = document.getElementById('first_name').value.trim();
+            const nom = document.getElementById('last_name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const specialite = document.getElementById('specialty').value;
+            const password = document.getElementById('password').value;
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner"></span>';
+
+            try {
+                const { data, error } = await inscriptionEmail(email, password, {
+                    first_name: prenom,
+                    last_name: nom,
+                    specialty: specialite
+                });
+
+                if (error) {
+                    afficherErreur(traduireErreur(error));
+                    return;
+                }
+
+                // Succès — vérifier si la confirmation email est requise
+                if (data?.user && !data.session) {
+                    // L'email de confirmation a été envoyé
+                    afficherSucces(
+                        'Compte créé avec succès ! Vérifiez votre boîte email pour confirmer votre inscription.'
+                    );
+                    form.reset();
+                    // Réinitialiser l'indicateur de force
+                    document.querySelectorAll('.strength-bar').forEach(b => b.className = 'strength-bar');
+                    document.getElementById('strength-text').textContent = '';
+                } else if (data?.session) {
+                    // Connecté directement (pas de confirmation email requise)
+                    window.location.replace('./index.html');
+                }
+
+            } catch (err) {
+                afficherErreur('Une erreur est survenue. Veuillez réessayer.');
+                console.error('[Signup]', err);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Créer mon compte';
+            }
+        });
+
+        /**
+         * Inscription Google
+         */
+        btnGoogle.addEventListener('click', async () => {
+            masquerMessages();
+            btnGoogle.disabled = true;
+            btnGoogle.textContent = 'Redirection...';
+
+            try {
+                const { error } = await connexionGoogle();
+                if (error) {
+                    afficherErreur(traduireErreur(error));
+                    btnGoogle.disabled = false;
+                    btnGoogle.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        S'inscrire avec Google`;
+                }
+            } catch (err) {
+                afficherErreur('Impossible de s\'inscrire avec Google.');
+                btnGoogle.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
