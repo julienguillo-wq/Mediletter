@@ -317,6 +317,22 @@ class LogCorrectionRequest(BaseModel):
     section_index: Optional[int] = None  # Numéro de section (pour type="section")
 
 
+class LogCorrectionV2Request(BaseModel):
+    """Correction enrichie avec contexte complet pour fine-tuning."""
+    type: str                                  # "problems" ou "section"
+    generated: str | list                      # Texte/liste généré par Claude
+    validated: str | list                      # Texte/liste validé par le médecin
+    section_index: Optional[int] = None
+    session_id: Optional[str] = None
+    user_email: Optional[str] = None
+    probleme_name: Optional[str] = None        # Nom du problème (ex: "Insuffisance cardiaque")
+    diagnostic_principal: Optional[str] = None
+    model_used: Optional[str] = None           # "claude-opus-4-6" ou "claude-sonnet-4-5-20250929"
+    donnees_extraites: Optional[dict] = None   # JSON structuré complet (biologie, ECG, etc.)
+    textes_originaux: Optional[str] = None     # Textes bruts du dossier (context + notes + CR)
+    problemes_list: Optional[list] = None      # Liste complète des problèmes (pour type="problems")
+
+
 # ==============================================================================
 # Helpers
 # ==============================================================================
@@ -614,6 +630,145 @@ async def admin_corrections(auth: bool = Depends(verify_admin_key)):
         "total": len(corrections),
         "with_changes": len(corrections_with_changes),
         "corrections": corrections_with_changes[-50:][::-1]
+    }
+
+
+@app.post("/log-corrections-v2")
+async def log_corrections_v2(request: LogCorrectionV2Request):
+    """
+    Enregistre les corrections enrichies avec contexte complet.
+    Stocke dans Supabase si disponible, sinon fallback fichier JSON.
+    """
+    # Déterminer si des changements ont été apportés
+    if request.type == "problems":
+        gen_list = request.generated if isinstance(request.generated, list) else []
+        val_list = request.validated if isinstance(request.validated, list) else []
+        has_changes = gen_list != val_list
+    else:
+        has_changes = str(request.generated).strip() != str(request.validated).strip()
+
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "type": request.type,
+        "generated": request.generated,
+        "validated": request.validated,
+        "section_index": request.section_index,
+        "has_changes": has_changes,
+        "session_id": request.session_id,
+        "user_email": request.user_email,
+        "probleme_name": request.probleme_name,
+        "diagnostic_principal": request.diagnostic_principal,
+        "model_used": request.model_used,
+        "donnees_extraites": request.donnees_extraites,
+        "textes_originaux": request.textes_originaux,
+        "problemes_list": request.problemes_list
+    }
+
+    # Essayer Supabase d'abord
+    if supabase_client:
+        try:
+            supabase_client.table('mediletter_corrections').insert(entry).execute()
+            return {"status": "saved", "storage": "supabase", "has_changes": has_changes}
+        except Exception as e:
+            print(f"Erreur Supabase corrections: {e}, fallback fichier JSON")
+
+    # Fallback fichier JSON
+    ensure_logs_dir()
+    try:
+        corrections = json.loads(CORRECTIONS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        corrections = []
+    corrections.append(entry)
+    if len(corrections) > 1000:
+        corrections = corrections[-1000:]
+    CORRECTIONS_FILE.write_text(json.dumps(corrections, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    return {"status": "saved", "storage": "json", "has_changes": has_changes}
+
+
+@app.get("/admin/corrections-v2")
+async def admin_corrections_v2(auth: bool = Depends(verify_admin_key)):
+    """Retourne les corrections enrichies avec contexte complet."""
+    if supabase_client:
+        try:
+            result = supabase_client.table('mediletter_corrections') \
+                .select('*').order('timestamp', desc=True).limit(100).execute()
+            corrections = result.data if result.data else []
+            with_changes = [c for c in corrections if c.get('has_changes')]
+            return {
+                "total": len(corrections),
+                "with_changes": len(with_changes),
+                "corrections": corrections,
+                "storage": "supabase"
+            }
+        except Exception as e:
+            print(f"Erreur Supabase admin corrections: {e}")
+
+    # Fallback fichier JSON
+    ensure_logs_dir()
+    try:
+        corrections = json.loads(CORRECTIONS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        corrections = []
+
+    with_changes = [c for c in corrections if c.get('has_changes')]
+    corrections.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
+
+    return {
+        "total": len(corrections),
+        "with_changes": len(with_changes),
+        "corrections": corrections[:100],
+        "storage": "json"
+    }
+
+
+@app.get("/admin/export-finetuning")
+async def export_finetuning(auth: bool = Depends(verify_admin_key)):
+    """
+    Exporte les corrections au format JSONL pour fine-tuning.
+    Seules les corrections de type 'section' avec has_changes=true sont exportées.
+    """
+    corrections = []
+    if supabase_client:
+        try:
+            result = supabase_client.table('mediletter_corrections') \
+                .select('*').eq('type', 'section').eq('has_changes', True).execute()
+            corrections = result.data if result.data else []
+        except Exception:
+            pass
+
+    if not corrections:
+        ensure_logs_dir()
+        try:
+            all_corrections = json.loads(CORRECTIONS_FILE.read_text(encoding="utf-8"))
+            corrections = [c for c in all_corrections
+                           if c.get('type') == 'section' and c.get('has_changes')]
+        except Exception:
+            corrections = []
+
+    finetuning_pairs = []
+    for c in corrections:
+        pair = {
+            "input": {
+                "probleme": c.get("probleme_name", "inconnu"),
+                "diagnostic_principal": c.get("diagnostic_principal", ""),
+                "donnees_extraites": c.get("donnees_extraites", {}),
+                "textes_originaux": c.get("textes_originaux", ""),
+                "generated_text": c.get("generated", "")
+            },
+            "output": c.get("validated", ""),
+            "metadata": {
+                "timestamp": c.get("timestamp"),
+                "user_email": c.get("user_email"),
+                "model_used": c.get("model_used"),
+                "section_index": c.get("section_index")
+            }
+        }
+        finetuning_pairs.append(pair)
+
+    return {
+        "total_pairs": len(finetuning_pairs),
+        "pairs": finetuning_pairs
     }
 
 

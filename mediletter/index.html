@@ -1983,6 +1983,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
         let originalProblemsGenerated = []; // Stocke les problèmes originaux générés par Claude
         let extractedDiagnostic = '';
         let extractedData = {};
+        let textesOriginauxCache = '';  // Textes bruts du dossier pour les corrections V2
 
         // User email for logging
         let currentUserEmail = null;
@@ -1993,7 +1994,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             } catch(e) {}
         })();
 
-        // Function to log corrections to backend
+        // Function to log corrections to backend (V1 — kept as fallback)
         async function logCorrection(type, generated, validated, sectionIndex = null) {
             try {
                 await fetch(`${BACKEND_URL}/log-corrections`, {
@@ -2008,6 +2009,33 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                 });
             } catch (error) {
                 console.warn('Erreur logging correction:', error);
+            }
+        }
+
+        // Function to log corrections V2 — enrichies avec contexte complet pour fine-tuning
+        async function logCorrectionV2(type, generated, validated, sectionIndex = null, extras = {}) {
+            try {
+                await fetch(`${BACKEND_URL}/log-corrections-v2`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: type,
+                        generated: generated,
+                        validated: validated,
+                        section_index: sectionIndex,
+                        session_id: currentSessionId || null,
+                        user_email: currentUserEmail || null,
+                        probleme_name: extras.probleme_name || null,
+                        diagnostic_principal: extras.diagnostic_principal || null,
+                        model_used: extras.model_used || null,
+                        donnees_extraites: extras.donnees_extraites || null,
+                        textes_originaux: extras.textes_originaux || null,
+                        problemes_list: extras.problemes_list || null
+                    })
+                });
+            } catch (e) {
+                console.warn('logCorrectionV2 failed, falling back to v1:', e);
+                await logCorrection(type, generated, validated, sectionIndex);
             }
         }
 
@@ -2596,6 +2624,14 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                 originalProblemsGenerated = [...data.problemes];
                 extractedData = data.donnees_extraites;
 
+                // Stocker les textes originaux pour les corrections V2
+                const parts = [];
+                if (patientContext) parts.push('## Contexte / Lettre d\'entrée\n' + patientContext);
+                if (additionalInfo) parts.push('## Informations complémentaires\n' + additionalInfo);
+                if (followUpNotes) parts.push('## Notes de suite\n' + followUpNotes);
+                if (reports) parts.push('## Comptes rendus\n' + reports);
+                textesOriginauxCache = parts.join('\n\n');
+
                 // Update loading overlay to show completion
                 document.getElementById('loadingTitle').textContent = 'Analyse terminée !';
                 document.getElementById('loadingProgressBar').style.width = '100%';
@@ -2772,7 +2808,11 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             }
 
             // Log les corrections de problèmes (comparaison originaux vs validés)
-            logCorrection('problems', originalProblemsGenerated, validatedProblems);
+            logCorrectionV2('problems', originalProblemsGenerated, validatedProblems, null, {
+                diagnostic_principal: extractedDiagnostic,
+                problemes_list: validatedProblems,
+                model_used: 'claude-opus-4-6'
+            });
 
             // Update button state
             const btn = event.target.closest('.btn');
@@ -3333,7 +3373,13 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
 
                 // Log la correction de section (texte original vs texte validé)
                 if (current.sectionOriginal) {
-                    logCorrection('section', current.sectionOriginal, validatedText, currentEditorIndex + 1);
+                    logCorrectionV2('section', current.sectionOriginal, validatedText, currentEditorIndex + 1, {
+                        probleme_name: current.probleme,
+                        diagnostic_principal: validatedDiagnostic,
+                        model_used: 'claude-sonnet-4-5-20250929',
+                        donnees_extraites: extractedData,
+                        textes_originaux: textesOriginauxCache
+                    });
                 }
             }
 
@@ -3580,6 +3626,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             originalProblemsGenerated = [];
             generatedSections = [];
             currentSessionId = null;
+            textesOriginauxCache = '';
             goToPage(0);
             showToast('Donnees effacees');
         }
