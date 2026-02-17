@@ -474,7 +474,13 @@ Génère maintenant la section pour ce problème uniquement."""
     response = client.messages.create(
         model=model,
         max_tokens=4000,
-        system=prompt_sections,
+        system=[
+            {
+                "type": "text",
+                "text": prompt_sections,
+                "cache_control": {"type": "ephemeral"}
+            }
+        ],
         messages=[{"role": "user", "content": prompt_user}]
     )
 
@@ -807,7 +813,13 @@ async def analyser(request: AnalyserRequest):
         response = client.messages.create(
             model=MODELS["ultra_haute_qualite"],  # UHQ pour la recherche des problèmes
             max_tokens=8000,
-            system=PROMPT_EXTRACTION,
+            system=[
+                {
+                    "type": "text",
+                    "text": PROMPT_EXTRACTION,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
             messages=[{"role": "user", "content": content}]
         )
 
@@ -992,7 +1004,13 @@ async def generer(request: GenererRequest):
         assemblage_response = client.messages.create(
             model=model,
             max_tokens=8000,
-            system=PROMPT_ASSEMBLAGE,
+            system=[
+                {
+                    "type": "text",
+                    "text": PROMPT_ASSEMBLAGE,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
             messages=[{"role": "user", "content": assemblage_context}]
         )
         
@@ -1068,19 +1086,16 @@ async def generer_section(request: GenererSectionRequest):
         response = client.messages.create(
             model=model_used,
             max_tokens=4000,
+            system=[
+                {
+                    "type": "text",
+                    "text": PROMPT_SECTIONS,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
             messages=[{
                 "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": PROMPT_SECTIONS,
-                        "cache_control": {"type": "ephemeral"}
-                    },
-                    {
-                        "type": "text",
-                        "text": generation_context
-                    }
-                ]
+                "content": generation_context
             }]
         )
         section_text = response.content[0].text
@@ -1160,9 +1175,15 @@ async def regenerer_section(request: RegenerationSectionRequest):
 IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Conserve la même structure (Contexte, Investigations, Discussion, Propositions) mais modifie le contenu selon l'instruction."""
 
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=MODELS["haute_qualite"],
             max_tokens=4000,
-            system=PROMPT_SECTIONS,
+            system=[
+                {
+                    "type": "text",
+                    "text": PROMPT_SECTIONS,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
             messages=[{
                 "role": "user",
                 "content": regeneration_context
@@ -1209,7 +1230,13 @@ async def assembler(request: AssemblerRequest):
         response = client.messages.create(
             model=model_used,
             max_tokens=8000,
-            system=PROMPT_ASSEMBLAGE,
+            system=[
+                {
+                    "type": "text",
+                    "text": PROMPT_ASSEMBLAGE,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
             messages=[{
                 "role": "user",
                 "content": f"Type de lettre : {request.letter_type}\n\nDiagnostic principal : {request.diagnostic_principal}\n\nSections à assembler :\n{sections_text}"
@@ -1478,7 +1505,13 @@ async def analyser_entree(request: AnalyserEntreeRequest):
         response = client.messages.create(
             model=model_used,
             max_tokens=4096,
-            system=PROMPT_VDR_EXTRACTION,
+            system=[
+                {
+                    "type": "text",
+                    "text": PROMPT_VDR_EXTRACTION,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
             messages=[{"role": "user", "content": content}]
         )
 
@@ -1550,7 +1583,13 @@ async def generer_entree(request: GenererEntreeRequest):
         response = client.messages.create(
             model=model_used,
             max_tokens=4096,
-            system=system_prompt,
+            system=[
+                {
+                    "type": "text",
+                    "text": system_prompt,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
             messages=[{"role": "user", "content": user_message}]
         )
 
