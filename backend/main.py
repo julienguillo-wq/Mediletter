@@ -88,8 +88,8 @@ sessions: dict = {}
 
 # Modèles disponibles
 MODELS = {
-    "standard": "claude-sonnet-4-5-20250929",
-    "haute_qualite": "claude-sonnet-4-5-20250929",
+    "standard": "claude-opus-4-6",
+    "haute_qualite": "claude-opus-4-6",
     "ultra_haute_qualite": "claude-opus-4-6"
 }
 
