@@ -1515,7 +1515,7 @@ async def analyser_entree(request: AnalyserEntreeRequest):
             "text": f"## Transcription vocale (langue source : {langue_label})\n\n{request.transcription}"
         })
 
-        model_used = "claude-sonnet-4-20250514"
+        model_used = MODELS["haute_qualite"]
 
         response = client.messages.create(
             model=model_used,
@@ -1571,7 +1571,7 @@ async def analyser_entree(request: AnalyserEntreeRequest):
         }
 
     except anthropic.APIError as e:
-        log_usage("/analyser-entree", "claude-sonnet-4-20250514", 0, 0, 0, images_count, pdfs_count, success=False)
+        log_usage("/analyser-entree", MODELS["haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
@@ -1593,7 +1593,7 @@ async def generer_entree(request: GenererEntreeRequest):
 
         user_message = f"SEXE DU PATIENT : {request.sexe}\n\nDONNÉES EXTRAITES :\n{json_str}"
 
-        model_used = "claude-sonnet-4-20250514"
+        model_used = MODELS["haute_qualite"]
 
         response = client.messages.create(
             model=model_used,
@@ -1619,7 +1619,7 @@ async def generer_entree(request: GenererEntreeRequest):
         return {"lettre": lettre}
 
     except anthropic.APIError as e:
-        log_usage("/generer-entree", "claude-sonnet-4-20250514", 0, 0, 0, 0, 0, success=False)
+        log_usage("/generer-entree", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
