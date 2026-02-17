@@ -909,6 +909,7 @@
     let lastExtraction = null;  // { donnees_json, type_lettre, sexe }
 
     const API_BASE = '';
+    let currentUserEmail = null;
 
     // ==========================================================================
     // LANGUAGE
@@ -1202,13 +1203,20 @@
 
         showLoading('Étape 1/2 — Extraction des données...');
 
+        // Récupérer l'email depuis Supabase Auth
+        try {
+            const { user } = await getUser();
+            if (user) currentUserEmail = user.email;
+        } catch(e) {}
+
         try {
             // === ÉTAPE 1 : Extraction ===
             const bodyExtract = {
                 transcription: transcription,
                 langue: currentLang === 'it-IT' ? 'italien' : 'francais',
                 images_base64: uploadedFiles.images.map(f => f.data),
-                pdfs_base64: uploadedFiles.pdfs.map(f => f.data)
+                pdfs_base64: uploadedFiles.pdfs.map(f => f.data),
+                user_email: currentUserEmail
             };
 
             const resp1 = await fetch(API_BASE + '/analyser-entree', {
@@ -1247,7 +1255,8 @@
         const bodyGen = {
             donnees_json: extraction.donnees_json,
             type_lettre: extraction.type_lettre,
-            sexe: extraction.sexe
+            sexe: extraction.sexe,
+            user_email: currentUserEmail
         };
 
         const resp = await fetch(API_BASE + '/generer-entree', {

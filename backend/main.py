@@ -302,12 +302,20 @@ class AnalyserEntreeRequest(BaseModel):
     langue: str = "italien"  # "italien" ou "francais"
     images_base64: Optional[list[str]] = None
     pdfs_base64: Optional[list[str]] = None
+    user_email: Optional[str] = None
 
 
 class GenererEntreeRequest(BaseModel):
     donnees_json: dict
     type_lettre: str  # "NEURO", "MI", "MSQ", "ANAM_MSQ"
     sexe: str = "M"  # "M" ou "F"
+    user_email: Optional[str] = None
+
+
+class MedEntryUGARequest(BaseModel):
+    """Requête pour le bilan d'entrée UGA."""
+    form_data: dict  # Données du formulaire collectées côté client
+    user_email: Optional[str] = None
 
 
 class LogCorrectionRequest(BaseModel):
@@ -1790,7 +1798,7 @@ async def analyser_entree(request: AnalyserEntreeRequest):
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/analyser-entree", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True)
+        log_usage("/analyser-entree", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True, user_email=request.user_email)
 
         # Nettoyer les éventuelles fences markdown (```json ... ```)
         cleaned = raw_json.strip()
@@ -1824,7 +1832,7 @@ async def analyser_entree(request: AnalyserEntreeRequest):
         }
 
     except anthropic.APIError as e:
-        log_usage("/analyser-entree", MODELS["haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False)
+        log_usage("/analyser-entree", MODELS["haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False, user_email=request.user_email)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
@@ -1867,15 +1875,157 @@ async def generer_entree(request: GenererEntreeRequest):
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/generer-entree", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True)
+        log_usage("/generer-entree", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, user_email=request.user_email)
 
         return {"lettre": lettre}
 
     except anthropic.APIError as e:
-        log_usage("/generer-entree", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False)
+        log_usage("/generer-entree", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False, user_email=request.user_email)
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+
+# ==============================================================================
+# MEDENTRY UGA — Bilan d'entrée gériatrique
+# ==============================================================================
+
+@app.post("/medentry-uga/generer")
+async def medentry_uga_generer(request: MedEntryUGARequest):
+    """
+    Génère un bilan d'entrée gériatrique.
+    Remplace l'appel direct à l'API Anthropic depuis uga.html.
+    """
+    from prompts.medentry_uga import PROMPT_MEDENTRY_UGA, PROMPT_SYSTEM_UGA
+
+    data = request.form_data
+    model_used = MODELS["haute_qualite"]
+
+    # Mapper les valeurs de provenance
+    provenance_labels = {
+        'domicile': 'du domicile',
+        'urgences': 'des urgences',
+        'transfert': "d'un autre service",
+        'ems': "d'un EMS",
+        'readaptation': "d'un centre de réadaptation"
+    }
+
+    # Construire le prompt avec les données du formulaire
+    sexe_label = 'Monsieur' if data.get('sexe') == 'M' else 'Madame'
+    provenance_label = provenance_labels.get(data.get('provenance', ''), '')
+
+    anamnese_symptomes = data.get('anamneseSymptomes', [])
+    anamnese_symptomes_str = ', '.join(anamnese_symptomes) if anamnese_symptomes else 'Aucun symptôme particulier signalé'
+
+    anamnese_remarques = data.get('anamneseRemarques', '')
+    anamnese_remarques_str = f'Remarques: {anamnese_remarques}' if anamnese_remarques else ''
+
+    status_anomalies = data.get('statusAnomalies', [])
+    status_anomalies_str = ', '.join(status_anomalies) if status_anomalies else 'Examen sans particularité'
+
+    constantes = data.get('constantes', {})
+    status_details = data.get('statusDetails', {})
+    details_parts = []
+    if status_details.get('general'):
+        details_parts.append(f"Détails état général: {status_details['general']}")
+    if status_details.get('cv'):
+        details_parts.append(f"Détails CV: {status_details['cv']}")
+    if status_details.get('resp'):
+        details_parts.append(f"Détails resp: {status_details['resp']}")
+    if status_details.get('dig'):
+        details_parts.append(f"Détails dig: {status_details['dig']}")
+    if status_details.get('neuro'):
+        details_parts.append(f"Détails neuro: {status_details['neuro']}")
+    if status_details.get('cut'):
+        details_parts.append(f"Détails cutané: {status_details['cut']}")
+    status_details_str = '\n'.join(details_parts)
+
+    status_remarques = data.get('statusRemarques', '')
+    status_remarques_str = f'Autres remarques cliniques: {status_remarques}' if status_remarques else ''
+
+    scores = data.get('scores', {})
+
+    # Champs complémentaires
+    complement_parts = []
+    if data.get('situationSociale'):
+        complement_parts.append(f"Situation sociale: {data['situationSociale']}")
+    if data.get('modeVie'):
+        complement_parts.append(f"Mode de vie: {data['modeVie']}")
+    if data.get('laboEntree'):
+        complement_parts.append(f"Laboratoire d'entrée: {data['laboEntree']}")
+    if data.get('examensComplementaires'):
+        complement_parts.append(f"Examens complémentaires: {data['examensComplementaires']}")
+    if data.get('objectifsSejour'):
+        complement_parts.append(f"Objectifs du séjour: {data['objectifsSejour']}")
+    if data.get('autresRemarques'):
+        complement_parts.append(f"Autres remarques: {data['autresRemarques']}")
+
+    prompt_text = PROMPT_MEDENTRY_UGA.format(
+        sexe_label=sexe_label,
+        prenom=data.get('prenom', ''),
+        nom=data.get('nom', ''),
+        age=data.get('age', ''),
+        date_entree=data.get('dateEntree', ''),
+        provenance_label=provenance_label,
+        motif_hospitalisation=data.get('motifHospitalisation', ''),
+        medecin_traitant=data.get('medecinTraitant', ''),
+        antecedents=data.get('antecedents', ''),
+        traitement_habituel=data.get('traitementHabituel', ''),
+        anamnese_symptomes=anamnese_symptomes_str,
+        anamnese_remarques=anamnese_remarques_str,
+        ta_systolique=constantes.get('taSystolique', ''),
+        ta_diastolique=constantes.get('taDiastolique', ''),
+        fc=constantes.get('fc', ''),
+        spo2=constantes.get('spo2', ''),
+        temperature=constantes.get('temperature', ''),
+        gcs=constantes.get('gcs', ''),
+        poids=constantes.get('poids', ''),
+        taille=constantes.get('taille', ''),
+        status_anomalies=status_anomalies_str,
+        status_details=status_details_str,
+        status_remarques=status_remarques_str,
+        score_mna=scores.get('mna', '--/14'),
+        score_moca=scores.get('moca', '--/30'),
+        score_gds=scores.get('gds', '--/4'),
+        score_adl=scores.get('adl', '--/6'),
+        score_iadl=scores.get('iadl', '--/8'),
+        situation_sociale=complement_parts[0] if len(complement_parts) > 0 else '',
+        mode_vie=complement_parts[1] if len(complement_parts) > 1 else '',
+        labo_entree=complement_parts[2] if len(complement_parts) > 2 else '',
+        examens_complementaires=complement_parts[3] if len(complement_parts) > 3 else '',
+        objectifs_sejour=complement_parts[4] if len(complement_parts) > 4 else '',
+        autres_remarques=complement_parts[5] if len(complement_parts) > 5 else '',
+    )
+
+    try:
+        response = client.messages.create(
+            model=model_used,
+            max_tokens=4096,
+            system=[
+                {
+                    "type": "text",
+                    "text": PROMPT_SYSTEM_UGA,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
+            messages=[{"role": "user", "content": prompt_text}]
+        )
+
+        lettre = response.content[0].text
+        tokens_input = response.usage.input_tokens
+        tokens_output = response.usage.output_tokens
+        cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
+
+        log_usage("/medentry-uga/generer", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, user_email=request.user_email)
+
+        return {"lettre": lettre, "tokens_input": tokens_input, "tokens_output": tokens_output}
+
+    except anthropic.APIError as e:
+        log_usage("/medentry-uga/generer", model_used, 0, 0, 0, 0, 0, success=False, user_email=request.user_email)
+        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+    except Exception as e:
+        log_usage("/medentry-uga/generer", model_used, 0, 0, 0, 0, 0, success=False, user_email=request.user_email)
+        raise HTTPException(status_code=500, detail=f"Erreur génération: {str(e)}")
 
 
 @app.delete("/session/{session_id}")
