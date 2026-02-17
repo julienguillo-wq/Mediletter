@@ -72,9 +72,9 @@ sessions: dict = {}
 
 # Modèles disponibles
 MODELS = {
-    "standard": "claude-sonnet-4-20250514",
-    "haute_qualite": "claude-sonnet-4-20250514",
-    "ultra_haute_qualite": "claude-opus-4-20250514"
+    "standard": "claude-sonnet-4-5-20250929",
+    "haute_qualite": "claude-sonnet-4-5-20250929",
+    "ultra_haute_qualite": "claude-opus-4-6"
 }
 
 # Thread pool pour parallélisation des appels API
@@ -98,7 +98,7 @@ def ensure_logs_dir():
 
 # Tarifs par million de tokens (USD)
 PRICING = {
-    "opus": {"input": 15, "output": 75},
+    "opus": {"input": 5, "output": 25},
     "sonnet": {"input": 3, "output": 15}
 }
 EUR_RATE = 0.92
