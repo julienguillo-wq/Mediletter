@@ -767,6 +767,7 @@
         <div class="header">
             <h1>MediLetter Admin</h1>
             <div class="header-actions">
+                <button class="btn" onclick="changeAdminKey()" title="Changer la clé admin" style="padding:10px 12px;">🔑</button>
                 <button class="btn btn-refresh" onclick="loadStats(); loadSessions();">Actualiser</button>
                 <button class="btn btn-logout" onclick="logout()">Déconnexion</button>
             </div>
@@ -840,7 +841,13 @@
     <script>
         const API_URL = '';
         const ADMIN_PASSWORD = 'mediletter2024'; // À changer en production
-        const ADMIN_HEADERS = { 'X-Admin-Key': 'mediletter-admin-2024-secure' }; // À changer en production
+
+        // Clé admin depuis localStorage (jamais dans le code source)
+        if (!localStorage.getItem('admin_api_key')) {
+            const key = prompt('Clé admin :');
+            if (key) localStorage.setItem('admin_api_key', key);
+        }
+        const ADMIN_HEADERS = { 'X-Admin-Key': localStorage.getItem('admin_api_key') };
 
         function checkAuth() {
             const isAuth = localStorage.getItem('mediletter_admin_auth') === 'true';
@@ -1214,6 +1221,15 @@
 
             } catch (error) {
                 console.error('Erreur chargement stats:', error);
+            }
+        }
+
+        function changeAdminKey() {
+            localStorage.removeItem('admin_api_key');
+            const key = prompt('Nouvelle clé admin :');
+            if (key) {
+                localStorage.setItem('admin_api_key', key);
+                location.reload();
             }
         }
 

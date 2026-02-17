@@ -434,6 +434,7 @@
         <div class="header">
             <h1>VDR Admin</h1>
             <div class="header-actions">
+                <button class="btn" onclick="changeAdminKey()" title="Changer la clé admin" style="padding:10px 12px;">🔑</button>
                 <button class="btn btn-refresh" onclick="loadAll()">Actualiser</button>
                 <button class="btn btn-logout" onclick="logout()">D&eacute;connexion</button>
             </div>
@@ -473,7 +474,13 @@
     <script>
         const API_URL = '';
         const ADMIN_PASSWORD = 'mediletter2024';
-        const ADMIN_HEADERS = { 'X-Admin-Key': 'mediletter-admin-2024-secure' };
+
+        // Clé admin depuis localStorage (jamais dans le code source)
+        if (!localStorage.getItem('admin_api_key')) {
+            const key = prompt('Clé admin :');
+            if (key) localStorage.setItem('admin_api_key', key);
+        }
+        const ADMIN_HEADERS = { 'X-Admin-Key': localStorage.getItem('admin_api_key') };
 
         function checkAuth() {
             const isAuth = localStorage.getItem('vdr_admin_auth') === 'true';
@@ -613,6 +620,15 @@
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const seconds = String(date.getSeconds()).padStart(2, '0');
             return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+        }
+
+        function changeAdminKey() {
+            localStorage.removeItem('admin_api_key');
+            const key = prompt('Nouvelle clé admin :');
+            if (key) {
+                localStorage.setItem('admin_api_key', key);
+                location.reload();
+            }
         }
 
         // Enter key to login
