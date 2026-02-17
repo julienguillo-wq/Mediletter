@@ -523,6 +523,85 @@
             margin-left: 12px;
         }
 
+        .correction-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .correction-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+
+        .correction-subtitle {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+        }
+
+        .badge-user {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(20, 184, 166, 0.1);
+            color: var(--teal);
+        }
+
+        .badge-model {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-model.opus {
+            background: rgba(139, 92, 246, 0.12);
+            color: #8B5CF6;
+        }
+
+        .badge-model.sonnet {
+            background: rgba(59, 130, 246, 0.12);
+            color: #3B82F6;
+        }
+
+        .btn-export {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: var(--teal);
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .btn-export:hover {
+            opacity: 0.85;
+        }
+
+        .btn-export:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .corrections-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
         .corrections-stats {
             display: flex;
             gap: 24px;
@@ -733,15 +812,20 @@
 
         <!-- Tab Corrections -->
         <div class="tab-content" id="tab-corrections">
-            <div class="corrections-stats" id="correctionsStats">
-                <div class="corrections-stat">
-                    <div class="corrections-stat-value" id="totalCorrections">-</div>
-                    <div class="corrections-stat-label">Total corrections</div>
+            <div class="corrections-toolbar">
+                <div class="corrections-stats" id="correctionsStats" style="margin-bottom:0;flex:1;">
+                    <div class="corrections-stat">
+                        <div class="corrections-stat-value" id="totalCorrections">-</div>
+                        <div class="corrections-stat-label">Total corrections</div>
+                    </div>
+                    <div class="corrections-stat">
+                        <div class="corrections-stat-value" id="correctionsWithChanges">-</div>
+                        <div class="corrections-stat-label">Avec modifications</div>
+                    </div>
                 </div>
-                <div class="corrections-stat">
-                    <div class="corrections-stat-value" id="correctionsWithChanges">-</div>
-                    <div class="corrections-stat-label">Avec modifications</div>
-                </div>
+                <button class="btn-export" onclick="exportFinetuning()" id="btnExportFT">
+                    <svg style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>Exporter fine-tuning
+                </button>
             </div>
 
             <div id="correctionsContent">
@@ -967,7 +1051,7 @@
             content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
 
             try {
-                const response = await fetch(`${API_URL}/admin/corrections`, { headers: ADMIN_HEADERS });
+                const response = await fetch(`${API_URL}/admin/corrections-v2`, { headers: ADMIN_HEADERS });
                 const data = await response.json();
 
                 // Update stats
@@ -985,17 +1069,34 @@
                     const typeLabel = correction.type === 'problems' ? 'Problèmes' : 'Section';
                     const sectionInfo = correction.section_index ? `<span class="section-index">Section ${correction.section_index}</span>` : '';
 
+                    // V2 enriched fields
+                    const userBadge = correction.user_email
+                        ? `<span class="badge-user">${escapeHtml(correction.user_email)}</span>` : '';
+
+                    let modelBadge = '';
+                    if (correction.model_used) {
+                        const isOpus = correction.model_used.includes('opus');
+                        const modelLabel = isOpus ? 'Opus 4.6' : 'Sonnet 4.5';
+                        const modelClass = isOpus ? 'opus' : 'sonnet';
+                        modelBadge = `<span class="badge-model ${modelClass}">${modelLabel}</span>`;
+                    }
+
+                    const titleText = correction.probleme_name
+                        ? escapeHtml(correction.probleme_name)
+                        : (correction.section_index ? `Section ${correction.section_index}` : '');
+
+                    const subtitleText = correction.diagnostic_principal
+                        ? `Diag. principal : ${escapeHtml(correction.diagnostic_principal)}` : '';
+
                     let originalContent = '';
                     let validatedContent = '';
 
                     if (correction.type === 'problems') {
-                        // For problems, show lists
                         const generated = Array.isArray(correction.generated) ? correction.generated : [];
                         const validated = Array.isArray(correction.validated) ? correction.validated : [];
                         originalContent = generated.map((p, i) => `${i + 1}. ${escapeHtml(p)}`).join('\n');
                         validatedContent = validated.map((p, i) => `${i + 1}. ${escapeHtml(p)}`).join('\n');
                     } else {
-                        // For sections, show text
                         originalContent = escapeHtml(correction.generated || '');
                         validatedContent = escapeHtml(correction.validated || '');
                     }
@@ -1006,9 +1107,13 @@
                                 <div>
                                     <span class="correction-type ${typeClass}">${typeLabel}</span>
                                     ${sectionInfo}
+                                    ${modelBadge}
+                                    ${userBadge}
                                 </div>
                                 <span class="correction-time">${formatTime(correction.timestamp)}</span>
                             </div>
+                            ${titleText ? `<div class="correction-title">${titleText}</div>` : ''}
+                            ${subtitleText ? `<div class="correction-subtitle">${subtitleText}</div>` : ''}
                             <div class="diff-container">
                                 <div class="diff-column diff-original">
                                     <div class="diff-label">Généré par Claude</div>
@@ -1028,6 +1133,31 @@
             } catch (error) {
                 console.error('Erreur chargement corrections:', error);
                 content.innerHTML = '<div class="empty-state">Erreur de connexion à l\'API</div>';
+            }
+        }
+
+        async function exportFinetuning() {
+            const btn = document.getElementById('btnExportFT');
+            btn.disabled = true;
+            btn.textContent = 'Export en cours...';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/export-finetuning`, { headers: ADMIN_HEADERS });
+                const data = await response.json();
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `finetuning_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Erreur export fine-tuning:', error);
+                alert('Erreur lors de l\'export fine-tuning');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<svg style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>Exporter fine-tuning';
             }
         }
 
