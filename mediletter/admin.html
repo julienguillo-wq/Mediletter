@@ -254,7 +254,7 @@
         .table-container {
             background: var(--white);
             border-radius: 16px;
-            overflow: hidden;
+            overflow-x: auto;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
         }
 
@@ -275,7 +275,7 @@
 
         th {
             text-align: left;
-            padding: 12px 24px;
+            padding: 12px 14px;
             font-size: 12px;
             font-weight: 600;
             color: var(--gray-500);
@@ -283,10 +283,11 @@
             letter-spacing: 0.5px;
             background: var(--gray-50);
             border-bottom: 1px solid var(--gray-100);
+            white-space: nowrap;
         }
 
         td {
-            padding: 16px 24px;
+            padding: 12px 14px;
             font-size: 14px;
             border-bottom: 1px solid var(--gray-100);
         }
@@ -637,6 +638,30 @@
             white-space: nowrap;
         }
 
+        .user-cell {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        th.col-actions,
+        td.col-actions {
+            position: sticky;
+            right: 0;
+            z-index: 1;
+        }
+
+        th.col-actions {
+            background: var(--gray-50);
+            box-shadow: -4px 0 8px rgba(0, 0, 0, 0.04);
+        }
+
+        td.col-actions {
+            background: var(--white);
+            box-shadow: -4px 0 8px rgba(0, 0, 0, 0.04);
+        }
+
         .btn-details {
             padding: 6px 12px;
             font-size: 12px;
@@ -734,10 +759,6 @@
 
             .stats-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .table-container {
-                overflow-x: auto;
             }
 
             table {
@@ -923,7 +944,7 @@
                                 <th>Images</th>
                                 <th>PDFs</th>
                                 <th>Statut</th>
-                                <th>Actions</th>
+                                <th class="col-actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -937,7 +958,7 @@
                     tableHtml += `
                         <tr>
                             <td class="time-cell">${formatTime(session.start_time)}</td>
-                            <td>${session.user_email || '-'}</td>
+                            <td class="user-cell" title="${session.user_email || '-'}">${session.user_email || '-'}</td>
                             <td><span class="session-id" title="${session.session_id}">${shortId}</span></td>
                             <td>${session.requests_count}</td>
                             <td class="tokens-cell">${tokens}</td>
@@ -949,7 +970,7 @@
                                     ${session.success ? 'Succès' : 'Échec'}
                                 </span>
                             </td>
-                            <td>
+                            <td class="col-actions">
                                 <button class="btn-details" onclick="showSessionDetail('${session.session_id}')">Détails</button>
                             </td>
                         </tr>
