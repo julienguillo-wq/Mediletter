@@ -18,6 +18,7 @@ Extrais TOUTES les informations médicales pertinentes des documents fournis (im
 2. EXTRAIRE TOUTES les valeurs avec leurs unités exactes
 3. NE JAMAIS inventer de données - extrais uniquement ce qui est visible
 4. Citer les valeurs PRÉCISES (ex: "Hb 112 g/l", "Créatinine 145 µmol/l")
+5. Pour la BIOLOGIE : si plusieurs bilans sont fournis (dates différentes), crée UNE ENTRÉE PAR DATE dans l'objet "biologie". La clé doit être au format "YYYY-MM-DD_contexte" (ex: "2024-09-10_admission", "2024-09-12_controle_J3", "2024-09-15_sortie"). Chaque bilan à une date différente = une entrée séparée. NE JAMAIS fusionner des bilans de dates différentes. Si un seul bilan est fourni, utilise quand même le format avec date.
 
 ## FORMAT DE SORTIE (JSON)
 ```json
@@ -40,28 +41,30 @@ Extrais TOUTES les informations médicales pertinentes des documents fournis (im
   "traitement_entree": ["...", "..."],
   
   "biologie": {
-    "hemoglobine": {"valeur": "X", "unite": "g/l"},
-    "leucocytes": {"valeur": "X", "unite": "G/l"},
-    "crp": {"valeur": "X", "unite": "mg/l"},
-    "creatinine_entree": {"valeur": "X", "unite": "µmol/l"},
-    "creatinine_sortie": {"valeur": "X", "unite": "µmol/l"},
-    "cockroft": {"valeur": "X", "unite": "ml/min"},
-    "sodium": {"valeur": "X", "unite": "mmol/l"},
-    "potassium": {"valeur": "X", "unite": "mmol/l"},
-    "vitamine_d": {"valeur": "X", "unite": "nmol/l"},
-    "vitamine_b9": {"valeur": "X", "unite": "nmol/l"},
-    "vitamine_b12": {"valeur": "X", "unite": "pmol/l"},
-    "ferritine": {"valeur": "X", "unite": "µg/l"},
-    "taux_saturation": {"valeur": "X", "unite": "%"},
-    "tsh": {"valeur": "X", "unite": "U/l"},
-    "albumine": {"valeur": "X", "unite": "g/l"},
-    "spot_urinaire": {
-      "sodium": "X mmol/l",
-      "potassium": "X mmol/l",
-      "osmolalite": "X mosmol/kg",
-      "creatinine": "X µmol/l",
-      "uree": "X",
-      "fena": "X %"
+    "YYYY-MM-DD_contexte": {
+      "date_label": "Bilan du [date] ([contexte: admission/contrôle J3/sortie/etc.])",
+      "hemoglobine": {"valeur": "X", "unite": "g/l"},
+      "leucocytes": {"valeur": "X", "unite": "G/l"},
+      "crp": {"valeur": "X", "unite": "mg/l"},
+      "creatinine": {"valeur": "X", "unite": "µmol/l"},
+      "cockroft": {"valeur": "X", "unite": "ml/min"},
+      "sodium": {"valeur": "X", "unite": "mmol/l"},
+      "potassium": {"valeur": "X", "unite": "mmol/l"},
+      "vitamine_d": {"valeur": "X", "unite": "nmol/l"},
+      "vitamine_b9": {"valeur": "X", "unite": "nmol/l"},
+      "vitamine_b12": {"valeur": "X", "unite": "pmol/l"},
+      "ferritine": {"valeur": "X", "unite": "µg/l"},
+      "taux_saturation": {"valeur": "X", "unite": "%"},
+      "tsh": {"valeur": "X", "unite": "U/l"},
+      "albumine": {"valeur": "X", "unite": "g/l"},
+      "spot_urinaire": {
+        "sodium": "X mmol/l",
+        "potassium": "X mmol/l",
+        "osmolalite": "X mosmol/kg",
+        "creatinine": "X µmol/l",
+        "uree": "X",
+        "fena": "X %"
+      }
     }
   },
   

@@ -18,6 +18,7 @@ Extrais TOUTES les informations médicales pertinentes des documents fournis (im
 2. EXTRAIRE TOUTES les valeurs avec leurs unités exactes
 3. NE JAMAIS inventer de données - extrais uniquement ce qui est visible
 4. Citer les valeurs PRÉCISES (ex: "Hb 112 g/l", "MIF 98/126")
+5. Pour la BIOLOGIE : si plusieurs bilans sont fournis (dates différentes), crée UNE ENTRÉE PAR DATE dans l'objet "biologie". La clé doit être au format "YYYY-MM-DD_contexte" (ex: "2024-09-10_admission", "2024-09-12_controle_J3", "2024-09-15_sortie"). Chaque bilan à une date différente = une entrée séparée. NE JAMAIS fusionner des bilans de dates différentes. Si un seul bilan est fourni, utilise quand même le format avec date.
 
 ## RÈGLES ISSUES DES CORRECTIONS MÉDECIN (PRIORITAIRE)
 - Ne JAMAIS écrire "non disponible" — si une donnée manque, omettre la ligne entière
@@ -64,16 +65,19 @@ Détermine la filière à partir du contexte clinique :
   },
 
   "biologie": {
-    "hemoglobine": {"valeur": "X", "unite": "g/l"},
-    "leucocytes": {"valeur": "X", "unite": "G/l"},
-    "crp": {"valeur": "X", "unite": "mg/l"},
-    "creatinine": {"valeur": "X", "unite": "µmol/l"},
-    "sodium": {"valeur": "X", "unite": "mmol/l"},
-    "potassium": {"valeur": "X", "unite": "mmol/l"},
-    "albumine": {"valeur": "X", "unite": "g/l"},
-    "vitamine_d": {"valeur": "X", "unite": "nmol/l"},
-    "tsh": {"valeur": "X", "unite": "U/l"},
-    "hba1c": {"valeur": "X", "unite": "%"}
+    "YYYY-MM-DD_contexte": {
+      "date_label": "Bilan du [date] ([contexte: admission/contrôle J3/sortie/etc.])",
+      "hemoglobine": {"valeur": "X", "unite": "g/l"},
+      "leucocytes": {"valeur": "X", "unite": "G/l"},
+      "crp": {"valeur": "X", "unite": "mg/l"},
+      "creatinine": {"valeur": "X", "unite": "µmol/l"},
+      "sodium": {"valeur": "X", "unite": "mmol/l"},
+      "potassium": {"valeur": "X", "unite": "mmol/l"},
+      "albumine": {"valeur": "X", "unite": "g/l"},
+      "vitamine_d": {"valeur": "X", "unite": "nmol/l"},
+      "tsh": {"valeur": "X", "unite": "U/l"},
+      "hba1c": {"valeur": "X", "unite": "%"}
+    }
   },
 
   "status_neurologique_entree": {
