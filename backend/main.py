@@ -5,6 +5,7 @@ Version 2.1 : Requêtes parallélisées pour performance optimale
 """
 
 from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -1133,6 +1134,103 @@ async def generer_section(request: GenererSectionRequest):
         raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+
+@app.post("/generer-section-stream")
+async def generer_section_stream(request: GenererSectionRequest):
+    """
+    Génère UNE SEULE section en streaming SSE.
+    Le texte est envoyé token par token au frontend.
+    """
+    if request.session_id not in sessions:
+        raise HTTPException(
+            status_code=404,
+            detail="Session non trouvée. Appelez /analyser d'abord."
+        )
+
+    session_data = sessions[request.session_id]
+    user_email = request.user_email or session_data.get('user_email')
+    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+
+    # Construire les sections de texte original (même logique que /generer-section)
+    textes_originaux = []
+    if session_data.get('context'):
+        textes_originaux.append(f"### Contexte / Lettre d'entrée\n{session_data['context']}")
+    if session_data.get('extra_info'):
+        textes_originaux.append(f"### Informations complémentaires du médecin\n{session_data['extra_info']}")
+    if session_data.get('notes'):
+        textes_originaux.append(f"### Notes de suite\n{session_data['notes']}")
+    if session_data.get('cr'):
+        textes_originaux.append(f"### Comptes rendus\n{session_data['cr']}")
+
+    textes_section = "\n\n".join(textes_originaux) if textes_originaux else "Aucun texte fourni"
+
+    generation_context = f"""## DIAGNOSTIC PRINCIPAL
+{session_data.get('diagnostic_principal', 'Non spécifié')}
+
+## PROBLÈME À TRAITER (numéro {request.probleme_index})
+{request.probleme_index}. {request.probleme}
+
+{"IMPORTANT: Ce problème EST le diagnostic principal. Inclure l'anamnèse par système et le status d'entrée." if request.is_diagnostic_principal else ""}
+
+## TEXTES ORIGINAUX DU DOSSIER
+{textes_section}
+
+## DONNÉES EXTRAITES (structurées)
+{json.dumps(session_data['donnees_extraites'], ensure_ascii=False, indent=2)}"""
+
+    model_used = MODELS["haute_qualite"]
+
+    async def event_generator():
+        full_text = ""
+        input_tokens = 0
+        output_tokens = 0
+
+        try:
+            with client.messages.stream(
+                model=model_used,
+                max_tokens=4000,
+                system=[
+                    {
+                        "type": "text",
+                        "text": PROMPT_SECTIONS,
+                        "cache_control": {"type": "ephemeral"}
+                    }
+                ],
+                messages=[{
+                    "role": "user",
+                    "content": generation_context
+                }]
+            ) as stream:
+                for text in stream.text_stream:
+                    full_text += text
+                    yield f"data: {json.dumps({'type': 'text', 'content': text}, ensure_ascii=False)}\n\n"
+
+                # Récupérer les stats d'usage après le stream
+                response = stream.get_final_message()
+                input_tokens = response.usage.input_tokens
+                output_tokens = response.usage.output_tokens
+
+            # Envoyer l'événement de fin avec les stats
+            yield f"data: {json.dumps({'type': 'done', 'full_text': full_text, 'tokens_input': input_tokens, 'tokens_output': output_tokens}, ensure_ascii=False)}\n\n"
+
+            # Logger la requête
+            cost_eur = calculate_cost(model_used, input_tokens, output_tokens)
+            log_usage("/generer-section-stream", model_used, input_tokens, output_tokens, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email)
+
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+            log_usage("/generer-section-stream", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=request.user_email)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 
 @app.post("/regenerer-section", response_model=GenererSectionResponse)
