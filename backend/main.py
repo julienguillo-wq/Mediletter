@@ -33,16 +33,20 @@ def verify_admin_key(x_admin_key: str = Header(...)):
 
 
 # Client Supabase (service role pour bypass RLS)
-supabase_client = create_client(
-    os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-)
+supabase_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+if supabase_url and supabase_key:
+    supabase_client = create_client(supabase_url, supabase_key)
+else:
+    supabase_client = None
+    print("⚠️ Supabase non configuré — fallback gériatrie pour tous les utilisateurs")
 
 
 def get_prompts(user_email: str = None):
     """Récupère les prompts selon le service_type de l'utilisateur."""
     service_type = 'geriatrie'
-    if user_email:
+    if user_email and supabase_client:
         try:
             result = supabase_client.table('mediletter_user_config').select('service_type').eq('user_email', user_email).execute()
             if result.data:
