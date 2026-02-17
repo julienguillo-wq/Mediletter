@@ -756,6 +756,7 @@
     <script>
         const API_URL = '';
         const ADMIN_PASSWORD = 'mediletter2024'; // À changer en production
+        const ADMIN_HEADERS = { 'X-Admin-Key': 'mediletter-admin-2024-secure' }; // À changer en production
 
         function checkAuth() {
             const isAuth = localStorage.getItem('mediletter_admin_auth') === 'true';
@@ -810,7 +811,7 @@
             content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
 
             try {
-                const response = await fetch(`${API_URL}/admin/sessions`);
+                const response = await fetch(`${API_URL}/admin/sessions`, { headers: ADMIN_HEADERS });
                 const data = await response.json();
 
                 if (!data.sessions || data.sessions.length === 0) {
@@ -879,7 +880,7 @@
             content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
 
             try {
-                const response = await fetch(`${API_URL}/admin/session/${sessionId}`);
+                const response = await fetch(`${API_URL}/admin/session/${sessionId}`, { headers: ADMIN_HEADERS });
                 const session = await response.json();
 
                 title.textContent = 'Détails de la session';
@@ -966,7 +967,7 @@
             content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
 
             try {
-                const response = await fetch(`${API_URL}/admin/corrections`);
+                const response = await fetch(`${API_URL}/admin/corrections`, { headers: ADMIN_HEADERS });
                 const data = await response.json();
 
                 // Update stats
@@ -1068,7 +1069,7 @@
 
         async function loadStats() {
             try {
-                const response = await fetch(`${API_URL}/admin/stats`);
+                const response = await fetch(`${API_URL}/admin/stats`, { headers: ADMIN_HEADERS });
                 const data = await response.json();
 
                 // Update today stats

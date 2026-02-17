@@ -4,7 +4,7 @@ Pipeline multi-étapes pour la génération de lettres médicales
 Version 2.1 : Requêtes parallélisées pour performance optimale
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -20,6 +20,17 @@ from supabase import create_client
 
 # Charger les variables d'environnement depuis .env
 load_dotenv()
+
+
+def verify_admin_key(x_admin_key: str = Header(...)):
+    """Vérifie la clé API admin dans le header X-Admin-Key."""
+    expected = os.getenv("ADMIN_API_KEY")
+    if not expected:
+        raise HTTPException(status_code=503, detail="Admin non configuré")
+    if x_admin_key != expected:
+        raise HTTPException(status_code=403, detail="Accès refusé")
+    return True
+
 
 # Client Supabase (service role pour bypass RLS)
 supabase_client = create_client(
@@ -529,7 +540,7 @@ async def root():
 
 
 @app.get("/admin/stats")
-async def admin_stats():
+async def admin_stats(auth: bool = Depends(verify_admin_key)):
     """Retourne les statistiques d'utilisation de l'API."""
     return get_usage_stats()
 
@@ -579,7 +590,7 @@ async def log_corrections(request: LogCorrectionRequest):
 
 
 @app.get("/admin/corrections")
-async def admin_corrections():
+async def admin_corrections(auth: bool = Depends(verify_admin_key)):
     """
     Retourne les corrections qui ont des changements (has_changes: true).
     """
@@ -602,7 +613,7 @@ async def admin_corrections():
 
 
 @app.get("/admin/sessions")
-async def admin_sessions():
+async def admin_sessions(auth: bool = Depends(verify_admin_key)):
     """
     Retourne les logs regroupés par session (lettre).
     Chaque session représente une lettre générée.
@@ -668,7 +679,7 @@ async def admin_sessions():
 
 
 @app.get("/admin/session/{session_id}")
-async def admin_session_detail(session_id: str):
+async def admin_session_detail(session_id: str, auth: bool = Depends(verify_admin_key)):
     """
     Retourne les détails d'une session spécifique.
     """
@@ -718,7 +729,7 @@ VDR_ENDPOINTS = {"/analyser-entree", "/generer-entree"}
 
 
 @app.get("/admin/vdr/stats")
-async def admin_vdr_stats():
+async def admin_vdr_stats(auth: bool = Depends(verify_admin_key)):
     """Retourne les statistiques d'utilisation VDR uniquement."""
     ensure_logs_dir()
 
@@ -769,7 +780,7 @@ async def admin_vdr_stats():
 
 
 @app.get("/admin/vdr/logs")
-async def admin_vdr_logs():
+async def admin_vdr_logs(auth: bool = Depends(verify_admin_key)):
     """Retourne les derniers appels VDR."""
     ensure_logs_dir()
 
@@ -1611,7 +1622,7 @@ async def generer_entree(request: GenererEntreeRequest):
 
 
 @app.delete("/session/{session_id}")
-async def delete_session(session_id: str):
+async def delete_session(session_id: str, auth: bool = Depends(verify_admin_key)):
     """Nettoyer une session après utilisation."""
     if session_id in sessions:
         del sessions[session_id]
@@ -1620,7 +1631,7 @@ async def delete_session(session_id: str):
 
 
 @app.get("/sessions")
-async def list_sessions():
+async def list_sessions(auth: bool = Depends(verify_admin_key)):
     """Liste les sessions actives (debug)."""
     return {
         "count": len(sessions),

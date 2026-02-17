@@ -473,6 +473,7 @@
     <script>
         const API_URL = '';
         const ADMIN_PASSWORD = 'mediletter2024';
+        const ADMIN_HEADERS = { 'X-Admin-Key': 'mediletter-admin-2024-secure' };
 
         function checkAuth() {
             const isAuth = localStorage.getItem('vdr_admin_auth') === 'true';
@@ -509,7 +510,7 @@
 
         async function loadStats() {
             try {
-                const response = await fetch(API_URL + '/admin/vdr/stats');
+                const response = await fetch(API_URL + '/admin/vdr/stats', { headers: ADMIN_HEADERS });
                 const data = await response.json();
 
                 document.getElementById('todayRequests').textContent = data.today.requests;
@@ -530,7 +531,7 @@
             content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
 
             try {
-                const response = await fetch(API_URL + '/admin/vdr/logs');
+                const response = await fetch(API_URL + '/admin/vdr/logs', { headers: ADMIN_HEADERS });
                 const data = await response.json();
 
                 if (!data.logs || data.logs.length === 0) {
