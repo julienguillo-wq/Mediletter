@@ -137,7 +137,7 @@
             z-index: 1;
             max-width: 1000px;
             margin: 0 auto;
-            padding: 40px 40px 120px;
+            padding: 24px 40px 120px;
         }
 
         /* ============================================
@@ -204,7 +204,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 60px;
+            margin-bottom: 32px;
             padding: 12px 16px 12px 12px;
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(40px) saturate(180%);
@@ -332,7 +332,7 @@
            ============================================ */
         .hero {
             text-align: center;
-            padding: 20px 0 60px;
+            padding: 10px 0 32px;
         }
 
         .hero-badge {
@@ -343,7 +343,7 @@
             background: var(--white);
             border: 1px solid var(--gray-200);
             border-radius: 100px;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
             position: relative;
             overflow: hidden;
@@ -388,11 +388,11 @@
         }
 
         .hero-title {
-            font-size: 56px;
+            font-size: 40px;
             font-weight: 900;
-            letter-spacing: -2.5px;
+            letter-spacing: -2px;
             line-height: 1.1;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
             color: var(--gray-900);
         }
 
@@ -530,6 +530,11 @@
         .bento-badge.required {
             background: rgba(139, 92, 246, 0.1);
             color: var(--violet);
+        }
+
+        .bento-badge.recommended {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--blue);
         }
 
         /* ============================================
@@ -953,6 +958,7 @@
 
         .problem-content {
             flex: 1;
+            min-width: 0;
         }
 
         .problem-title {
@@ -960,6 +966,9 @@
             font-weight: 700;
             color: var(--gray-900);
             margin-bottom: 6px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
         }
 
         .problem-desc {
@@ -1341,7 +1350,7 @@
             }
 
             .hero-title {
-                font-size: 36px;
+                font-size: 30px;
                 letter-spacing: -1.5px;
             }
 
@@ -1436,7 +1445,7 @@
                 </div>
                 <div class="brand-info">
                     <span class="brand-name">MediLetter</span>
-                    <span class="brand-tagline">Lettres medicales intelligentes</span>
+                    <span class="brand-tagline">Lettres médicales intelligentes</span>
                 </div>
             </div>
 
@@ -1460,10 +1469,10 @@
             <section class="hero">
                 <div class="hero-badge">
                     <span class="hero-badge-dot"></span>
-                    <span class="hero-badge-text">Securise & Confidentiel</span>
+                    <span class="hero-badge-text">Sécurisé & Confidentiel</span>
                 </div>
                 <h1 class="hero-title">
-                    Creez votre lettre<br>
+                    Créez votre lettre<br>
                     <span class="hero-title-gradient">en quelques minutes</span>
                 </h1>
                 <p class="hero-subtitle">
@@ -1499,7 +1508,7 @@
                             </div>
                         </div>
                         <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
-                            <label class="form-label">Infos complementaires</label>
+                            <label class="form-label">Infos complémentaires</label>
                             <div class="textarea-wrapper" style="flex: 1;">
                                 <textarea class="textarea" id="additionalInfo" style="height: 100%; min-height: 80px;" placeholder="Précisions pour orienter la rédaction..."></textarea>
                             </div>
@@ -1520,7 +1529,7 @@
                             <span class="bento-badge required">Requis</span>
                         </div>
                         <div class="textarea-wrapper">
-                            <textarea class="textarea" id="patientContext" placeholder="Lettre d'entree, motif d'admission, antecedents, traitement habituel..."></textarea>
+                            <textarea class="textarea" id="patientContext" placeholder="Lettre d'entrée, motif d'admission, antécédents, traitement habituel..."></textarea>
                             <button class="textarea-mic">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                             </button>
@@ -1538,10 +1547,10 @@
                                 </div>
                                 <span class="bento-label">Notes de suite</span>
                             </div>
-                            <span class="bento-badge required">Principal</span>
+                            <span class="bento-badge required">Requis</span>
                         </div>
                         <div class="textarea-wrapper" style="flex: 1;">
-                            <textarea class="textarea" id="followUpNotes" placeholder="J1: Entree pour...&#10;J2: Resultats labo, evolution clinique...&#10;J3: Suite du sejour, examens complementaires...&#10;J4: Avis specialises, decisions therapeutiques...&#10;J5: Preparation sortie..."></textarea>
+                            <textarea class="textarea" id="followUpNotes" placeholder="J1: Entrée pour...&#10;J2: Résultats labo, évolution clinique...&#10;J3: Suite du séjour, examens complémentaires...&#10;J4: Avis spécialisés, décisions thérapeutiques...&#10;J5: Préparation sortie..."></textarea>
                             <button class="textarea-mic">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                             </button>
@@ -1562,7 +1571,7 @@
                             <span class="bento-badge">Optionnel</span>
                         </div>
                         <div class="textarea-wrapper" style="flex: 1;">
-                            <textarea class="textarea" id="reports" style="height: 100%; min-height: 100px;" placeholder="Imagerie, avis specialises..."></textarea>
+                            <textarea class="textarea" id="reports" style="height: 100%; min-height: 100px;" placeholder="Imagerie, avis spécialisés..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -1577,7 +1586,7 @@
                                 </div>
                                 <span class="bento-label">Documents</span>
                             </div>
-                            <span class="bento-badge">Optionnel</span>
+                            <span class="bento-badge recommended">Recommandé</span>
                         </div>
                         <div class="upload-zones">
                             <div class="upload-zone" id="imageUploadZone">
@@ -1592,7 +1601,7 @@
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 </div>
                                 <span class="upload-title">PDF</span>
-                                <span class="upload-hint">Resultats labo</span>
+                                <span class="upload-hint">Résultats labo</span>
                             </div>
                         </div>
                         <div class="uploaded-files-list" id="uploadedImagesList"></div>
@@ -1612,7 +1621,7 @@
             <footer class="footer">
                 <div class="footer-pill">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    <span>Donnees securisees · <a href="#">En savoir plus</a></span>
+                    <span>Données sécurisées · <a href="#">En savoir plus</a></span>
                 </div>
             </footer>
         </div>
@@ -1640,7 +1649,7 @@
                     <div class="problem-number">1</div>
                     <div class="problem-content">
                         <div class="problem-title">Insuffisance cardiaque décompensée</div>
-                        <div class="problem-desc">FEVG 35%, traitement par diuretiques IV, amelioration progressive</div>
+                        <div class="problem-desc">FEVG 35%, traitement par diurétiques IV, amélioration progressive</div>
                     </div>
                     <div class="problem-actions">
                         <button class="problem-action"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg></button>
@@ -1652,7 +1661,7 @@
                     <div class="problem-number">2</div>
                     <div class="problem-content">
                         <div class="problem-title">Fibrillation atriale paroxystique</div>
-                        <div class="problem-desc">Anticoagulation par AOD, controle de frequence par betabloquant</div>
+                        <div class="problem-desc">Anticoagulation par AOD, contrôle de fréquence par bêtabloquant</div>
                     </div>
                     <div class="problem-actions">
                         <button class="problem-action"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg></button>
@@ -1663,8 +1672,8 @@
                 <div class="problem-card">
                     <div class="problem-number">3</div>
                     <div class="problem-content">
-                        <div class="problem-title">Insuffisance renale aigue</div>
-                        <div class="problem-desc">Creatinine 180 umol/L a l'entree, amelioration sous rehydratation</div>
+                        <div class="problem-title">Insuffisance rénale aiguë</div>
+                        <div class="problem-desc">Créatinine 180 µmol/L à l'entrée, amélioration sous réhydratation</div>
                     </div>
                     <div class="problem-actions">
                         <button class="problem-action"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg></button>
@@ -1675,8 +1684,8 @@
                 <div class="problem-card">
                     <div class="problem-number">4</div>
                     <div class="problem-content">
-                        <div class="problem-title">Diabete de type 2 desequilibre</div>
-                        <div class="problem-desc">HbA1c 9.2%, adaptation du traitement antidiabetique</div>
+                        <div class="problem-title">Diabète de type 2 déséquilibré</div>
+                        <div class="problem-desc">HbA1c 9.2%, adaptation du traitement antidiabétique</div>
                     </div>
                     <div class="problem-actions">
                         <button class="problem-action"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg></button>
@@ -1687,7 +1696,7 @@
                 <div class="problem-card">
                     <div class="problem-number">5</div>
                     <div class="problem-content">
-                        <div class="problem-title">Syndrome depressif</div>
+                        <div class="problem-title">Syndrome dépressif</div>
                         <div class="problem-desc">Consultation psychiatrique, introduction ISRS</div>
                     </div>
                     <div class="problem-actions">
@@ -1699,7 +1708,7 @@
                 <div class="problem-card">
                     <div class="problem-number">6</div>
                     <div class="problem-content">
-                        <div class="problem-title">Denutrition moderee</div>
+                        <div class="problem-title">Dénutrition modérée</div>
                         <div class="problem-desc">Albumine 28 g/L, complements nutritionnels oraux</div>
                     </div>
                     <div class="problem-actions">
@@ -1710,7 +1719,7 @@
 
                 <button class="add-problem">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    Ajouter un probleme
+                    Ajouter un problème
                 </button>
             </div>
 
@@ -1734,7 +1743,7 @@
             <section class="hero" style="padding-bottom: 40px;">
                 <h1 class="hero-title" style="font-size: 44px;">
                     Validation des<br>
-                    <span class="hero-title-gradient">sections redigees</span>
+                    <span class="hero-title-gradient">sections rédigées</span>
                 </h1>
             </section>
 
@@ -1760,18 +1769,18 @@
                     <div class="editor-problem-header">
                         <div class="editor-problem-number" id="editorProblemNumber">3</div>
                         <div class="editor-problem-info">
-                            <h2 id="editorProblemTitle">Insuffisance renale aigue</h2>
+                            <h2 id="editorProblemTitle">Insuffisance rénale aiguë</h2>
                             <p>Relisez et modifiez si nécessaire</p>
                         </div>
                     </div>
 
-                    <textarea class="editor-textarea" id="editorTextarea">Insuffisance renale aigue sur deshydratation dans le contexte de decompensation cardiaque.
+                    <textarea class="editor-textarea" id="editorTextarea">Insuffisance rénale aiguë sur déshydratation dans le contexte de décompensation cardiaque.
 
-A l'admission, la creatinine etait mesuree a 180 umol/L (valeur de base estimee a 95 umol/L selon les antecedents). Le ionogramme montrait une hypokaliemie moderee a 3.2 mmol/L.
+À l'admission, la créatinine était mesurée à 180 µmol/L (valeur de base estimée à 95 µmol/L selon les antécédents). Le ionogramme montrait une hypokaliémie modérée à 3.2 mmol/L.
 
-L'evolution a ete favorable sous rehydratation prudente adaptee a la fonction cardiaque, avec normalisation progressive de la fonction renale. A la sortie, la creatinine est a 105 umol/L et la kaliemie normalisee a 4.1 mmol/L.
+L'évolution a été favorable sous réhydratation prudente adaptée à la fonction cardiaque, avec normalisation progressive de la fonction rénale. À la sortie, la créatinine est à 105 µmol/L et la kaliémie normalisée à 4.1 mmol/L.
 
-Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
+Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea>
                 </div>
 
                 <div class="editor-footer">
@@ -1850,17 +1859,17 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                                 Fibrillation atriale paroxystique
                             </div>
                             <div class="letter-section-content">
-                                Decouverte d'une fibrillation atriale paroxystique lors du monitoring continu. Le score CHA2DS2-VASc etant a 4, une anticoagulation par apixaban 5 mg x 2/jour a ete introduite. Le controle de frequence est assure par bisoprolol.
+                                Découverte d'une fibrillation atriale paroxystique lors du monitoring continu. Le score CHA2DS2-VASc étant à 4, une anticoagulation par apixaban 5 mg x 2/jour a été introduite. Le contrôle de fréquence est assuré par bisoprolol.
                             </div>
                         </div>
 
                         <div class="letter-section">
                             <div class="letter-section-title">
                                 <span class="letter-section-number">3</span>
-                                Insuffisance renale aigue
+                                Insuffisance rénale aiguë
                             </div>
                             <div class="letter-section-content">
-                                Insuffisance renale aigue fonctionnelle sur deshydratation. Creatinine a 180 umol/L a l'entree, normalisee a 105 umol/L a la sortie. Surveillance de la fonction renale recommandee a 1 semaine.
+                                Insuffisance rénale aiguë fonctionnelle sur déshydratation. Créatinine à 180 µmol/L à l'entrée, normalisée à 105 µmol/L à la sortie. Surveillance de la fonction rénale recommandée à 1 semaine.
                             </div>
                         </div>
                     </div>
@@ -2273,7 +2282,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     pdfZone.style.borderStyle = 'solid';
                 } else {
                     title.textContent = 'PDF';
-                    hint.textContent = 'Resultats labo';
+                    hint.textContent = 'Résultats labo';
                     pdfZone.style.borderColor = '';
                     pdfZone.style.borderStyle = 'dashed';
                 }
@@ -2474,7 +2483,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     step.classList.add('done');
                     step.querySelector('.loading-step-icon').innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
                 });
-                document.getElementById('loadingTitle').textContent = 'Analyse terminee !';
+                document.getElementById('loadingTitle').textContent = 'Analyse terminée !';
             }
 
             setTimeout(() => {
@@ -2588,7 +2597,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                 extractedData = data.donnees_extraites;
 
                 // Update loading overlay to show completion
-                document.getElementById('loadingTitle').textContent = 'Analyse terminee !';
+                document.getElementById('loadingTitle').textContent = 'Analyse terminée !';
                 document.getElementById('loadingProgressBar').style.width = '100%';
 
                 // Stop medical facts cycle and show completion
@@ -2661,7 +2670,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                         <div class="problem-desc">${problem.checked ? 'Sélectionné' : 'Non sélectionné'}</div>
                     </div>
                     <div class="problem-actions">
-                        <button class="problem-action" onclick="toggleProblemCheck(${problem.id})" title="${problem.checked ? 'Desactiver' : 'Activer'}">
+                        <button class="problem-action" onclick="toggleProblemCheck(${problem.id})" title="${problem.checked ? 'Désactiver' : 'Activer'}">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: ${problem.checked ? 'var(--green)' : 'var(--gray-400)'}">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -2676,7 +2685,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             html += `
                 <button class="add-problem" onclick="addNewProblem()">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    Ajouter un probleme
+                    Ajouter un problème
                 </button>
             `;
 
@@ -2704,7 +2713,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
         function addNewProblem() {
             const newId = extractedProblems.length > 0 ? Math.max(...extractedProblems.map(p => p.id)) + 1 : 0;
-            extractedProblems.push({ id: newId, text: 'Nouveau probleme', checked: true });
+            extractedProblems.push({ id: newId, text: 'Nouveau problème', checked: true });
             renderProblemsPage();
         }
 
@@ -2758,7 +2767,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
             validatedProblems = extractedProblems.filter(p => p.checked).map(p => p.text);
 
             if (validatedProblems.length === 0) {
-                showToast('Sélectionnéz au moins un probleme', 'error');
+                showToast('Sélectionnez au moins un problème', 'error');
                 return;
             }
 
@@ -3127,7 +3136,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
 
                 if (s.validated) {
                     classes += ' done';
-                    title += ' (Valide)';
+                    title += ' (Validé)';
                 } else if (s.generating) {
                     classes += ' generating';
                     title += ' (En cours...)';
@@ -3136,7 +3145,7 @@ Une surveillance de la fonction renale a 1 semaine est recommandee.</textarea>
                     title += ' (Erreur)';
                 } else if (i === currentEditorIndex) {
                     classes += ' active';
-                    title += ' (En edition)';
+                    title += ' (En édition)';
                 } else if (!s.section) {
                     classes += ' pending';
                     title += ' (En attente)';
