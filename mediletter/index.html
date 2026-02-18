@@ -1977,6 +1977,33 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
         // Backend API URL
         const BACKEND_URL = '';
 
+        // ==================== Retry API ====================
+        // Auto-retry sur erreurs 500/529 (overloaded), max 2 retries, délai 3s
+        async function fetchWithRetry(url, options, maxRetries = 2) {
+            let lastResponse;
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return response;
+                    lastResponse = response;
+                    if ((response.status === 500 || response.status === 529) && attempt < maxRetries) {
+                        console.warn(`API ${response.status}, tentative ${attempt + 1}/${maxRetries} dans 3s...`);
+                        await new Promise(r => setTimeout(r, 3000));
+                        continue;
+                    }
+                    return response;
+                } catch (networkError) {
+                    if (attempt < maxRetries) {
+                        console.warn(`Erreur réseau, tentative ${attempt + 1}/${maxRetries} dans 3s...`);
+                        await new Promise(r => setTimeout(r, 3000));
+                        continue;
+                    }
+                    throw networkError;
+                }
+            }
+            return lastResponse;
+        }
+
         // Session and problems state
         let currentSessionId = null;
         let extractedProblems = [];
@@ -2592,7 +2619,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
 
                 currentSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-                const response = await fetch(`${BACKEND_URL}/analyser`, {
+                const response = await fetchWithRetry(`${BACKEND_URL}/analyser`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2868,7 +2895,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             textareaElement.style.opacity = '1';
 
             try {
-                const response = await fetch(`${BACKEND_URL}/generer-section-stream`, {
+                const response = await fetchWithRetry(`${BACKEND_URL}/generer-section-stream`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2929,8 +2956,8 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
 
             } catch (error) {
                 console.warn('Streaming failed, falling back to classic endpoint:', error);
-                // FALLBACK : utiliser l'ancien endpoint non-streaming
-                const response = await fetch(`${BACKEND_URL}/generer-section`, {
+                // FALLBACK : utiliser l'ancien endpoint non-streaming (avec retry)
+                const response = await fetchWithRetry(`${BACKEND_URL}/generer-section`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3016,7 +3043,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                     }
                 } else {
                     // Section pas visible : fallback classique (pas de streaming nécessaire)
-                    const response = await fetch(`${BACKEND_URL}/generer-section`, {
+                    const response = await fetchWithRetry(`${BACKEND_URL}/generer-section`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -3125,7 +3152,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             if (!section) return;
 
             try {
-                const response = await fetch(`${BACKEND_URL}/generer-section`, {
+                const response = await fetchWithRetry(`${BACKEND_URL}/generer-section`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3161,6 +3188,27 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                 section.error = true;
                 section.errorMessage = error.message;
             }
+        }
+
+        // Retry d'une section en erreur depuis le bouton "Réessayer"
+        async function retryCurrentSection() {
+            const current = generatedSections[currentEditorIndex];
+            if (!current) return;
+
+            // Reset l'état d'erreur
+            current.error = false;
+            current.errorMessage = '';
+            current.section = null;
+            current.sectionDisplay = null;
+            current.generating = true;
+            renderEditor();
+
+            // Relancer la génération
+            await generateSingleSection(
+                current.probleme,
+                currentEditorIndex,
+                currentEditorIndex === 0
+            );
         }
 
         function startCountdownTimer() {
@@ -3212,7 +3260,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                     // Medical fact is already being updated by the interval
                     textarea.classList.add('generating');
                 } else if (current.error) {
-                    textarea.value = `Erreur: ${current.errorMessage}\n\nCliquez sur "Précédent" puis "Suivant" pour réessayer.`;
+                    textarea.value = `Erreur: ${current.errorMessage}`;
                     textarea.classList.add('error');
                     textarea.classList.remove('generating');
                 } else {
@@ -3264,7 +3312,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                     textarea.classList.add('generating');
                 } else if (current.error) {
                     textarea.value = `Erreur: ${current.errorMessage}`;
-                    textarea.disabled = false;
+                    textarea.disabled = true;
                     textarea.classList.add('error');
                     textarea.classList.remove('generating');
                 } else {
@@ -3272,6 +3320,25 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                     textarea.disabled = false;
                     textarea.classList.remove('generating', 'error');
                 }
+            }
+
+            // Show/hide retry button
+            let retryBtn = document.getElementById('retryCurrentSectionBtn');
+            if (current.error) {
+                if (!retryBtn) {
+                    retryBtn = document.createElement('button');
+                    retryBtn.id = 'retryCurrentSectionBtn';
+                    retryBtn.className = 'btn btn-retry-section';
+                    retryBtn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Réessayer';
+                    retryBtn.onclick = retryCurrentSection;
+                    const textareaEl = document.getElementById('editorTextarea');
+                    if (textareaEl && textareaEl.parentNode) {
+                        textareaEl.parentNode.insertBefore(retryBtn, textareaEl.nextSibling);
+                    }
+                }
+                retryBtn.style.display = '';
+            } else if (retryBtn) {
+                retryBtn.style.display = 'none';
             }
 
             // Update buttons state
@@ -3459,7 +3526,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             showAssemblyOverlay();
 
             try {
-                const response = await fetch(`${BACKEND_URL}/assembler`, {
+                const response = await fetchWithRetry(`${BACKEND_URL}/assembler`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3981,6 +4048,30 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             background: rgba(239, 68, 68, 0.05);
             border-color: var(--red);
             color: var(--red);
+        }
+        .btn-retry-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 12px auto 0;
+            padding: 12px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--white);
+            background: var(--red);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+        .btn-retry-section:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+        }
+        .btn-retry-section:active {
+            transform: translateY(0);
         }
         @keyframes pulse-border {
             0%, 100% { border-color: var(--violet); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
