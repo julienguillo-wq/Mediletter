@@ -627,6 +627,22 @@
             color: var(--gray-500);
         }
 
+        .accuracy-value {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .accuracy-value.good { color: var(--green); }
+        .accuracy-value.warning { color: var(--orange); }
+        .accuracy-value.bad { color: var(--red); }
+
+        .accuracy-detail {
+            font-size: 11px;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
         /* Session details */
         .session-id {
             font-family: 'SF Mono', Monaco, monospace;
@@ -817,6 +833,11 @@
                     <div class="stat-value" id="weekRequests">-</div>
                     <div class="stat-sub" id="weekCost">Coût : -</div>
                 </div>
+                <div class="stat-card">
+                    <h3>Précision IA</h3>
+                    <div class="stat-value" id="sessionsAccuracy">-</div>
+                    <div class="stat-sub" id="sessionsAccuracyDetail"></div>
+                </div>
             </div>
 
             <div class="table-container">
@@ -843,6 +864,11 @@
                     <div class="corrections-stat">
                         <div class="corrections-stat-value" id="correctionsWithChanges">-</div>
                         <div class="corrections-stat-label">Avec modifications</div>
+                    </div>
+                    <div class="corrections-stat" style="border-left: 2px solid var(--gray-200); padding-left: 24px;">
+                        <div class="accuracy-value" id="correctionsAccuracy">-</div>
+                        <div class="corrections-stat-label">Taux de précision IA</div>
+                        <div class="accuracy-detail" id="correctionsAccuracyDetail"></div>
                     </div>
                 </div>
                 <button class="btn-export" onclick="exportFinetuning()" id="btnExportFT">
@@ -897,6 +923,7 @@
             document.getElementById('dashboard').classList.add('active');
             loadStats();
             loadSessions();
+            loadAccuracyStat();
         }
 
         function switchTab(tabName) {
@@ -913,6 +940,7 @@
                 loadCorrections();
             } else if (tabName === 'sessions') {
                 loadSessions();
+                loadAccuracyStat();
             }
         }
 
@@ -1086,6 +1114,21 @@
                 document.getElementById('totalCorrections').textContent = data.total;
                 document.getElementById('correctionsWithChanges').textContent = data.with_changes;
 
+                // Accuracy rate
+                const accEl = document.getElementById('correctionsAccuracy');
+                const accDetailEl = document.getElementById('correctionsAccuracyDetail');
+                if (data.total > 0) {
+                    const validated = data.total - data.with_changes;
+                    const rate = Math.round((validated / data.total) * 100);
+                    accEl.textContent = rate + '%';
+                    accEl.className = 'accuracy-value ' + (rate > 80 ? 'good' : rate >= 60 ? 'warning' : 'bad');
+                    accDetailEl.textContent = validated + ' sections validées sans modification sur ' + data.total + ' total';
+                } else {
+                    accEl.textContent = '-';
+                    accEl.className = 'accuracy-value';
+                    accDetailEl.textContent = '';
+                }
+
                 if (!data.corrections || data.corrections.length === 0) {
                     content.innerHTML = '<div class="empty-state">Aucune correction avec modifications</div>';
                     return;
@@ -1245,6 +1288,28 @@
             }
         }
 
+        async function loadAccuracyStat() {
+            try {
+                const response = await fetch(`${API_URL}/admin/corrections-v2`, { headers: ADMIN_HEADERS });
+                const data = await response.json();
+                const el = document.getElementById('sessionsAccuracy');
+                const detailEl = document.getElementById('sessionsAccuracyDetail');
+                if (data.total > 0) {
+                    const validated = data.total - data.with_changes;
+                    const rate = Math.round((validated / data.total) * 100);
+                    el.textContent = rate + '%';
+                    el.style.color = rate > 80 ? 'var(--green)' : rate >= 60 ? 'var(--orange)' : 'var(--red)';
+                    detailEl.textContent = validated + '/' + data.total + ' sans modification';
+                } else {
+                    el.textContent = '-';
+                    el.style.color = '';
+                    detailEl.textContent = '';
+                }
+            } catch (error) {
+                console.error('Erreur chargement précision IA:', error);
+            }
+        }
+
         function changeAdminKey() {
             localStorage.removeItem('admin_api_key');
             const key = prompt('Nouvelle clé admin :');
@@ -1269,6 +1334,7 @@
                 // Reload sessions only if on sessions tab
                 if (document.getElementById('tab-sessions').classList.contains('active')) {
                     loadSessions();
+                    loadAccuracyStat();
                 }
             }
         }, 30000);
