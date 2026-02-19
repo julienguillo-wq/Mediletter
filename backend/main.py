@@ -511,7 +511,7 @@ Type de template à utiliser : {type_probleme}
 
 Génère maintenant la section pour ce problème uniquement."""
 
-    response = client.messages.create(
+    with client.messages.stream(
         model=model,
         max_tokens=4000,
         system=[
@@ -522,7 +522,8 @@ Génère maintenant la section pour ce problème uniquement."""
             }
         ],
         messages=[{"role": "user", "content": prompt_user}]
-    )
+    ) as stream:
+        response = stream.get_final_message()
 
     return {
         "numero": numero,
@@ -989,7 +990,7 @@ async def analyser(request: AnalyserRequest):
             raise HTTPException(status_code=400, detail="Aucun contenu à analyser")
 
         # Appel à Claude pour extraction (UHQ forcé pour l'analyse)
-        response = client.messages.create(
+        with client.messages.stream(
             model=MODELS["ultra_haute_qualite"],  # UHQ pour la recherche des problèmes
             max_tokens=8000,
             system=[
@@ -1000,7 +1001,8 @@ async def analyser(request: AnalyserRequest):
                 }
             ],
             messages=[{"role": "user", "content": content}]
-        )
+        ) as stream:
+            response = stream.get_final_message()
 
         # Récupérer les tokens et calculer le coût
         tokens_input = response.usage.input_tokens
@@ -1180,7 +1182,7 @@ async def generer(request: GenererRequest):
 5. Liste le traitement de sortie
 6. PAS d'introduction ni conclusion superflue"""
 
-        assemblage_response = client.messages.create(
+        with client.messages.stream(
             model=model,
             max_tokens=8000,
             system=[
@@ -1191,7 +1193,8 @@ async def generer(request: GenererRequest):
                 }
             ],
             messages=[{"role": "user", "content": assemblage_context}]
-        )
+        ) as stream:
+            assemblage_response = stream.get_final_message()
         
         letter = assemblage_response.content[0].text
 
@@ -1262,7 +1265,7 @@ async def generer_section(request: GenererSectionRequest):
         model_used = MODELS["haute_qualite"]
 
         # Appel à Claude pour générer cette section avec prompt caching
-        response = client.messages.create(
+        with client.messages.stream(
             model=model_used,
             max_tokens=4000,
             system=[
@@ -1276,7 +1279,8 @@ async def generer_section(request: GenererSectionRequest):
                 "role": "user",
                 "content": generation_context
             }]
-        )
+        ) as stream:
+            response = stream.get_final_message()
         section_text = response.content[0].text
 
         # Logger la requête
@@ -1450,7 +1454,7 @@ async def regenerer_section(request: RegenerationSectionRequest):
 
 IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Conserve la même structure (Contexte, Investigations, Discussion, Propositions) mais modifie le contenu selon l'instruction."""
 
-        response = client.messages.create(
+        with client.messages.stream(
             model=MODELS["haute_qualite"],
             max_tokens=4000,
             system=[
@@ -1464,7 +1468,8 @@ IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Co
                 "role": "user",
                 "content": regeneration_context
             }]
-        )
+        ) as stream:
+            response = stream.get_final_message()
         section_text = response.content[0].text
 
         return GenererSectionResponse(
@@ -1503,7 +1508,7 @@ async def assembler(request: AssemblerRequest):
         sections_text = "\n\n".join(request.sections)
 
         # Appel à Claude pour assemblage final
-        response = client.messages.create(
+        with client.messages.stream(
             model=model_used,
             max_tokens=8000,
             system=[
@@ -1517,7 +1522,8 @@ async def assembler(request: AssemblerRequest):
                 "role": "user",
                 "content": f"Type de lettre : {request.letter_type}\n\nDiagnostic principal : {request.diagnostic_principal}\n\nSections à assembler :\n{sections_text}"
             }]
-        )
+        ) as stream:
+            response = stream.get_final_message()
         letter = response.content[0].text
 
         # Logger la requête
@@ -1778,7 +1784,7 @@ async def analyser_entree(request: AnalyserEntreeRequest):
 
         model_used = MODELS["haute_qualite"]
 
-        response = client.messages.create(
+        with client.messages.stream(
             model=model_used,
             max_tokens=4096,
             system=[
@@ -1789,7 +1795,8 @@ async def analyser_entree(request: AnalyserEntreeRequest):
                 }
             ],
             messages=[{"role": "user", "content": content}]
-        )
+        ) as stream:
+            response = stream.get_final_message()
 
         raw_json = response.content[0].text
         print(f"[/analyser-entree] Réponse brute Claude ({len(raw_json)} chars):\n{raw_json[:3000]}")
@@ -1856,7 +1863,7 @@ async def generer_entree(request: GenererEntreeRequest):
 
         model_used = MODELS["haute_qualite"]
 
-        response = client.messages.create(
+        with client.messages.stream(
             model=model_used,
             max_tokens=4096,
             system=[
@@ -1867,7 +1874,8 @@ async def generer_entree(request: GenererEntreeRequest):
                 }
             ],
             messages=[{"role": "user", "content": user_message}]
-        )
+        ) as stream:
+            response = stream.get_final_message()
 
         lettre = response.content[0].text
 
@@ -1998,7 +2006,7 @@ async def medentry_uga_generer(request: MedEntryUGARequest):
     )
 
     try:
-        response = client.messages.create(
+        with client.messages.stream(
             model=model_used,
             max_tokens=4096,
             system=[
@@ -2009,7 +2017,8 @@ async def medentry_uga_generer(request: MedEntryUGARequest):
                 }
             ],
             messages=[{"role": "user", "content": prompt_text}]
-        )
+        ) as stream:
+            response = stream.get_final_message()
 
         lettre = response.content[0].text
         tokens_input = response.usage.input_tokens
