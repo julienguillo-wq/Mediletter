@@ -57,10 +57,10 @@ def get_prompts(user_email: str = None):
 
     if service_type == 'readaptation':
         from prompts.readaptation import PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
+        return PROMPT_EXTRACTION, PROMPT_SECTIONS, {}, PROMPT_ASSEMBLAGE
     else:
-        from prompts.geriatrie import PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
-
-    return PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE
+        from prompts.geriatrie import PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE
+        return PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE
 
 # ==============================================================================
 # Configuration
@@ -441,6 +441,57 @@ def identifier_type_probleme(probleme: str) -> str:
     return "GENERIQUE"
 
 
+def get_template_for_probleme(titre: str) -> str:
+    """Détermine quel template utiliser pour un problème donné, basé sur le titre."""
+    titre_lower = titre.lower()
+
+    if any(w in titre_lower for w in ["anémie", "anemie", "pancytopénie", "pancytopenie"]):
+        return "anemie"
+    if any(w in titre_lower for w in ["carence", "hypovitaminose", "substitution de carence"]):
+        return "carences"
+    if any(w in titre_lower for w in ["rénale aiguë", "renale aigue", "ira sur", "ira sans"]):
+        return "insuffisance_renale_aigue"
+    if any(w in titre_lower for w in ["rénale chronique", "renale chronique", "irc"]):
+        return "insuffisance_renale_chronique"
+    if any(w in titre_lower for w in ["cardiaque", "fevg", "décompensation cardiaque"]):
+        return "insuffisance_cardiaque"
+    if "hta" in titre_lower or "hypertension artérielle" in titre_lower:
+        return "hta"
+    if any(w in titre_lower for w in ["neurocognitif", "démence", "demence", "cdr"]):
+        return "trouble_neurocognitif"
+    if any(w in titre_lower for w in ["confusionnel", "confusion", "delirium"]):
+        return "confusion"
+    if any(w in titre_lower for w in ["chute", "marche", "équilibre", "equilibre"]):
+        return "chutes"
+    if any(w in titre_lower for w in ["dénutrition", "denutrition", "malnutrition", "nutritionnel"]):
+        return "denutrition"
+    if "constipation" in titre_lower or "coprostase" in titre_lower:
+        return "constipation"
+    if "incontinence" in titre_lower or "urgenturie" in titre_lower:
+        return "incontinence"
+    if any(w in titre_lower for w in ["rétention", "retention", "globe urinaire", "auto-sondage", "autosondage"]):
+        return "retention_urinaire"
+    if "escarre" in titre_lower:
+        return "escarre"
+    if any(w in titre_lower for w in ["infection", "pneumonie", "pneumopathie", "broncho-aspiration", "sars", "covid", "influenza", "sepsis", "cellulite", "érysipèle"]):
+        return "infection"
+    if any(w in titre_lower for w in ["alcool", "oh à risque", "consommation oh", "éthylisme"]):
+        return "consommation_oh"
+    if "isolement" in titre_lower:
+        return "isolement_social"
+
+    return "generique"
+
+
+def build_section_prompt(probleme: str, prompt_sections_base: str, templates: dict) -> str:
+    """Construit le prompt système complet pour la génération d'une section."""
+    template_key = get_template_for_probleme(probleme)
+    template_content = templates.get(template_key, templates.get("generique", ""))
+    if not template_content:
+        return prompt_sections_base
+    return prompt_sections_base + "\n\n---\n\n## TEMPLATE À UTILISER POUR CE PROBLÈME\n\n" + template_content
+
+
 def generer_section_probleme_sync(
     probleme: str,
     numero: int,
@@ -448,7 +499,8 @@ def generer_section_probleme_sync(
     textes_originaux: str,
     model: str,
     est_diagnostic_principal: bool = False,
-    prompt_sections: str = None
+    prompt_sections_base: str = None,
+    templates: dict = None
 ) -> dict:
     """
     Génère la section pour UN problème spécifique (version synchrone).
@@ -511,13 +563,15 @@ Type de template à utiliser : {type_probleme}
 
 Génère maintenant la section pour ce problème uniquement."""
 
+    section_system_prompt = build_section_prompt(probleme, prompt_sections_base, templates or {})
+
     with client.messages.stream(
         model=model,
         max_tokens=4000,
         system=[
             {
                 "type": "text",
-                "text": prompt_sections,
+                "text": section_system_prompt,
                 "cache_control": {"type": "ephemeral"}
             }
         ],
@@ -539,7 +593,8 @@ async def generer_section_probleme_async(
     textes_originaux: str,
     model: str,
     est_diagnostic_principal: bool = False,
-    prompt_sections: str = None
+    prompt_sections_base: str = None,
+    templates: dict = None
 ) -> dict:
     """
     Version async qui exécute la fonction sync dans un thread pool.
@@ -555,7 +610,8 @@ async def generer_section_probleme_async(
         textes_originaux,
         model,
         est_diagnostic_principal,
-        prompt_sections
+        prompt_sections_base,
+        templates
     )
 
 
@@ -981,7 +1037,7 @@ async def analyser(request: AnalyserRequest):
 
     try:
         # Récupérer les prompts selon le service de l'utilisateur
-        PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(request.user_email)
+        PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(request.user_email)
 
         # Construire le contenu pour Claude
         content = build_content_blocks(request)
@@ -1093,7 +1149,7 @@ async def generer(request: GenererRequest):
     session_data = sessions[request.session_id]
 
     # Récupérer les prompts selon le service de l'utilisateur
-    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(session_data.get('user_email'))
+    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(session_data.get('user_email'))
 
     # Sélectionner le modèle selon la qualité demandée
     model = MODELS.get(request.qualite, MODELS["haute_qualite"])
@@ -1130,7 +1186,8 @@ async def generer(request: GenererRequest):
                 textes_originaux=textes_section,
                 model=model,
                 est_diagnostic_principal=est_diagnostic_principal,
-                prompt_sections=PROMPT_SECTIONS
+                prompt_sections_base=PROMPT_SECTIONS_BASE,
+                templates=TEMPLATES
             )
             tasks.append(task)
         
@@ -1231,7 +1288,7 @@ async def generer_section(request: GenererSectionRequest):
 
     # Récupérer les prompts selon le service de l'utilisateur
     user_email = request.user_email or session_data.get('user_email')
-    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(user_email)
 
     try:
         # Construire les sections de texte original
@@ -1271,7 +1328,7 @@ async def generer_section(request: GenererSectionRequest):
             system=[
                 {
                     "type": "text",
-                    "text": PROMPT_SECTIONS,
+                    "text": build_section_prompt(request.probleme, PROMPT_SECTIONS_BASE, TEMPLATES),
                     "cache_control": {"type": "ephemeral"}
                 }
             ],
@@ -1317,7 +1374,7 @@ async def generer_section_stream(request: GenererSectionRequest):
 
     session_data = sessions[request.session_id]
     user_email = request.user_email or session_data.get('user_email')
-    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(user_email)
 
     # Construire les sections de texte original (même logique que /generer-section)
     textes_originaux = []
@@ -1360,7 +1417,7 @@ async def generer_section_stream(request: GenererSectionRequest):
                 system=[
                     {
                         "type": "text",
-                        "text": PROMPT_SECTIONS,
+                        "text": build_section_prompt(request.probleme, PROMPT_SECTIONS_BASE, TEMPLATES),
                         "cache_control": {"type": "ephemeral"}
                     }
                 ],
@@ -1415,7 +1472,7 @@ async def regenerer_section(request: RegenerationSectionRequest):
 
     # Récupérer les prompts selon le service de l'utilisateur
     user_email = request.user_email or session_data.get('user_email')
-    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(user_email)
 
     try:
         # Construire les sections de texte original
@@ -1460,7 +1517,7 @@ IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Co
             system=[
                 {
                     "type": "text",
-                    "text": PROMPT_SECTIONS,
+                    "text": build_section_prompt(request.probleme, PROMPT_SECTIONS_BASE, TEMPLATES),
                     "cache_control": {"type": "ephemeral"}
                 }
             ],
@@ -1499,7 +1556,7 @@ async def assembler(request: AssemblerRequest):
     # Récupérer les prompts selon le service de l'utilisateur
     session_data = sessions[request.session_id]
     user_email = request.user_email or session_data.get('user_email')
-    PROMPT_EXTRACTION, PROMPT_SECTIONS, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(user_email)
 
     model_used = MODELS["haute_qualite"]
 

@@ -191,7 +191,7 @@ Extrais maintenant les données des documents fournis."""
 # ÉTAPE 2 : GÉNÉRATION des sections par problème
 # ==============================================================================
 
-PROMPT_SECTIONS = """Tu es un médecin hospitalier du Département de Gériatrie, Réadaptation et Soins Palliatifs du RHNe.
+PROMPT_SECTIONS_BASE = """Tu es un médecin hospitalier du Département de Gériatrie, Réadaptation et Soins Palliatifs du RHNe.
 
 ## MISSION CRITIQUE
 Génère la section pour le problème demandé en utilisant :
@@ -215,13 +215,41 @@ Ne jamais écrire "cf rapport" ou "cf annexe" - toujours mettre les valeurs.
 - Pour les scores gériatriques (MNA, NRS, CDR, etc.), utiliser le score EXACT des données, ne jamais l'estimer ou le modifier
 - Inclure systématiquement les facteurs de risque pertinents en les listant exhaustivement, ne pas les simplifier ou les regrouper vaguement
 
----
+### PERTINENCE DES VALEURS LABO PAR PROBLÈME
+- Chaque section ne doit contenir QUE les valeurs de laboratoire DIRECTEMENT pertinentes pour CE problème spécifique.
+- Ne PAS inclure un récap général du bilan biologique dans chaque section.
+- Exemple : dans une section "Infection", inclure CRP, procalcitonine, leucocytes, microbiologie — mais PAS la créatinine ni l'hémoglobine (sauf si directement liées).
+- Exemple : dans une section "Insuffisance rénale", inclure créatinine, urée, GFR, spot urinaire — mais PAS la CRP ni l'hémoglobine.
+- Si une valeur est pertinente pour PLUSIEURS problèmes, ne la mentionner que dans le problème le plus directement concerné.
 
-## TEMPLATES PAR PATHOLOGIE
+### STYLE : PROSE NARRATIVE, PAS DE LISTES CHRONOLOGIQUES
+- Le Contexte et la Discussion DOIVENT être rédigés en prose narrative fluide.
+- Ne PAS faire de listes à puces chronologiques pour décrire l'évolution jour par jour.
+- MAUVAIS : "- Le 23.01 : hypoglycémie à 3.2\\n- Le 24.01 : hypoglycémie à 3.6\\n- Le 27.01 : hypoglycémie à 2.3"
+- BON : "Le séjour est marqué par plusieurs épisodes d'hypoglycémies sévères et récurrentes, survenant dans un contexte infectieux..."
+- Les listes à puces restent acceptables pour : les valeurs de laboratoire (section Investigations) et les propositions (section Proposition).
+- Condenser les événements répétitifs en une phrase de synthèse plutôt que lister chaque occurrence.
 
-### ANÉMIE
-```
-Anémie [normochrome normocytaire/microcytaire/macrocytaire] d'origine [X]
+### PAS DE SECTION "ÉVOLUTION" SÉPARÉE
+- Ne JAMAIS créer de sous-section intitulée "Evolution :" ou "Évolution :" en dehors des templates qui la prévoient explicitement.
+- Si le template du problème ne contient pas de section "Evolution", intégrer les éléments d'évolution dans la "Discussion :".
+- La structure par défaut d'une section est : Contexte → Investigations/Laboratoire → Discussion → Proposition. Pas d'autres sous-sections inventées.
+
+### PROPOSITIONS : FORMAT
+- Dans la section "Proposition :", mettre chaque proposition sur sa propre ligne.
+- Séparer chaque proposition par un saut de ligne, sans tiret ni puce.
+
+## INSTRUCTIONS FINALES
+1. Utilise le template EXACT fourni ci-dessous pour structurer ta réponse
+2. Remplace TOUS les crochets [X] par les valeurs réelles des données
+3. Si une valeur n'est pas disponible dans les données, OMETTRE LA LIGNE ENTIÈRE plutôt que d'écrire "non disponible"
+4. Adapte le genre (patient/patiente, il/elle) selon le sexe du patient
+5. N'ajoute JAMAIS d'introduction ou de conclusion - seulement le contenu du template
+6. N'utilise JAMAIS de formatage markdown (## ### **) - texte brut uniquement"""
+
+
+TEMPLATES = {
+    "anemie": """Anémie [normochrome normocytaire/microcytaire/macrocytaire] d'origine [X]
 
 Contexte : le bilan biologique objective une anémie [normocytaire/microcytaire/macrocytaire], [normochrome/hypochrome/hyperchrome], [hyporégénérative/régénérative] dans un contexte [d'anticoagulation/d'antiagrégation/de toxicité médullaire/inflammatoire]. Le/La patient/e ne présente pas de signe d'extériorisation. Nous identifions une carence en [X] que nous substituons.
 
@@ -241,12 +269,9 @@ Laboratoire :
 
 Proposition :
 - Suite de la substitution en acide folique pour [un mois/trois mois] au total et vitamine B12 selon schéma.
-- Nous laissons le soin au médecin traitant de contrôler l'hémoglobine à 1 mois.
-```
+- Nous laissons le soin au médecin traitant de contrôler l'hémoglobine à 1 mois.""",
 
-### CARENCES VITAMINIQUES (sans anémie)
-```
-Substitution de carences martiale et en vitamines D, B9 et B12
+    "carences": """Substitution de carences martiale et en vitamines D, B9 et B12
 
 Contexte / discussion : Le laboratoire d'entrée met en évidence des carences en [vitamine D / B9 / B12 / fer], que nous substituons. Il n'y a pas d'anémie associée.
 [Si infection :] En raison d'un syndrome infectieux, nous proposons une perfusion de Ferinject à distance.
@@ -256,12 +281,9 @@ Laboratoire : 25-(OH)-Vitamine D3 [X] nmol/l, B9 [X] nmol/l, B12 [X] pmol/l. Fer
 
 Proposition :
 Poursuite de la substitution en Calcimagon D3 en prévention, substitution en acide folique jusqu'au [date], substitution en vitamine B12 jusqu'au retour à la norme.
-[Si carence martiale :] Nous laissons le soin au médecin traitant de réaliser une perfusion de Ferinject en ambulatoire.
-```
+[Si carence martiale :] Nous laissons le soin au médecin traitant de réaliser une perfusion de Ferinject en ambulatoire.""",
 
-### INSUFFISANCE RÉNALE AIGUË
-```
-Insuffisance rénale aiguë KDIGO [I/II/III] sur une insuffisance rénale chronique [G3a/G3b/G4/G5]
+    "insuffisance_renale_aigue": """Insuffisance rénale aiguë KDIGO [I/II/III] sur une insuffisance rénale chronique [G3a/G3b/G4/G5]
 
 Contexte / discussion : Mise en évidence au laboratoire d'une créatinine à [X] µmol/l soit une clairance Cockroft à [X] ml/min. Le spot est en faveur d'une origine [pré-rénale/rénale/post-rénale]. Nous stimulons l'hydratation per os / nous hydratons le/la patient/e en IV. L'évolution est [favorable/défavorable], avec une créatinine à la sortie à [X] µmol/l soit une clairance Cockroft à [X] ml/min.
 
@@ -269,12 +291,9 @@ Investigations :
 Spot urinaire : Sodium [X] mmol/l, Potassium [X] mmol/l, Osmolalité [X] mosmol/kg, Créatinine [X] µmol/l, Urée [X], FeNa [X] %
 
 Proposition :
-Suivi de la créatininémie, consultation ambulatoire auprès d'un néphrologue.
-```
+Suivi de la créatininémie, consultation ambulatoire auprès d'un néphrologue.""",
 
-### INSUFFISANCE RÉNALE CHRONIQUE
-```
-Insuffisance rénale chronique KDIGO [G3a/G3b/G4/G5] d'origine [hypertensive/diabétique/mixte]
+    "insuffisance_renale_chronique": """Insuffisance rénale chronique KDIGO [G3a/G3b/G4/G5] d'origine [hypertensive/diabétique/mixte]
 
 Contexte :
 Le bilan biologique d'entrée a objectivé une insuffisance rénale chronique G[X] selon KDIGO. [Si antériorité connue :] L'antériorité des valeurs de la créatinine est entre [X] µmol/l et [X] µmol/l et du GFR entre [X] ml/min et [X] ml/min.
@@ -292,12 +311,9 @@ Diminution des diurétiques, stimulation à boire. Adaptation des médicaments �
 Evolution [favorable/défavorable]. Créatinine de sortie [X] µmol/l.
 
 Proposition :
-Suivi de la créatininémie, consultation ambulatoire auprès d'un néphrologue.
-```
+Suivi de la créatininémie, consultation ambulatoire auprès d'un néphrologue.""",
 
-### INSUFFISANCE CARDIAQUE
-```
-Insuffisance cardiaque à FEVG [X] % d'origine [ischémique/hypertensive/valvulaire/mixte]
+    "insuffisance_cardiaque": """Insuffisance cardiaque à FEVG [X] % d'origine [ischémique/hypertensive/valvulaire/mixte]
 Actuellement : décompensation [globale/à prédominance droite] NYHA [II/III/IV] sur [cause]
 ETT : [résultats]
 
@@ -309,12 +325,9 @@ L'évolution est favorable avec une perte pondérale associée à une diminution
 Il rentre à domicile avec [X] mg de Torasémide.
 
 Proposition :
-Nous laissons le soin au médecin traitant d'ajuster la posologie du diurétique en fonction des signes de surcharge.
-```
+Nous laissons le soin au médecin traitant d'ajuster la posologie du diurétique en fonction des signes de surcharge.""",
 
-### HTA NON CONTRÔLÉE
-```
-HTA non contrôlée
+    "hta": """HTA non contrôlée
 
 Contexte : sous traitement de [médicament] [X] mg [X]x/j à domicile. Patient avec [problèmes cardiaques associés].
 
@@ -324,12 +337,9 @@ Traitement en réadaptation :
 
 Propositions :
 - Nous vous proposons de recontrôler la tension artérielle à votre cabinet et d'effectuer une mesure ambulatoire de la pression artérielle (MAPA).
-- Consultation cardiologique pour réévaluation du traitement.
-```
+- Consultation cardiologique pour réévaluation du traitement.""",
 
-### TROUBLE NEUROCOGNITIF
-```
-Trouble neurocognitif majeur [léger/modéré/sévère] de stade CDR [0.5/1/2/3] [avec/sans] troubles psychocomportementaux
+    "trouble_neurocognitif": """Trouble neurocognitif majeur [léger/modéré/sévère] de stade CDR [0.5/1/2/3] [avec/sans] troubles psychocomportementaux
 
 Contexte : plaintes cognitives du patient confirmées par l'hétéroanamnèse depuis [X mois/années] d'apparition [brutale/insidieuse] évoluant [par palier/de manière progressive]. Présence de difficultés mnésiques, orientation dans le temps et l'espace, manque du mot. Observation de l'équipe montrant des difficultés d'intégration des consignes. Ces troubles cognitifs ont des répercussions sur les AVQ ([besoin d'aide pour la toilette et l'habillage, incontinence urinaire, besoin d'accompagnement pour les transferts et pour se rendre aux toilettes, besoin d'assistance pour les repas]) et AIVQ ([incapacité de gérer les finances, les médicaments, d'utiliser le téléphone et les transports publics, besoin d'aide pour les courses, la lessive et le ménage, et les repas]).
 
@@ -347,12 +357,9 @@ En l'absence d'un ECA et d'un trouble de l'humeur franc, nous retenons un syndro
 Propositions :
 Activités physiques et intellectuelles régulières, contrôler les facteurs de risque cardiovasculaire.
 Éviter les benzodiazépines et les anticholinergiques.
-[Si indication :] Consultation au Centre Mémoire afin de réévaluer l'indication à un traitement procognitif.
-```
+[Si indication :] Consultation au Centre Mémoire afin de réévaluer l'indication à un traitement procognitif.""",
 
-### ÉTAT CONFUSIONNEL
-```
-État confusionnel [mixte/hypoactif/hyperactif] sur [cause]
+    "confusion": """État confusionnel [mixte/hypoactif/hyperactif] sur [cause]
 
 Contexte : Le patient présente un trouble de l'attention brutal et fluctuant, avec discours incohérent et trouble de la vigilance. L'examen clinique ne retrouve pas de point d'appel infectieux. Les scores RADAR sont positifs.
 
@@ -373,12 +380,9 @@ Nous retenons comme facteur prédisposant une maladie neurocognitive CDR [X].
 L'évolution est favorable avec un rétablissement du rythme nycthéméral, de l'attention et de la vigilance.
 
 Recommandation :
-Éviter benzodiazépines et anticholinergiques. Bilan neuropsychologique à 3 mois.
-```
+Éviter benzodiazépines et anticholinergiques. Bilan neuropsychologique à 3 mois.""",
 
-### TROUBLES DE LA MARCHE ET CHUTES
-```
-Troubles de la marche et de l'équilibre avec chutes à répétition
+    "chutes": """Troubles de la marche et de l'équilibre avec chutes à répétition
 
 Contexte : [Description de la chute / le/la patient/e rapporte plusieurs chutes cette dernière année, a priori mécaniques. Il/Elle se déplace [avec/sans] moyen auxiliaire à domicile.]
 
@@ -402,12 +406,9 @@ Durant le séjour, le patient bénéficie d'une prise en charge pluridisciplinai
 
 Propositions :
 Séances de physiothérapie en ambulatoire.
-Calcium 500 mg et vitamine D 800 unités par jour en prévention.
-```
+Calcium 500 mg et vitamine D 800 unités par jour en prévention.""",
 
-### DÉNUTRITION / MALNUTRITION
-```
-[Dénutrition protéino-calorique / Malnutrition protéino-énergétique] [légère/modérée/sévère] [GRSP / selon critères Swiss DRG]
+    "denutrition": """[Dénutrition protéino-calorique / Malnutrition protéino-énergétique] [légère/modérée/sévère] [GRSP / selon critères Swiss DRG]
 
 Contexte :
 À domicile poids stable entre [X] et [X] kg.
@@ -435,26 +436,17 @@ Poids cible à [X] kg (poids à la sortie [X] kg).
 [Si suivi domicile :] Suivi par AxelCare à domicile.
 
 Proposition :
-Poursuite du suivi nutritionnel [à domicile avec Axelcare / au CTR].
-```
+Poursuite du suivi nutritionnel [à domicile avec Axelcare / au CTR].""",
 
-### CONSTIPATION
-```
-Constipation sur coprostase
+    "constipation": """Constipation sur coprostase
 
-Contexte / discussion : Le/La patient/e présente une constipation devant laquelle nous prescrivons des laxatifs en fixe et en réserve et surveillons le transit quotidiennement.
-```
+Contexte / discussion : Le/La patient/e présente une constipation devant laquelle nous prescrivons des laxatifs en fixe et en réserve et surveillons le transit quotidiennement.""",
 
-### INCONTINENCE URINAIRE
-```
-Incontinence urinaire sur urgenturie
+    "incontinence": """Incontinence urinaire sur urgenturie
 
-Contexte / discussion : incontinence d'urgence occasionnelle, connue, [avec/sans] port de protection à domicile. À l'UGA, le/la patient/e porte [type de protection].
-```
+Contexte / discussion : incontinence d'urgence occasionnelle, connue, [avec/sans] port de protection à domicile. À l'UGA, le/la patient/e porte [type de protection].""",
 
-### RÉTENTION URINAIRE
-```
-Rétention aiguë d'urine à [X] cc
+    "retention_urinaire": """Rétention aiguë d'urine à [X] cc
 Mise en place d'une sonde urinaire le [date]
 
 Contexte / discussion : M/Mme est sondé/e le [date] sur un globe urinaire à [X] cc. Nous mettons en place un traitement par Pradif avec une tentative de sevrage le [date].
@@ -464,59 +456,63 @@ SSU : [résultat]
 Uricult : [résultat]
 
 Proposition :
-Poursuite du traitement par Pradif au long cours [si homme avec suspicion d'HBP].
-```
+Poursuite du traitement par Pradif au long cours [si homme avec suspicion d'HBP].""",
 
-### ESCARRE
-```
-Escarre de stade [I/II/III/IV] au niveau [localisation]
+    "escarre": """Escarre de stade [I/II/III/IV] au niveau [localisation]
 
 Contexte :
-Apparition d'une escarre au niveau [localisation], le [date]. Nous surveillons l'évolution qui en fin de séjour est plutôt en amélioration, devenue une rougeur qui à la pression se revascularise vite, TRC < [X] sec.
-```
+Apparition d'une escarre au niveau [localisation], le [date]. Nous surveillons l'évolution qui en fin de séjour est plutôt en amélioration, devenue une rougeur qui à la pression se revascularise vite, TRC < [X] sec.""",
 
-### INFECTION SARS-COV2
-```
-Infection à SARS-COV2
+    "infection": """[Type d'infection exact]
 
 Contexte :
-Dans un contexte de bilan d'état fébrile, nous réalisons un frottis rétronasal à la recherche d'une infection par le virus Influenza et SARS-CoV-2 le [date] qui revient [négatif]. Le [date] le frottis est refait et revient positif pour une infection aiguë à SARS-CoV-2. Nous mettons en place un isolement. L'évolution est favorable, le/la patient/e est paucisymptomatique.
-```
+[Description du contexte clinique menant au diagnostic d'infection, avec les symptômes et la chronologie]
 
-### CONSOMMATION OH À RISQUE
-```
-Consommation OH à risque
+Investigations :
+[Résultats d'imagerie pertinents]
+
+Laboratoire :
+[UNIQUEMENT les marqueurs infectieux pertinents : CRP, procalcitonine, leucocytes, avec évolution chronologique]
+
+Microbiologie :
+[Tous les résultats microbiologiques : frottis, antigènes urinaires, hémocultures, etc.]
+
+Discussion :
+[Raisonnement clinique menant au diagnostic, traitement instauré, évolution]
+
+Proposition :
+[Suivi recommandé]""",
+
+    "consommation_oh": """Consommation OH à risque
 
 Contexte :
 Le/La patient/e décrit une consommation d'alcool régulière à domicile estimée à [description : X unités par jour, types d'alcool]. Habituellement, il/elle [ne consomme pas d'autres types d'alcool / consomme également...].
 Pour rappel, M/Mme [conduit toujours / ne conduit plus].
 [Le/La patient/e a été informé/e des risques liés à sa consommation d'alcool.]
-Les scores CIWA étaient toujours négatifs, indiquant l'absence de symptômes de sevrage à l'hôpital.
-```
+Les scores CIWA étaient toujours négatifs, indiquant l'absence de symptômes de sevrage à l'hôpital.""",
 
-### ISOLEMENT SOCIAL
-```
-Isolement social
+    "isolement_social": """Isolement social
 
 Contexte :
 Le/La patient/e à l'anamnèse faite à l'entrée a rapporté vivre seul/e et passer la plupart de ses journées à la maison. Il/Elle a un contact téléphonique régulier avec [proche], [fréquence], et se dit [gêné/e / non gêné/e] par cette situation.
 
 Propositions :
-- Mise en place de livraisons de repas du lundi au vendredi afin de favoriser le maintien à domicile dans de bonnes conditions.
-```
+- Mise en place de livraisons de repas du lundi au vendredi afin de favoriser le maintien à domicile dans de bonnes conditions.""",
 
----
+    "generique": """[Titre du problème]
 
-## INSTRUCTIONS FINALES
+Contexte :
+[Description du contexte clinique]
 
-1. Utilise le template EXACT correspondant au problème demandé
-2. Remplace TOUS les crochets [X] par les valeurs réelles des données
-3. Si une valeur n'est pas disponible dans les données, OMETTRE LA LIGNE ENTIÈRE plutôt que d'écrire "non disponible"
-4. Adapte le genre (patient/patiente, il/elle) selon le sexe du patient
-5. N'ajoute JAMAIS d'introduction ou de conclusion - seulement le contenu du template
-6. N'utilise JAMAIS de formatage markdown (## ### **) - texte brut uniquement
+Investigations :
+[Résultats pertinents]
 
-Génère maintenant la section pour le problème demandé."""
+Discussion :
+[Raisonnement clinique et prise en charge]
+
+Proposition :
+[Suivi recommandé]"""
+}
 
 
 # ==============================================================================
