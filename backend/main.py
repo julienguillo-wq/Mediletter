@@ -2120,6 +2120,8 @@ class RechercheProblemeRequest(BaseModel):
     probleme: str
     contexte: str
     investigations: str = ""
+    images_base64: Optional[list] = None
+    pdfs_base64: Optional[list] = None
     user_email: Optional[str] = None
 
 
@@ -2128,19 +2130,54 @@ async def recherche_probleme(request: RechercheProblemeRequest):
     """
     Génère une section MediLetter pour un seul problème.
     Réutilise PROMPT_SECTIONS_BASE + TEMPLATES de gériatrie.
+    Accepte images/PDFs en base64 comme content blocks.
     """
     if not request.probleme.strip():
         raise HTTPException(status_code=400, detail="Le nom du problème est requis.")
     if not request.contexte.strip():
         raise HTTPException(status_code=400, detail="Le contexte clinique est requis.")
 
+    images_count = len(request.images_base64) if request.images_base64 else 0
+    pdfs_count = len(request.pdfs_base64) if request.pdfs_base64 else 0
+
     PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(request.user_email)
 
     # Construire le prompt système avec le template adapté au problème
     section_system_prompt = build_section_prompt(request.probleme, PROMPT_SECTIONS_BASE, TEMPLATES)
 
-    # Construire le message utilisateur (même structure que generer-section-stream)
-    user_message = f"""## PROBLÈME À RÉDIGER
+    # Construire les content blocks (images + PDFs + texte)
+    content_blocks = []
+
+    # Images en base64
+    if request.images_base64:
+        for img_b64 in request.images_base64:
+            if img_b64.startswith("data:"):
+                header, data = img_b64.split(",", 1)
+                media_type = header.split(":")[1].split(";")[0]
+            else:
+                media_type = "image/jpeg"
+                data = img_b64
+            content_blocks.append({
+                "type": "image",
+                "source": {"type": "base64", "media_type": media_type, "data": data}
+            })
+
+    # PDFs en base64
+    if request.pdfs_base64:
+        for pdf_b64 in request.pdfs_base64:
+            if pdf_b64.startswith("data:"):
+                _, data = pdf_b64.split(",", 1)
+            else:
+                data = pdf_b64
+            content_blocks.append({
+                "type": "document",
+                "source": {"type": "base64", "media_type": "application/pdf", "data": data}
+            })
+
+    # Bloc texte
+    content_blocks.append({
+        "type": "text",
+        "text": f"""## PROBLÈME À RÉDIGER
 Numéro : 1
 Titre : {request.probleme}
 Est le diagnostic principal : OUI
@@ -2152,17 +2189,20 @@ Est le diagnostic principal : OUI
 ### Investigations réalisées
 {request.investigations if request.investigations.strip() else "Aucune investigation fournie."}
 
+{f"### Documents joints" + chr(10) + f"{images_count} image(s) et {pdfs_count} PDF(s) fournis ci-dessus. Utilise les valeurs visibles dans ces documents." if (images_count + pdfs_count) > 0 else ""}
+
 ---
 
 ## INSTRUCTIONS CRITIQUES
 1. Utilise le template correspondant au type de problème
-2. REMPLACE tous les [X] par les valeurs RÉELLES ci-dessus
+2. REMPLACE tous les [X] par les valeurs RÉELLES ci-dessus et dans les documents joints
 3. Si une valeur n'est pas disponible, OMETTRE LA LIGNE ENTIÈRE
 4. Inclus TOUTES les valeurs de laboratoire pertinentes pour ce problème
 5. N'ajoute AUCUNE introduction ni conclusion
 6. Structure : Contexte → Investigations → Discussion → Proposition
 
 Génère maintenant la section pour ce problème."""
+    })
 
     model_used = MODELS["haute_qualite"]
 
@@ -2180,7 +2220,7 @@ Génère maintenant la section pour ce problème."""
                     "text": section_system_prompt,
                     "cache_control": {"type": "ephemeral"}
                 }],
-                messages=[{"role": "user", "content": user_message}]
+                messages=[{"role": "user", "content": content_blocks}]
             ) as stream:
                 for text in stream.text_stream:
                     full_text += text
@@ -2191,7 +2231,8 @@ Génère maintenant la section pour ce problème."""
                 output_tokens = response.usage.output_tokens
 
             cost_eur = calculate_cost(model_used, input_tokens, output_tokens)
-            log_usage("/api/recherche-probleme", model_used, input_tokens, output_tokens, cost_eur, user_email=request.user_email)
+            log_usage("/api/recherche-probleme", model_used, input_tokens, output_tokens, cost_eur,
+                      images_count, pdfs_count, user_email=request.user_email)
 
             yield f"data: {json.dumps({'type': 'done', 'full_text': full_text, 'tokens_input': input_tokens, 'tokens_output': output_tokens, 'cost_eur': cost_eur}, ensure_ascii=False)}\n\n"
 

@@ -331,6 +331,147 @@
             font-size: 0.85rem;
         }
 
+        /* Upload zones */
+        .upload-zones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .upload-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem 1rem;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            border-style: solid;
+            background: rgba(124, 58, 237, 0.02);
+            transform: translateY(-2px);
+        }
+
+        .upload-zone:hover .upload-icon {
+            transform: scale(1.1);
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        .upload-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .upload-icon svg { width: 20px; height: 20px; }
+
+        .upload-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .upload-hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.125rem;
+        }
+
+        .uploaded-files-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .uploaded-files-list:empty { display: none; }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            animation: fadeInFile 0.3s ease;
+        }
+
+        @keyframes fadeInFile {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .file-thumbnail {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+        }
+
+        .file-icon-pdf {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            border-radius: 6px;
+            color: white;
+        }
+
+        .file-icon-pdf svg { width: 18px; height: 18px; }
+
+        .file-name {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .file-remove {
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .file-remove:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .file-remove svg { width: 16px; height: 16px; }
+
         /* Button */
         .btn-analyze {
             display: flex;
@@ -605,6 +746,24 @@
                     Investigations realisees
                 </div>
                 <textarea id="investigations" placeholder="Resultats de laboratoire (FSC, chimie, CRP...), ECG, imagerie, examens complementaires, scores geriatriques realises..."></textarea>
+                <div class="upload-zones">
+                    <div class="upload-zone" id="imageUploadZone">
+                        <div class="upload-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <span class="upload-title">Images</span>
+                        <span class="upload-hint">ECG, radios, bilans</span>
+                    </div>
+                    <div class="upload-zone" id="pdfUploadZone">
+                        <div class="upload-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <span class="upload-title">PDF</span>
+                        <span class="upload-hint">Resultats labo</span>
+                    </div>
+                </div>
+                <div class="uploaded-files-list" id="uploadedImagesList"></div>
+                <div class="uploaded-files-list" id="uploadedPdfsList"></div>
             </div>
 
             <!-- Generate Button -->
@@ -673,6 +832,8 @@
         const BACKEND_URL = '';
         let rawText = '';
         let currentUserEmail = null;
+        let uploadedImages = [];
+        let uploadedPdfs = [];
 
         // Récupérer l'email utilisateur
         (async () => {
@@ -681,6 +842,217 @@
                 if (user) currentUserEmail = user.email;
             } catch(e) {}
         })();
+
+        // ==================== File Upload (Images) ====================
+
+        function initImageUpload() {
+            const zone = document.getElementById('imageUploadZone');
+            if (!zone) return;
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = 'var(--primary)';
+                zone.style.background = 'rgba(124, 58, 237, 0.05)';
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.style.borderColor = '';
+                zone.style.background = '';
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = '';
+                zone.style.background = '';
+                handleImageFiles(e.dataTransfer.files);
+            });
+
+            zone.addEventListener('click', () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.multiple = true;
+                input.onchange = (e) => handleImageFiles(e.target.files);
+                input.click();
+            });
+        }
+
+        function handleImageFiles(files) {
+            const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+            if (imageFiles.length === 0) return;
+
+            imageFiles.forEach(file => {
+                compressImage(file).then(compressedBase64 => {
+                    uploadedImages.push({ name: file.name, data: compressedBase64, type: 'image/jpeg' });
+                    updateUploadZoneStatus();
+                }).catch(err => console.error('Erreur compression image:', err));
+            });
+        }
+
+        function compressImage(file) {
+            const maxWidth = 1200;
+            const quality = 0.6;
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error('Erreur lecture fichier'));
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onerror = () => reject(new Error('Erreur chargement image'));
+                    img.onload = () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+                            if (width > maxWidth) {
+                                height = (height * maxWidth) / width;
+                                width = maxWidth;
+                            }
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            resolve(canvas.toDataURL('image/jpeg', quality));
+                        } catch (err) { reject(err); }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ==================== File Upload (PDFs) ====================
+
+        function initPdfUpload() {
+            const zone = document.getElementById('pdfUploadZone');
+            if (!zone) return;
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = 'var(--primary)';
+                zone.style.background = 'rgba(124, 58, 237, 0.05)';
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.style.borderColor = '';
+                zone.style.background = '';
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = '';
+                zone.style.background = '';
+                handlePdfFiles(e.dataTransfer.files);
+            });
+
+            zone.addEventListener('click', () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'application/pdf';
+                input.multiple = true;
+                input.onchange = (e) => handlePdfFiles(e.target.files);
+                input.click();
+            });
+        }
+
+        function handlePdfFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/pdf') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        uploadedPdfs.push({ name: file.name, data: e.target.result, type: 'application/pdf' });
+                        updateUploadZoneStatus();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // ==================== Upload zone status & rendering ====================
+
+        function updateUploadZoneStatus() {
+            const imgZone = document.getElementById('imageUploadZone');
+            const pdfZone = document.getElementById('pdfUploadZone');
+
+            if (imgZone) {
+                const title = imgZone.querySelector('.upload-title');
+                const hint = imgZone.querySelector('.upload-hint');
+                if (uploadedImages.length > 0) {
+                    title.textContent = `${uploadedImages.length} image(s)`;
+                    hint.textContent = 'Cliquez pour ajouter';
+                    imgZone.style.borderColor = 'var(--success)';
+                    imgZone.style.borderStyle = 'solid';
+                } else {
+                    title.textContent = 'Images';
+                    hint.textContent = 'ECG, radios, bilans';
+                    imgZone.style.borderColor = '';
+                    imgZone.style.borderStyle = 'dashed';
+                }
+            }
+
+            if (pdfZone) {
+                const title = pdfZone.querySelector('.upload-title');
+                const hint = pdfZone.querySelector('.upload-hint');
+                if (uploadedPdfs.length > 0) {
+                    title.textContent = `${uploadedPdfs.length} PDF(s)`;
+                    hint.textContent = 'Cliquez pour ajouter';
+                    pdfZone.style.borderColor = 'var(--success)';
+                    pdfZone.style.borderStyle = 'solid';
+                } else {
+                    title.textContent = 'PDF';
+                    hint.textContent = 'Resultats labo';
+                    pdfZone.style.borderColor = '';
+                    pdfZone.style.borderStyle = 'dashed';
+                }
+            }
+
+            renderUploadedFiles();
+        }
+
+        function renderUploadedFiles() {
+            const imagesList = document.getElementById('uploadedImagesList');
+            const pdfsList = document.getElementById('uploadedPdfsList');
+
+            if (imagesList) {
+                imagesList.innerHTML = uploadedImages.map((img, index) => `
+                    <div class="uploaded-file">
+                        <img src="${img.data}" class="file-thumbnail" alt="${img.name}" />
+                        <span class="file-name" title="${img.name}">${truncateFileName(img.name)}</span>
+                        <button class="file-remove" onclick="removeFile('images', ${index})" title="Supprimer">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            if (pdfsList) {
+                pdfsList.innerHTML = uploadedPdfs.map((pdf, index) => `
+                    <div class="uploaded-file">
+                        <div class="file-icon-pdf">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <span class="file-name" title="${pdf.name}">${truncateFileName(pdf.name)}</span>
+                        <button class="file-remove" onclick="removeFile('pdfs', ${index})" title="Supprimer">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function truncateFileName(name, maxLength = 20) {
+            if (name.length <= maxLength) return name;
+            const ext = name.split('.').pop();
+            const nameWithoutExt = name.slice(0, name.lastIndexOf('.'));
+            return nameWithoutExt.slice(0, maxLength - ext.length - 4) + '...' + '.' + ext;
+        }
+
+        function removeFile(type, index) {
+            if (type === 'images') uploadedImages.splice(index, 1);
+            else if (type === 'pdfs') uploadedPdfs.splice(index, 1);
+            updateUploadZoneStatus();
+        }
+
+        // ==================== Generate ====================
 
         async function generer() {
             const probleme = document.getElementById('probleme').value.trim();
@@ -712,15 +1084,25 @@
             document.getElementById('result-body').textContent = '';
 
             try {
+                const payload = {
+                    probleme: probleme,
+                    contexte: contexte,
+                    investigations: investigations,
+                    user_email: currentUserEmail
+                };
+
+                // Ajouter les fichiers en base64 s'il y en a
+                if (uploadedImages.length > 0) {
+                    payload.images_base64 = uploadedImages.map(img => img.data);
+                }
+                if (uploadedPdfs.length > 0) {
+                    payload.pdfs_base64 = uploadedPdfs.map(pdf => pdf.data);
+                }
+
                 const response = await fetch(`${BACKEND_URL}/api/recherche-probleme`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        probleme: probleme,
-                        contexte: contexte,
-                        investigations: investigations,
-                        user_email: currentUserEmail
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
@@ -737,8 +1119,7 @@
                 document.getElementById('result-container').classList.add('visible');
 
                 // Afficher le titre du problème
-                const titleEl = document.getElementById('result-title');
-                titleEl.textContent = probleme;
+                document.getElementById('result-title').textContent = probleme;
 
                 while (true) {
                     const { done, value } = await reader.read();
@@ -755,7 +1136,6 @@
 
                             if (data.type === 'text') {
                                 rawText += data.content;
-                                // Texte brut — MediLetter sections ne sont pas en markdown
                                 document.getElementById('result-body').textContent = rawText;
                                 const body = document.getElementById('result-body');
                                 body.scrollTop = body.scrollHeight;
@@ -807,6 +1187,9 @@
             document.getElementById('probleme').value = '';
             document.getElementById('contexte').value = '';
             document.getElementById('investigations').value = '';
+            uploadedImages = [];
+            uploadedPdfs = [];
+            updateUploadZoneStatus();
             document.getElementById('result-container').classList.remove('visible');
             document.getElementById('stats-bar').style.display = 'none';
             rawText = '';
@@ -821,6 +1204,12 @@
                 e.preventDefault();
                 generer();
             }
+        });
+
+        // Init upload zones on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initImageUpload();
+            initPdfUpload();
         });
     </script>
 </body>
