@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medhub-v16';
+const CACHE_NAME = 'medhub-v17';
 const ASSETS = [
     './',
     './index.html',
@@ -7,7 +7,7 @@ const ASSETS = [
     './mediletter/index.html',
     './mediletter/prompt.js',
     './medapp/index.html',
-    './geriaquest/index.html',
+    './recherche/index.html',
     './medentry/index.html',
     './medentry/uga.html',
     './medentry/vdr.html'

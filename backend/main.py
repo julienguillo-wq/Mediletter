@@ -2113,6 +2113,104 @@ async def list_sessions(auth: bool = Depends(verify_admin_key)):
 
 
 # ==============================================================================
+# Recherche de Problème — Génération section unique (réutilise PROMPT_SECTIONS)
+# ==============================================================================
+
+class RechercheProblemeRequest(BaseModel):
+    probleme: str
+    contexte: str
+    investigations: str = ""
+    user_email: Optional[str] = None
+
+
+@app.post("/api/recherche-probleme")
+async def recherche_probleme(request: RechercheProblemeRequest):
+    """
+    Génère une section MediLetter pour un seul problème.
+    Réutilise PROMPT_SECTIONS_BASE + TEMPLATES de gériatrie.
+    """
+    if not request.probleme.strip():
+        raise HTTPException(status_code=400, detail="Le nom du problème est requis.")
+    if not request.contexte.strip():
+        raise HTTPException(status_code=400, detail="Le contexte clinique est requis.")
+
+    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(request.user_email)
+
+    # Construire le prompt système avec le template adapté au problème
+    section_system_prompt = build_section_prompt(request.probleme, PROMPT_SECTIONS_BASE, TEMPLATES)
+
+    # Construire le message utilisateur (même structure que generer-section-stream)
+    user_message = f"""## PROBLÈME À RÉDIGER
+Numéro : 1
+Titre : {request.probleme}
+Est le diagnostic principal : OUI
+
+## TEXTES ORIGINAUX DU DOSSIER
+### Contexte clinique fourni par le médecin
+{request.contexte}
+
+### Investigations réalisées
+{request.investigations if request.investigations.strip() else "Aucune investigation fournie."}
+
+---
+
+## INSTRUCTIONS CRITIQUES
+1. Utilise le template correspondant au type de problème
+2. REMPLACE tous les [X] par les valeurs RÉELLES ci-dessus
+3. Si une valeur n'est pas disponible, OMETTRE LA LIGNE ENTIÈRE
+4. Inclus TOUTES les valeurs de laboratoire pertinentes pour ce problème
+5. N'ajoute AUCUNE introduction ni conclusion
+6. Structure : Contexte → Investigations → Discussion → Proposition
+
+Génère maintenant la section pour ce problème."""
+
+    model_used = MODELS["haute_qualite"]
+
+    async def event_generator():
+        full_text = ""
+        input_tokens = 0
+        output_tokens = 0
+
+        try:
+            with client.messages.stream(
+                model=model_used,
+                max_tokens=4000,
+                system=[{
+                    "type": "text",
+                    "text": section_system_prompt,
+                    "cache_control": {"type": "ephemeral"}
+                }],
+                messages=[{"role": "user", "content": user_message}]
+            ) as stream:
+                for text in stream.text_stream:
+                    full_text += text
+                    yield f"data: {json.dumps({'type': 'text', 'content': text}, ensure_ascii=False)}\n\n"
+
+                response = stream.get_final_message()
+                input_tokens = response.usage.input_tokens
+                output_tokens = response.usage.output_tokens
+
+            cost_eur = calculate_cost(model_used, input_tokens, output_tokens)
+            log_usage("/api/recherche-probleme", model_used, input_tokens, output_tokens, cost_eur, user_email=request.user_email)
+
+            yield f"data: {json.dumps({'type': 'done', 'full_text': full_text, 'tokens_input': input_tokens, 'tokens_output': output_tokens, 'cost_eur': cost_eur}, ensure_ascii=False)}\n\n"
+
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+            log_usage("/api/recherche-probleme", model_used, 0, 0, 0, success=False, user_email=request.user_email)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
+
+# ==============================================================================
 # Lancement
 # ==============================================================================
 

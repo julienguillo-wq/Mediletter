@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#7C3AED">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Recherche de Problème - MedHub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7C3AED;
+            --primary-light: #8B5CF6;
+            --primary-lighter: #C4B5FD;
+            --primary-dark: #6D28D9;
+            --primary-glow: rgba(124, 58, 237, 0.25);
+
+            --accent-teal: #0D9488;
+            --accent-blue: #2563EB;
+
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+
+            --bg-primary: #F8FAFC;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F1F5F9;
+            --bg-glass: rgba(255, 255, 255, 0.8);
+
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+
+            --border: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.05);
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-xl: 0 25px 60px rgba(0,0,0,0.12), 0 10px 24px rgba(0,0,0,0.08);
+
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Background */
+        .bg-decoration {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px; height: 600px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(139, 92, 246, 0.1));
+            top: -200px; right: -200px;
+        }
+
+        .orb-2 {
+            width: 500px; height: 500px;
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.12), rgba(20, 184, 166, 0.08));
+            bottom: -150px; left: -150px;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 400px; height: 400px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(59, 130, 246, 0.06));
+            top: 40%; left: 50%;
+            transform: translateX(-50%);
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -20px) scale(1.02); }
+            50% { transform: translate(-10px, 15px) scale(0.98); }
+            75% { transform: translate(15px, 10px) scale(1.01); }
+        }
+
+        .bg-grid {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+
+        /* App Container */
+        .app {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Nav Bar */
+        .nav {
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(40px);
+            background: rgba(255,255,255,0.85);
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md), 0 0 20px var(--primary-glow);
+        }
+
+        .brand-icon svg { width: 20px; height: 20px; color: white; }
+
+        .brand-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .brand-text span {
+            color: var(--primary);
+        }
+
+        .nav-home {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-home:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .nav-home svg { width: 16px; height: 16px; }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            padding: 2rem 1.5rem 1rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .page-header-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: var(--shadow-lg), 0 0 40px var(--primary-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+        }
+
+        .page-header-icon svg {
+            width: 32px; height: 32px; color: white;
+            position: relative; z-index: 1;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.375rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-teal) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-md);
+            padding: 1.75rem;
+            margin-bottom: 1.25rem;
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        .glass-card:nth-child(2) { animation-delay: 0.05s; }
+        .glass-card:nth-child(3) { animation-delay: 0.1s; }
+
+        /* Probleme input */
+        .input-probleme {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .input-probleme:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        .input-probleme::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .card-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-label svg { width: 16px; height: 16px; }
+
+        textarea {
+            width: 100%;
+            min-height: 160px;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            resize: vertical;
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Button */
+        .btn-analyze {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow-md), 0 8px 24px var(--primary-glow);
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), 0 12px 32px var(--primary-glow);
+        }
+
+        .btn-analyze:active {
+            transform: translateY(0);
+        }
+
+        .btn-analyze:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-analyze svg { width: 20px; height: 20px; }
+
+        /* Loading */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .loading-container.visible { display: flex; }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Result Section */
+        .result-container {
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .result-container.visible { display: block; }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.875rem;
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-action svg { width: 14px; height: 14px; }
+
+        .result-body {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            padding: 2rem;
+            line-height: 1.8;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .result-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-lighter);
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stats-bar span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        /* Responsive */
+        @media (max-width: 767px) {
+            .nav { padding: 0.625rem 1rem; }
+            .brand-text { font-size: 0.95rem; }
+            .page-header { padding: 1.5rem 1rem 0.75rem; }
+            .page-header h1 { font-size: 1.4rem; }
+            main { padding: 1rem; }
+            .glass-card { padding: 1.25rem; }
+            textarea { min-height: 120px; font-size: 0.85rem; }
+            .result-body { padding: 1.25rem; }
+            .result-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="bg-decoration">
+        <div class="bg-gradient-orb orb-1"></div>
+        <div class="bg-gradient-orb orb-2"></div>
+        <div class="bg-gradient-orb orb-3"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <div class="app">
+        <!-- Nav -->
+        <nav class="nav">
+            <a href="../index.html" class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </div>
+                <span class="brand-text">Recherche de <span>Problème</span></span>
+            </a>
+            <a href="../index.html" class="nav-home">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                MedHub
+            </a>
+        </nav>
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <line x1="11" y1="8" x2="11" y2="14"/>
+                    <line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+            </div>
+            <h1>Recherche de Problème</h1>
+            <p>Generez une section MediLetter pour un probleme unique</p>
+        </div>
+
+        <!-- Main -->
+        <main>
+            <!-- Problème -->
+            <div class="glass-card" id="card-probleme">
+                <div class="card-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    Probleme
+                </div>
+                <input type="text" class="input-probleme" id="probleme" placeholder="Ex: Anemie normocytaire, Insuffisance renale aigue, Chutes a repetition, Confusion..." autocomplete="off">
+            </div>
+
+            <!-- Contexte clinique -->
+            <div class="glass-card" id="card-contexte">
+                <div class="card-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                    </svg>
+                    Contexte clinique
+                </div>
+                <textarea id="contexte" placeholder="Age, sexe, antecedents, traitements habituels, motif de consultation, anamnese, examen clinique, status fonctionnel et cognitif de base..."></textarea>
+            </div>
+
+            <!-- Investigations -->
+            <div class="glass-card" id="card-investigations">
+                <div class="card-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 2v6l-2 1v2h10V9l-2-1V2"/>
+                        <path d="M5 16h14a2 2 0 0 1 2 2v2H3v-2a2 2 0 0 1 2-2z"/>
+                        <line x1="12" y1="11" x2="12" y2="16"/>
+                    </svg>
+                    Investigations realisees
+                </div>
+                <textarea id="investigations" placeholder="Resultats de laboratoire (FSC, chimie, CRP...), ECG, imagerie, examens complementaires, scores geriatriques realises..."></textarea>
+            </div>
+
+            <!-- Generate Button -->
+            <button class="btn-analyze" id="btn-analyze" onclick="generer()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                Generer la section
+            </button>
+
+            <!-- Loading -->
+            <div class="loading-container" id="loading">
+                <div class="spinner"></div>
+                <span class="loading-text">Generation en cours...</span>
+            </div>
+
+            <!-- Result -->
+            <div class="result-container" id="result-container">
+                <div class="glass-card" style="animation-delay: 0s;">
+                    <div class="result-header">
+                        <span class="result-badge">Section generee</span>
+                        <div class="result-actions">
+                            <button class="btn-action" onclick="copierResultat()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                                Copier
+                            </button>
+                            <button class="btn-action" onclick="nouvelleRecherche()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 4 23 10 17 10"/>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                                </svg>
+                                Nouvelle analyse
+                            </button>
+                        </div>
+                    </div>
+                    <div class="result-title" id="result-title"></div>
+                    <div class="result-body" id="result-body"></div>
+                    <div class="stats-bar" id="stats-bar" style="display:none;">
+                        <span id="stat-tokens"></span>
+                        <span id="stat-cost"></span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            Outil d'aide au raisonnement clinique. Ne remplace pas le jugement medical. Toujours verifier et valider les suggestions.
+            <br>
+            <span style="opacity: 0.7; font-size: 0.75rem;">Donnees non stockees. Aucune donnee patient n'est conservee.</span>
+        </div>
+    </div>
+
+    <!-- Supabase Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/auth-guard.js"></script>
+
+    <script>
+        const BACKEND_URL = '';
+        let rawText = '';
+        let currentUserEmail = null;
+
+        // Récupérer l'email utilisateur
+        (async () => {
+            try {
+                const { user } = await getUser();
+                if (user) currentUserEmail = user.email;
+            } catch(e) {}
+        })();
+
+        async function generer() {
+            const probleme = document.getElementById('probleme').value.trim();
+            const contexte = document.getElementById('contexte').value.trim();
+            const investigations = document.getElementById('investigations').value.trim();
+
+            // Validation : problème requis
+            if (!probleme) {
+                document.getElementById('probleme').focus();
+                document.getElementById('card-probleme').style.borderColor = 'var(--error)';
+                setTimeout(() => { document.getElementById('card-probleme').style.borderColor = ''; }, 2000);
+                return;
+            }
+
+            // Validation : contexte requis
+            if (!contexte) {
+                document.getElementById('contexte').focus();
+                document.getElementById('card-contexte').style.borderColor = 'var(--error)';
+                setTimeout(() => { document.getElementById('card-contexte').style.borderColor = ''; }, 2000);
+                return;
+            }
+
+            // UI state: loading
+            const btn = document.getElementById('btn-analyze');
+            btn.disabled = true;
+            document.getElementById('loading').classList.add('visible');
+            document.getElementById('result-container').classList.remove('visible');
+            rawText = '';
+            document.getElementById('result-body').textContent = '';
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/recherche-probleme`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        probleme: probleme,
+                        contexte: contexte,
+                        investigations: investigations,
+                        user_email: currentUserEmail
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({ detail: 'Erreur serveur' }));
+                    throw new Error(err.detail || `Erreur ${response.status}`);
+                }
+
+                // SSE streaming
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                document.getElementById('loading').classList.remove('visible');
+                document.getElementById('result-container').classList.add('visible');
+
+                // Afficher le titre du problème
+                const titleEl = document.getElementById('result-title');
+                titleEl.textContent = probleme;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const data = JSON.parse(line.slice(6));
+
+                            if (data.type === 'text') {
+                                rawText += data.content;
+                                // Texte brut — MediLetter sections ne sont pas en markdown
+                                document.getElementById('result-body').textContent = rawText;
+                                const body = document.getElementById('result-body');
+                                body.scrollTop = body.scrollHeight;
+                            } else if (data.type === 'done') {
+                                document.getElementById('stats-bar').style.display = 'flex';
+                                document.getElementById('stat-tokens').textContent =
+                                    `Tokens: ${data.tokens_input + data.tokens_output}`;
+                                document.getElementById('stat-cost').textContent =
+                                    `Cout: ${data.cost_eur.toFixed(4)} EUR`;
+                            } else if (data.type === 'error') {
+                                throw new Error(data.message);
+                            }
+                        } catch (parseErr) {
+                            if (parseErr.message !== 'Unexpected end of JSON input') {
+                                console.warn('SSE parse:', parseErr);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                document.getElementById('loading').classList.remove('visible');
+                document.getElementById('result-container').classList.add('visible');
+                document.getElementById('result-body').textContent = '';
+                document.getElementById('result-body').innerHTML =
+                    `<span style="color: var(--error); font-weight: 600; white-space: normal;">Erreur: ${error.message}</span>`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function copierResultat() {
+            navigator.clipboard.writeText(rawText).then(() => {
+                const btn = event.currentTarget;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Copie !`;
+                btn.style.background = 'var(--success)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--success)';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                }, 2000);
+            });
+        }
+
+        function nouvelleRecherche() {
+            document.getElementById('probleme').value = '';
+            document.getElementById('contexte').value = '';
+            document.getElementById('investigations').value = '';
+            document.getElementById('result-container').classList.remove('visible');
+            document.getElementById('stats-bar').style.display = 'none';
+            rawText = '';
+            document.getElementById('result-body').textContent = '';
+            document.getElementById('probleme').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Ctrl+Enter shortcut
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                generer();
+            }
+        });
+    </script>
+</body>
+</html>
