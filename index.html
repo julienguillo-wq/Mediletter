@@ -387,6 +387,12 @@
             --card-bg: linear-gradient(135deg, #C41E3A, #A01830);
         }
 
+        .card-ecg {
+            --card-accent: #0D9488;
+            --card-glow: rgba(13, 148, 136, 0.15);
+            --card-bg: linear-gradient(135deg, #0D9488, #0F766E);
+        }
+
         /* Card Icon */
         .card-icon {
             width: 72px;
@@ -644,6 +650,10 @@
             animation: fadeInUp 0.6s ease-out 0.5s both;
         }
 
+        .app-card:nth-child(6) {
+            animation: fadeInUp 0.6s ease-out 0.6s both;
+        }
+
         /* Pulse animation for GeriaQuest badge */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -790,6 +800,26 @@
                     <div class="card-content">
                         <h2 class="card-title">Révision SARC</h2>
                         <p class="card-description">Quiz ACLS : rythmes, pharmaco et algorithmes</p>
+                        <span class="card-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                            Accéder
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Quiz ECG Card -->
+                <a href="./ecg/index.html" class="app-card card-ecg">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4.318 6.318a4.5 4.5 0 0 0 0 6.364L12 20.364l7.682-7.682a4.5 4.5 0 0 0-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 0 0-6.364 0z"/>
+                            <polyline points="2 12 6 12 8 8 10 16 12 10 14 14 16 12 22 12" opacity="0.7"/>
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h2 class="card-title">Quiz ECG</h2>
+                        <p class="card-description">Interprétation des tracés ECG avec images réelles</p>
                         <span class="card-badge">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M5 12h14M12 5l7 7-7 7"/>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medhub-v19';
+const CACHE_NAME = 'medhub-v20';
 const ASSETS = [
     './',
     './index.html',
@@ -12,7 +12,9 @@ const ASSETS = [
     './medentry/uga.html',
     './medentry/vdr.html',
     './sarc/index.html',
-    './sarc/questions.js'
+    './sarc/questions.js',
+    './ecg/index.html',
+    './ecg/questions.js'
 ];
 
 // Install
