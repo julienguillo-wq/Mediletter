@@ -850,17 +850,59 @@
     };
 
     // ═══════════════════════════════════════
-    //  Init
+    //  Init — prevalidate images
     // ═══════════════════════════════════════
+    var validatedQuestions = [];
+    var validationDone = false;
+
     function init() {
+        // Prevalidate: check which images actually exist
+        var toCheck = ECG_QUESTIONS.length;
+        var checked = 0;
+        validatedQuestions = [];
+
+        ECG_QUESTIONS.forEach(function(q) {
+            if (!q.image) {
+                validatedQuestions.push(q);
+                checked++;
+                if (checked === toCheck) onValidationDone();
+                return;
+            }
+            var img = new Image();
+            img.onload = function() {
+                validatedQuestions.push(q);
+                checked++;
+                if (checked === toCheck) onValidationDone();
+            };
+            img.onerror = function() {
+                // Image missing — skip this question
+                console.warn('Image manquante, question exclue: ' + q.id + ' (' + q.image + ')');
+                checked++;
+                if (checked === toCheck) onValidationDone();
+            };
+            img.src = 'images/' + q.image;
+        });
+    }
+
+    function onValidationDone() {
+        validationDone = true;
+        var skipped = ECG_QUESTIONS.length - validatedQuestions.length;
+        if (skipped > 0) {
+            console.log(validatedQuestions.length + ' questions disponibles (' + skipped + ' exclues: image manquante)');
+        }
         updateBadges();
         loadStats();
     }
 
+    function getAvailableQuestions() {
+        return validationDone ? validatedQuestions : ECG_QUESTIONS;
+    }
+
     function updateBadges() {
+        var pool = getAvailableQuestions();
         const counts = {};
         CATEGORIES.forEach(c => counts[c] = 0);
-        ECG_QUESTIONS.forEach(q => {
+        pool.forEach(q => {
             if (counts[q.category] !== undefined) counts[q.category]++;
         });
         CATEGORIES.forEach(c => {
@@ -916,11 +958,12 @@
         lastMode = category;
         lastLimit = limit;
 
+        var source = getAvailableQuestions();
         var pool;
         if (category === 'all') {
-            pool = ECG_QUESTIONS.slice();
+            pool = source.slice();
         } else {
-            pool = ECG_QUESTIONS.filter(function(q) { return q.category === category; });
+            pool = source.filter(function(q) { return q.category === category; });
         }
 
         // Shuffle (Fisher-Yates)
