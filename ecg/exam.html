@@ -422,7 +422,7 @@
                 clinicalContext.style.display = 'none';
             }
 
-            ecgImage.src = 'images/' + q.image;
+            ecgImage.src = 'images/' + q.image + '?v=2';
             ecgImage.alt = q.image_alt || 'ECG';
 
             currentOptions = buildOptions(q);
@@ -559,7 +559,7 @@
                     card.className = 'error-card';
                     card.innerHTML =
                         '<div class="error-card-header">' +
-                            '<img class="error-card-thumb" src="images/' + err.question.image + '" alt="ECG" onclick="openLightbox(this.src)">' +
+                            '<img class="error-card-thumb" src="images/' + err.question.image + '?v=2" alt="ECG" onclick="openLightbox(this.src)">' +
                             '<div class="error-card-info">' +
                                 '<div class="error-card-q">ECG #' + (i + 1) + '</div>' +
                                 '<div class="error-answer user-ans"><span>Votre r\u00e9ponse :</span> ' + escapeHtml(err.userAnswer) + '</div>' +
