@@ -627,6 +627,59 @@
             .ecg-image-wrapper { max-height: 250px; }
             .ecg-clinical-context { padding: 0.75rem 1rem; font-size: 0.8rem; }
         }
+    
+        /* Exam Mode Button */
+        .exam-mode-wrapper {
+            margin-bottom: 1.5rem;
+        }
+        .exam-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            background: linear-gradient(135deg, var(--ecg-dark), var(--ecg), var(--ecg-light));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
+            text-decoration: none;
+        }
+        .exam-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(13, 148, 136, 0.4);
+        }
+        .exam-btn:active { transform: translateY(0) scale(0.98); }
+        .exam-btn .exam-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+        .exam-btn .exam-text {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .exam-btn .exam-title {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+        .exam-btn .exam-desc {
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
@@ -706,6 +759,20 @@
                         </div>
                         <div class="cat-badge" id="badge-autres">0 Q</div>
                     </div>
+                </div>
+
+                
+                <!-- Exam Mode -->
+                <div class="exam-mode-wrapper">
+                    <a href="exam.html" class="exam-btn">
+                        <span class="exam-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                        </span>
+                        <span class="exam-text">
+                            <span class="exam-title">Mode Examen (toutes cat&eacute;gories m&eacute;lang&eacute;es)</span>
+                            <span class="exam-desc">65 ECG al&eacute;atoires sans indice de cat&eacute;gorie</span>
+                        </span>
+                    </a>
                 </div>
 
                 <!-- Quiz Modes -->
