@@ -98,7 +98,7 @@ TARGETS = [
     },
     {
         "slug": "svt",
-        "scp_codes": ["SVARR", "SVTAC"],
+        "scp_codes": ["SVARR", "SVTAC", "PSVT"],
         "count": 3,
         "category": "arythmies_sv",
         "pathology_fr": "Tachycardie supraventriculaire",
@@ -289,14 +289,26 @@ def select_records(df: pd.DataFrame) -> list[dict]:
         # Candidates: primary SCP code is one of the wanted codes
         candidates = df[df["_primary_code"].isin(codes_wanted)].copy()
 
-        # Prefer high likelihood
-        candidates = candidates.sort_values("_primary_likelihood", ascending=False)
+        # Fallback: if no primary matches, include records that CONTAIN
+        # any wanted code (even with likelihood 0, e.g. SBRAD, SVARR)
+        if candidates.empty:
+            def _has_code(scp_dict):
+                return bool(codes_wanted & set(scp_dict.keys()))
+            candidates = df[df["_scp_dict"].apply(_has_code)].copy()
+
+        # Sort: prefer high likelihood of the target code, then primary
+        def _target_likelihood(scp_dict):
+            return max((scp_dict.get(c, 0) for c in codes_wanted), default=0)
+        candidates["_target_lh"] = candidates["_scp_dict"].apply(_target_likelihood)
+        candidates = candidates.sort_values(
+            ["_target_lh", "_primary_likelihood"], ascending=[False, False]
+        )
 
         # Prefer validated_by_human if column exists
         if "validated_by_human" in candidates.columns:
             candidates = candidates.sort_values(
-                ["validated_by_human", "_primary_likelihood"],
-                ascending=[False, False],
+                ["validated_by_human", "_target_lh", "_primary_likelihood"],
+                ascending=[False, False, False],
             )
 
         picked = 0
