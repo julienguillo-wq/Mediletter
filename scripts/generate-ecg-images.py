@@ -349,8 +349,8 @@ def generate_ecg_image(
     rhythm_seconds = min(10.0, duration)
     rhythm_samples = int(rhythm_seconds * SAMPLING_RATE)
 
-    # Build lead-name → column-index map
-    lead_idx = {name: i for i, name in enumerate(lead_names)}
+    # Build lead-name → column-index map (case-insensitive: PTB-XL uses AVR/AVL/AVF)
+    lead_idx = {name.upper(): i for i, name in enumerate(lead_names)}
 
     fig = plt.figure(figsize=(12, 8), dpi=100, facecolor='white')
     gs = GridSpec(
@@ -390,7 +390,7 @@ def generate_ecg_image(
             ax = fig.add_subplot(gs[row_i, col_j])
             _setup_ax(ax, cell_seconds, y_range)
 
-            idx = lead_idx.get(lead_name)
+            idx = lead_idx.get(lead_name.upper())
             if idx is not None:
                 # Time offset: each column shows a consecutive 2.5s chunk
                 start = col_j * cell_samples
@@ -414,7 +414,7 @@ def generate_ecg_image(
     ax_rhythm = fig.add_subplot(gs[3, :])
     _setup_ax(ax_rhythm, rhythm_seconds, y_range)
 
-    idx_ii = lead_idx.get('II', 1)
+    idx_ii = lead_idx.get('II', 1)  # II is already uppercase, OK
     seg = signal[:rhythm_samples, idx_ii]
     t = np.arange(len(seg)) / SAMPLING_RATE
     ax_rhythm.plot(t, seg, color='black', linewidth=0.8)
