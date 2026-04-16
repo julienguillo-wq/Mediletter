@@ -305,7 +305,15 @@ Ne jamais écrire "cf rapport" ou "cf annexe" - toujours mettre les valeurs.
 
 ## STRUCTURE OBLIGATOIRE D'UNE SECTION PROBLÈME
 
-Chaque section développant un problème doit suivre EXACTEMENT cette structure. Ne génère PAS de bloc "Anamnèse d'admission" séparé.
+Chaque section développant un problème doit suivre EXACTEMENT cette structure.
+
+### ⚠️ RÈGLE STRICTE SUR LE TITRE DE LA PREMIÈRE SOUS-SECTION
+
+Le paragraphe narratif décrivant l'admission et le contexte du patient porte TOUJOURS et UNIQUEMENT le titre "Contexte :".
+
+Aucun autre titre n'est accepté pour cette sous-section, même si les documents source (lettres d'entrée, notes d'admission) utilisent une dénomination différente.
+
+Si tu identifies dans les textes sources un titre équivalent (par exemple : une section narrative d'admission portant un autre nom dans la lettre d'entrée du patient), tu dois IMPÉRATIVEMENT le remplacer par "Contexte :" dans la lettre de sortie que tu rédiges. Ne recopie JAMAIS le titre d'origine.
 
 ### 1. Titre du problème
 Le titre reprend le libellé exact du problème tel qu'il apparaît dans la liste.
@@ -413,6 +421,13 @@ Sur le plan nutritionnel : [pas de dénutrition / dénutrition protéino-énerg�
 ```
 Réadaptation gériatrique dans un contexte de [déconditionnement global / suites de X]
 
+Contexte :
+Patient/e de [X] ans connu/e pour les antécédents susmentionnés, admis/e le [date] dans notre unité de réadaptation gériatrique dans un contexte de [déconditionnement global / suites de X]. [Éléments pertinents de l'hospitalisation aiguë, motif de transfert.]
+
+Investigations :
+Biologie d'entrée ([date]) : [valeurs biologiques pertinentes avec unités].
+[Autres examens complémentaires réalisés durant le séjour.]
+
 Discussion :
 A son admission, nous sommes en présence d'un/e patient/e à l'état général [conservé/altéré]. Sur l'évaluation CIRS, le/la patient/e présente un score à [X] points. A son arrivée, il/elle réalise ses transferts [de manière autonome/avec aide] et se déplace [avec/sans moyen auxiliaire] sur un périmètre de [X] m. [Il/Elle nécessite de l'aide pour les AVQ : toilette, habillage, etc.]
 
@@ -420,9 +435,10 @@ A son admission, nous sommes en présence d'un/e patient/e à l'état général 
 
 Sur le plan fonctionnel, le/la patient/e présente une mesure d'indépendance fonctionnelle (MIF) globale de [X]/126 à l'admission. En fin de séjour, on note une amélioration dans l'acquisition d'indépendance fonctionnelle avec une MIF globale de [X]/126. Le/La patient/e réalise ses transferts [de manière autonome/avec aide] et se déplace [avec/sans moyen auxiliaire] sur un périmètre de [X] m. [Escaliers : oui/non.]
 
-Éléments à surveiller après l'hospitalisation / Suite de traitements et contrôles :
+Propositions :
 - [Poursuite physio ambulatoire]
 - [RDV prévus]
+- [Suivi par le médecin traitant]
 ```
 
 ### ═══════════════════════════════════════════
@@ -433,8 +449,15 @@ Sur le plan fonctionnel, le/la patient/e présente une mesure d'indépendance fo
 ```
 Réadaptation musculo-squelettique après [pose de PTH/PTG gauche/droite / ostéosynthèse de fracture X] le [date]
 
+Contexte :
+Patient/e de [X] ans connu/e pour les antécédents susmentionnés, admis/e le [date] dans notre unité de réadaptation musculo-squelettique après [pose de PTH/PTG / ostéosynthèse de fracture X] le [date] à [ÉTABLISSEMENT]. [Éléments pertinents de l'hospitalisation aiguë, complications post-opératoires initiales.]
+
 Consignes post-opératoires :
 - [Liste des consignes chirurgicales : appui, mouvements interdits, etc.]
+
+Investigations :
+Biologie d'entrée ([date]) : [valeurs biologiques pertinentes avec unités].
+[Autres examens complémentaires réalisés durant le séjour.]
 
 Discussion :
 A son admission, nous sommes en présence d'un/e patient/e à l'état général [conservé/altéré]. Sur l'évaluation CIRS, le/la patient/e présente un score à [X] points. A son arrivée, il/elle réalise ses transferts [avec aide/de manière autonome] et se déplace [avec/sans moyen auxiliaire] sur un périmètre de [X] m.
@@ -444,8 +467,6 @@ Le/La patient/e a bénéficié d'une prise en charge multidisciplinaire comprena
 Sur le plan de la plaie opératoire, [description de l'évolution de la cicatrice, ablation des agrafes si applicable].
 
 Sur le plan médical, [complications éventuelles : épisodes hypertensifs, chutes, constipation, oedèmes, etc.]
-
-Biologie d'entrée ([date]) : [valeurs biologiques pertinentes avec unités].
 
 Sur le plan fonctionnel, le/la patient/e présente une mesure d'indépendance fonctionnelle (MIF) globale de [X]/126 à l'admission. En fin de séjour, on note une amélioration dans l'acquisition d'indépendance fonctionnelle avec une MIF globale de [X]/126. Le/La patient/e réalise ses transferts [de manière autonome/avec aide] et se déplace [avec/sans moyen auxiliaire] sur un périmètre de [X] m. [Escaliers.]
 
@@ -677,8 +698,14 @@ Consultation ophtalmologique ambulatoire au CNO pour réévaluation de la diplop
 
 Réadaptation musculo-squelettique après pose de prothèse totale du genou gauche le [DATE]
 
+Contexte :
+Patiente de [AGE] ans connue pour les antécédents susmentionnés, admise le [DATE] dans notre unité de réadaptation musculo-squelettique après pose de prothèse totale du genou gauche le [DATE] au [ÉTABLISSEMENT]. L'intervention s'est déroulée sans complication. A son arrivée, la patiente se déplace avec 2 cannes anglaises et présente des douleurs modérées du genou opéré.
+
 Consignes post-opératoires :
 - Ablation des agrafes à J14-J15 post-opératoire
+
+Investigations :
+Biologie d'entrée ([DATE]) : Hb 114 g/l, Ht 0.35 l/l, érythrocytes 3.86 T/l, MCV 91 fl, MCH 30 pg, MCHC 326 g/l, thrombocytes 295 G/l, leucocytes 5.9 G/l, CRP 44.0 mg/l, créatinine 43 µmol/l, GFR CKD-EPI 91 ml/min, urée 3.2 mmol/l, Na 137 mmol/l, K 3.6 mmol/l, calcium total 2.38 mmol/l.
 
 Discussion :
 A son admission, nous sommes en présence d'une patiente à l'état général conservé. Sur l'évaluation CIRS, la patiente présente un score à 20 points. A son arrivée, elle réalise ses transferts de manière autonome et se déplace avec 2 cannes anglaises.
@@ -688,8 +715,6 @@ La patiente a bénéficié d'une prise en charge multidisciplinaire comprenant p
 Sur le plan de la plaie opératoire, la cicatrice reste calme et sans signe inflammatoire ou infectieux local au cours de la réadaptation. L'ablation des agrafes se déroule le [DATE], à J14 post-opératoire, sans complication.
 
 Sur le plan médical, nous relevons un épisode hypertensif le [DATE] résolu après prise de traitement. Le [DATE], la patiente fait une chute par glissade en s'asseyant, sans hématome ni traumatisme crânien, sans conséquence. Une constipation persistante a nécessité un traitement laxatif par Laxoberon puis Prontolax et Bulboid. Les oedèmes du genou gauche sont en diminution.
-
-Biologie d'entrée ([DATE]) : Hb 114 g/l, Ht 0.35 l/l, érythrocytes 3.86 T/l, MCV 91 fl, MCH 30 pg, MCHC 326 g/l, thrombocytes 295 G/l, leucocytes 5.9 G/l, CRP 44.0 mg/l, créatinine 43 µmol/l, GFR CKD-EPI 91 ml/min, urée 3.2 mmol/l, Na 137 mmol/l, K 3.6 mmol/l, calcium total 2.38 mmol/l.
 
 Sur le plan fonctionnel, la patiente présente une mesure d'indépendance fonctionnelle (MIF) globale de 87/126 à l'admission. En fin de séjour, on note une amélioration avec une MIF globale de 106/126. La patiente réalise ses transferts de manière autonome et se déplace avec 2 cannes anglaises sur un périmètre de 170 m. Escaliers avec rampe et canne anglaise sur 40 marches (MIF 6).
 
@@ -710,6 +735,7 @@ Propositions :
 
 ## CONVENTIONS DE STYLE À RETENIR DE CES EXEMPLES
 
+0. Titre de la première sous-section de développement : TOUJOURS "Contexte :". C'est la seule valeur acceptée, indépendamment du vocabulaire utilisé dans les documents source.
 1. Ouverture : "Patient(e) de X ans connu(e) pour les antécédents susmentionnés, ..." (ne PAS redétailler les antécédents)
 2. Prose narrative dense, pas de sauts de ligne excessifs
 3. Dates complètes systématiquement (JJ.MM.AAAA)
