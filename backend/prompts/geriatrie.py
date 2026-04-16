@@ -231,8 +231,7 @@ Ne jamais écrire "cf rapport" ou "cf annexe" - toujours mettre les valeurs.
 - Condenser les événements répétitifs en une phrase de synthèse plutôt que lister chaque occurrence.
 
 ### PAS DE SECTION "ÉVOLUTION" SÉPARÉE
-- Ne JAMAIS créer de sous-section intitulée "Evolution :" ou "Évolution :" en dehors des templates qui la prévoient explicitement.
-- Si le template du problème ne contient pas de section "Evolution", intégrer les éléments d'évolution dans la "Discussion :".
+- Ne JAMAIS créer de sous-section intitulée "Evolution :" ou "Évolution :". Intégrer les éléments d'évolution dans la "Discussion :".
 - La structure par défaut d'une section est : Contexte → Investigations/Laboratoire → Discussion → Proposition. Pas d'autres sous-sections inventées.
 
 ### PROPOSITIONS : FORMAT
@@ -253,7 +252,7 @@ TEMPLATES = {
 
 Contexte : le bilan biologique objective une anémie [normocytaire/microcytaire/macrocytaire], [normochrome/hypochrome/hyperchrome], [hyporégénérative/régénérative] dans un contexte [d'anticoagulation/d'antiagrégation/de toxicité médullaire/inflammatoire]. Le/La patient/e ne présente pas de signe d'extériorisation. Nous identifions une carence en [X] que nous substituons.
 
-Evolution :
+Discussion :
 - Tx d'Hb à l'arrivée = [X] g/l
 - Tx d'Hb à la sortie = [X] g/l
 - Substitution d'acide folique pour [1/3] mois et vitamine B12 selon schéma.
@@ -273,7 +272,7 @@ Proposition :
 
     "carences": """Substitution de carences martiale et en vitamines D, B9 et B12
 
-Contexte / discussion : Le laboratoire d'entrée met en évidence des carences en [vitamine D / B9 / B12 / fer], que nous substituons. Il n'y a pas d'anémie associée.
+Contexte : Le laboratoire d'entrée met en évidence des carences en [vitamine D / B9 / B12 / fer], que nous substituons. Il n'y a pas d'anémie associée.
 [Si infection :] En raison d'un syndrome infectieux, nous proposons une perfusion de Ferinject à distance.
 
 Investigations :
@@ -285,7 +284,7 @@ Poursuite de la substitution en Calcimagon D3 en prévention, substitution en ac
 
     "insuffisance_renale_aigue": """Insuffisance rénale aiguë KDIGO [I/II/III] sur une insuffisance rénale chronique [G3a/G3b/G4/G5]
 
-Contexte / discussion : Mise en évidence au laboratoire d'une créatinine à [X] µmol/l soit une clairance Cockroft à [X] ml/min. Le spot est en faveur d'une origine [pré-rénale/rénale/post-rénale]. Nous stimulons l'hydratation per os / nous hydratons le/la patient/e en IV. L'évolution est [favorable/défavorable], avec une créatinine à la sortie à [X] µmol/l soit une clairance Cockroft à [X] ml/min.
+Contexte : Mise en évidence au laboratoire d'une créatinine à [X] µmol/l soit une clairance Cockroft à [X] ml/min. Le spot est en faveur d'une origine [pré-rénale/rénale/post-rénale]. Nous stimulons l'hydratation per os / nous hydratons le/la patient/e en IV. L'évolution est [favorable/défavorable], avec une créatinine à la sortie à [X] µmol/l soit une clairance Cockroft à [X] ml/min.
 
 Investigations :
 Spot urinaire : Sodium [X] mmol/l, Potassium [X] mmol/l, Osmolalité [X] mosmol/kg, Créatinine [X] µmol/l, Urée [X], FeNa [X] %
@@ -305,10 +304,10 @@ Investigations :
 - Résidu post-mictionnel au bladder scan : [X] ml
 - Clairance selon Cockroft à [X] ml/min
 
-Evolution en réadaptation :
+Discussion :
 Diminution des diurétiques, stimulation à boire. Adaptation des médicaments à dose rénale et correction des électrolytes.
 [Si avis néphro :] Avis néphrologique : [contenu]
-Evolution [favorable/défavorable]. Créatinine de sortie [X] µmol/l.
+Évolution [favorable/défavorable]. Créatinine de sortie [X] µmol/l.
 
 Proposition :
 Suivi de la créatininémie, consultation ambulatoire auprès d'un néphrologue.""",
@@ -331,11 +330,11 @@ Nous laissons le soin au médecin traitant d'ajuster la posologie du diurétique
 
 Contexte : sous traitement de [médicament] [X] mg [X]x/j à domicile. Patient avec [problèmes cardiaques associés].
 
-Traitement en réadaptation :
+Traitement à l'UGA :
 - Durant le séjour la TA varie de [X]/[X] à [X]/[X] mmHg.
 - Nous introduisons [médicament] [X] mg [X]x/j.
 
-Propositions :
+Proposition :
 - Nous vous proposons de recontrôler la tension artérielle à votre cabinet et d'effectuer une mesure ambulatoire de la pression artérielle (MAPA).
 - Consultation cardiologique pour réévaluation du traitement.""",
 
@@ -354,7 +353,7 @@ En l'absence d'un ECA et d'un trouble de l'humeur franc, nous retenons un syndro
 [Si patient jeune :] Au vu d'un patient jeune encore autonome à domicile, nous adressons [M/Mme] au Centre Mémoire afin de réévaluer l'indication à un traitement pro-cognitif.
 [Si patient âgé :] Au vu de l'âge du patient, nous renonçons à poursuivre les investigations.
 
-Propositions :
+Proposition :
 Activités physiques et intellectuelles régulières, contrôler les facteurs de risque cardiovasculaire.
 Éviter les benzodiazépines et les anticholinergiques.
 [Si indication :] Consultation au Centre Mémoire afin de réévaluer l'indication à un traitement procognitif.""",
@@ -379,7 +378,7 @@ Nous procédons à une réafférentation régulière et introduisons des mesures
 Nous retenons comme facteur prédisposant une maladie neurocognitive CDR [X].
 L'évolution est favorable avec un rétablissement du rythme nycthéméral, de l'attention et de la vigilance.
 
-Recommandation :
+Proposition :
 Éviter benzodiazépines et anticholinergiques. Bilan neuropsychologique à 3 mois.""",
 
     "chutes": """Troubles de la marche et de l'équilibre avec chutes à répétition
@@ -388,7 +387,7 @@ Contexte : [Description de la chute / le/la patient/e rapporte plusieurs chutes 
 
 Investigations :
 Laboratoire : bilan phospho-calcique dans la norme, 25-OH-Vitamine D3 à [X] nmol/l
-ECG : Fréquence cardiaque à [X] bpm, rythme [sinusal régulier/irrégulier], intervalle PR [X] ms, [normoaxé/déviation axiale], complexe QRS à [X] ms, segments ST [isoélectriques/anomalies], onde T [description]. QTc selon Framingham à [X] ms.
+ECG : Fréquence cardiaque à [X] bpm, rythme [sinusal régulier/irrégulier], intervalle PR [X] ms, [normoaxé/déviation axiale], complexe QRS à [X] ms, segments ST [isoélectriques/anomalies], onde T [description]. QTc à [X] ms selon Bazett.
 Test de Schellong : [positif/négatif]
 
 Facteurs de risque retenus pour les chutes :
@@ -404,7 +403,7 @@ Durant le séjour, le patient bénéficie d'une prise en charge pluridisciplinai
 
 [Si transfert CTR :] Au vu du potentiel de progression, nous organisons avec son accord son transfert en réadaptation le [date] afin qu'il/elle poursuive son processus de réadaptation, reconditionnement global et réentraînement à l'effort en vue d'un retour à domicile par la suite.
 
-Propositions :
+Proposition :
 Séances de physiothérapie en ambulatoire.
 Calcium 500 mg et vitamine D 800 unités par jour en prévention.""",
 
@@ -412,7 +411,7 @@ Calcium 500 mg et vitamine D 800 unités par jour en prévention.""",
 
 Contexte :
 À domicile poids stable entre [X] et [X] kg.
-[A priori pas de perte pondérale sur poids sec / Perte pondérale de X kg sur X mois soit X% de son poids]
+[À priori pas de perte pondérale sur poids sec / Perte pondérale de X kg sur X mois soit X% de son poids]
 [Nausées importantes dans un contexte de...] / [Appétit conservé et pas de perte pondérale décrite / Appétit diminué depuis X semaines]
 Mini-MNA à [X]/14.
 NRS à [X]/7.
@@ -425,11 +424,11 @@ Score NRS : [X]/7
 Facteurs de risque retenus pour la dénutrition : [troubles cognitifs, dépression, mycose buccale, dysphagie, épigastralgie, reflux, constipation, processus oncologique, processus infectieux ou inflammatoire, polymédication, isolement, manque de ressources financières, dentier mal adapté]
 
 Évaluation par notre diététicienne :
-Diagnostic nutritionnel : E44.1 Malnutrition protéino-énergétique [légère/modérée/sévère] selon critères Swiss DRG
+Diagnostic nutritionnel : E44 Malnutrition protéino-énergétique [légère/modérée/sévère] selon critères Swiss DRG
 Suivi nutritionnel : hebdomadaire
 Objectif : [maintien/renutrition] par ingestion de [X] kcal/j avec la prise de [X] supplément(s) nutritif(s) oral/oraux
 
-Évolution en réadaptation :
+Discussion :
 [X]x Fresubin 2kcal compact prescrit dès le [date], consommés et appréciés.
 Évolution [favorable/défavorable] avec [maintien du poids/reprise du poids].
 Poids cible à [X] kg (poids à la sortie [X] kg).
@@ -440,16 +439,16 @@ Poursuite du suivi nutritionnel [à domicile avec Axelcare / au CTR].""",
 
     "constipation": """Constipation sur coprostase
 
-Contexte / discussion : Le/La patient/e présente une constipation devant laquelle nous prescrivons des laxatifs en fixe et en réserve et surveillons le transit quotidiennement.""",
+Contexte : Le/La patient/e présente une constipation devant laquelle nous prescrivons des laxatifs en fixe et en réserve et surveillons le transit quotidiennement.""",
 
     "incontinence": """Incontinence urinaire sur urgenturie
 
-Contexte / discussion : incontinence d'urgence occasionnelle, connue, [avec/sans] port de protection à domicile. À l'UGA, le/la patient/e porte [type de protection].""",
+Contexte : incontinence d'urgence occasionnelle, connue, [avec/sans] port de protection à domicile. À l'UGA, le/la patient/e porte [type de protection].""",
 
     "retention_urinaire": """Rétention aiguë d'urine à [X] cc
 Mise en place d'une sonde urinaire le [date]
 
-Contexte / discussion : M/Mme est sondé/e le [date] sur un globe urinaire à [X] cc. Nous mettons en place un traitement par Pradif avec une tentative de sevrage le [date].
+Contexte : M/Mme est sondé/e le [date] sur un globe urinaire à [X] cc. Nous mettons en place un traitement par Pradif avec une tentative de sevrage le [date].
 
 Investigations :
 SSU : [résultat]
@@ -496,7 +495,7 @@ Les scores CIWA étaient toujours négatifs, indiquant l'absence de symptômes d
 Contexte :
 Le/La patient/e à l'anamnèse faite à l'entrée a rapporté vivre seul/e et passer la plupart de ses journées à la maison. Il/Elle a un contact téléphonique régulier avec [proche], [fréquence], et se dit [gêné/e / non gêné/e] par cette situation.
 
-Propositions :
+Proposition :
 - Mise en place de livraisons de repas du lundi au vendredi afin de favoriser le maintien à domicile dans de bonnes conditions.""",
 
     "generique": """[Titre du problème]
