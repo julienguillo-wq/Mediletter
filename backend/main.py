@@ -13,6 +13,7 @@ import anthropic
 import os
 import json
 import asyncio
+import time
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
@@ -90,7 +91,8 @@ sessions: dict = {}
 MODELS = {
     "standard": "claude-opus-4-6",
     "haute_qualite": "claude-opus-4-6",
-    "ultra_haute_qualite": "claude-opus-4-6"
+    "ultra_haute_qualite": "claude-opus-4-6",
+    "assemblage": "claude-sonnet-4-6",  # Sonnet : 3-5× plus rapide, qualité suffisante pour formatage/assemblage
 }
 
 # Thread pool pour parallélisation des appels API
@@ -136,7 +138,7 @@ def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
 
 def log_usage(endpoint: str, model: str = None, tokens_input: int = 0, tokens_output: int = 0,
               cost_eur: float = 0, images_count: int = 0, pdfs_count: int = 0, success: bool = True,
-              session_id: str = None, user_email: str = None):
+              session_id: str = None, user_email: str = None, duration_ms: Optional[float] = None):
     """Enregistre une requête dans le fichier de logs."""
     ensure_logs_dir()
 
@@ -152,7 +154,8 @@ def log_usage(endpoint: str, model: str = None, tokens_input: int = 0, tokens_ou
         "cost_eur": cost_eur,
         "images_count": images_count,
         "pdfs_count": pdfs_count,
-        "success": success
+        "success": success,
+        "duration_ms": round(duration_ms, 1) if duration_ms is not None else None
     }
 
     try:
@@ -565,6 +568,7 @@ Génère maintenant la section pour ce problème uniquement."""
 
     section_system_prompt = build_section_prompt(probleme, prompt_sections_base, templates or {})
 
+    api_start = time.time()
     with client.messages.stream(
         model=model,
         max_tokens=4000,
@@ -578,11 +582,14 @@ Génère maintenant la section pour ce problème uniquement."""
         messages=[{"role": "user", "content": prompt_user}]
     ) as stream:
         response = stream.get_final_message()
+    duration_ms = (time.time() - api_start) * 1000
+    print(f"[/generer] section #{numero} '{probleme}' : {duration_ms:.0f}ms")
 
     return {
         "numero": numero,
         "probleme": probleme,
-        "contenu": response.content[0].text
+        "contenu": response.content[0].text,
+        "duration_ms": duration_ms
     }
 
 
@@ -1046,6 +1053,7 @@ async def analyser(request: AnalyserRequest):
             raise HTTPException(status_code=400, detail="Aucun contenu à analyser")
 
         # Appel à Claude pour extraction (UHQ forcé pour l'analyse)
+        api_start = time.time()
         with client.messages.stream(
             model=MODELS["ultra_haute_qualite"],  # UHQ pour la recherche des problèmes
             max_tokens=16000,
@@ -1059,6 +1067,7 @@ async def analyser(request: AnalyserRequest):
             messages=[{"role": "user", "content": content}]
         ) as stream:
             response = stream.get_final_message()
+        duration_ms = (time.time() - api_start) * 1000
 
         # Récupérer les tokens et calculer le coût
         tokens_input = response.usage.input_tokens
@@ -1113,7 +1122,7 @@ async def analyser(request: AnalyserRequest):
         }
 
         # Logger la requête
-        log_usage("/analyser", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True, session_id=request.session_id, user_email=request.user_email)
+        log_usage("/analyser", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True, session_id=request.session_id, user_email=request.user_email, duration_ms=duration_ms)
 
         return AnalyserResponse(
             session_id=request.session_id,
@@ -1192,7 +1201,9 @@ async def generer(request: GenererRequest):
             tasks.append(task)
         
         # Exécuter toutes les tâches en parallèle
+        sections_start = time.time()
         resultats = await asyncio.gather(*tasks)
+        sections_duration_ms = (time.time() - sections_start) * 1000
         
         # Trier les résultats par numéro (au cas où ils reviennent dans le désordre)
         resultats_tries = sorted(resultats, key=lambda x: x["numero"])
@@ -1239,8 +1250,9 @@ async def generer(request: GenererRequest):
 5. Liste le traitement de sortie
 6. PAS d'introduction ni conclusion superflue"""
 
+        api_start = time.time()
         with client.messages.stream(
-            model=model,
+            model=MODELS["assemblage"],
             max_tokens=16000,
             system=[
                 {
@@ -1252,8 +1264,16 @@ async def generer(request: GenererRequest):
             messages=[{"role": "user", "content": assemblage_context}]
         ) as stream:
             assemblage_response = stream.get_final_message()
-        
+        assemblage_duration_ms = (time.time() - api_start) * 1000
+
         letter = assemblage_response.content[0].text
+
+        # Logger l'assemblage avec timing
+        assemblage_tokens_input = assemblage_response.usage.input_tokens
+        assemblage_tokens_output = assemblage_response.usage.output_tokens
+        assemblage_cost = calculate_cost(MODELS["assemblage"], assemblage_tokens_input, assemblage_tokens_output)
+        log_usage("/generer:assemblage", MODELS["assemblage"], assemblage_tokens_input, assemblage_tokens_output, assemblage_cost, 0, 0, success=True, session_id=request.session_id, user_email=session_data.get('user_email'), duration_ms=assemblage_duration_ms)
+        print(f"[/generer] sections={sections_duration_ms:.0f}ms | assemblage={assemblage_duration_ms:.0f}ms | total={sections_duration_ms + assemblage_duration_ms:.0f}ms")
 
         return GenererResponse(
             session_id=request.session_id,
@@ -1322,6 +1342,7 @@ async def generer_section(request: GenererSectionRequest):
         model_used = MODELS["haute_qualite"]
 
         # Appel à Claude pour générer cette section avec prompt caching
+        api_start = time.time()
         with client.messages.stream(
             model=model_used,
             max_tokens=4000,
@@ -1338,13 +1359,14 @@ async def generer_section(request: GenererSectionRequest):
             }]
         ) as stream:
             response = stream.get_final_message()
+        duration_ms = (time.time() - api_start) * 1000
         section_text = response.content[0].text
 
         # Logger la requête
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/generer-section", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email)
+        log_usage("/generer-section", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email, duration_ms=duration_ms)
 
         return GenererSectionResponse(
             session_id=request.session_id,
@@ -1411,6 +1433,7 @@ async def generer_section_stream(request: GenererSectionRequest):
         output_tokens = 0
 
         try:
+            api_start = time.time()
             with client.messages.stream(
                 model=model_used,
                 max_tokens=4000,
@@ -1434,13 +1457,14 @@ async def generer_section_stream(request: GenererSectionRequest):
                 response = stream.get_final_message()
                 input_tokens = response.usage.input_tokens
                 output_tokens = response.usage.output_tokens
+            duration_ms = (time.time() - api_start) * 1000
 
             # Envoyer l'événement de fin avec les stats
             yield f"data: {json.dumps({'type': 'done', 'full_text': full_text, 'tokens_input': input_tokens, 'tokens_output': output_tokens}, ensure_ascii=False)}\n\n"
 
             # Logger la requête
             cost_eur = calculate_cost(model_used, input_tokens, output_tokens)
-            log_usage("/generer-section-stream", model_used, input_tokens, output_tokens, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email)
+            log_usage("/generer-section-stream", model_used, input_tokens, output_tokens, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email, duration_ms=duration_ms)
 
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
@@ -1511,6 +1535,7 @@ async def regenerer_section(request: RegenerationSectionRequest):
 
 IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Conserve la même structure (Contexte, Investigations, Discussion, Propositions) mais modifie le contenu selon l'instruction."""
 
+        api_start = time.time()
         with client.messages.stream(
             model=MODELS["haute_qualite"],
             max_tokens=4000,
@@ -1527,7 +1552,13 @@ IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Co
             }]
         ) as stream:
             response = stream.get_final_message()
+        duration_ms = (time.time() - api_start) * 1000
         section_text = response.content[0].text
+
+        tokens_input = response.usage.input_tokens
+        tokens_output = response.usage.output_tokens
+        cost_eur = calculate_cost(MODELS["haute_qualite"], tokens_input, tokens_output)
+        log_usage("/regenerer-section", MODELS["haute_qualite"], tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=user_email, duration_ms=duration_ms)
 
         return GenererSectionResponse(
             session_id=request.session_id,
@@ -1558,13 +1589,14 @@ async def assembler(request: AssemblerRequest):
     user_email = request.user_email or session_data.get('user_email')
     PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(user_email)
 
-    model_used = MODELS["haute_qualite"]
+    model_used = MODELS["assemblage"]
 
     try:
         # Joindre toutes les sections
         sections_text = "\n\n".join(request.sections)
 
         # Appel à Claude pour assemblage final
+        api_start = time.time()
         with client.messages.stream(
             model=model_used,
             max_tokens=16000,
@@ -1581,13 +1613,14 @@ async def assembler(request: AssemblerRequest):
             }]
         ) as stream:
             response = stream.get_final_message()
+        duration_ms = (time.time() - api_start) * 1000
         letter = response.content[0].text
 
         # Logger la requête
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/assembler", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email)
+        log_usage("/assembler", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email, duration_ms=duration_ms)
 
         return AssemblerResponse(
             session_id=request.session_id,
@@ -1841,6 +1874,7 @@ async def analyser_entree(request: AnalyserEntreeRequest):
 
         model_used = MODELS["haute_qualite"]
 
+        api_start = time.time()
         with client.messages.stream(
             model=model_used,
             max_tokens=4096,
@@ -1854,15 +1888,16 @@ async def analyser_entree(request: AnalyserEntreeRequest):
             messages=[{"role": "user", "content": content}]
         ) as stream:
             response = stream.get_final_message()
+        duration_ms = (time.time() - api_start) * 1000
 
         raw_json = response.content[0].text
-        print(f"[/analyser-entree] Réponse brute Claude ({len(raw_json)} chars):\n{raw_json[:3000]}")
+        print(f"[/analyser-entree] Réponse brute Claude ({len(raw_json)} chars) en {duration_ms:.0f}ms:\n{raw_json[:3000]}")
 
         # Log usage
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/analyser-entree", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True, user_email=request.user_email)
+        log_usage("/analyser-entree", model_used, tokens_input, tokens_output, cost_eur, images_count, pdfs_count, success=True, user_email=request.user_email, duration_ms=duration_ms)
 
         # Nettoyer les éventuelles fences markdown (```json ... ```)
         cleaned = raw_json.strip()
@@ -1920,6 +1955,7 @@ async def generer_entree(request: GenererEntreeRequest):
 
         model_used = MODELS["haute_qualite"]
 
+        api_start = time.time()
         with client.messages.stream(
             model=model_used,
             max_tokens=4096,
@@ -1933,6 +1969,7 @@ async def generer_entree(request: GenererEntreeRequest):
             messages=[{"role": "user", "content": user_message}]
         ) as stream:
             response = stream.get_final_message()
+        duration_ms = (time.time() - api_start) * 1000
 
         lettre = response.content[0].text
 
@@ -1940,7 +1977,7 @@ async def generer_entree(request: GenererEntreeRequest):
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/generer-entree", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, user_email=request.user_email)
+        log_usage("/generer-entree", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, user_email=request.user_email, duration_ms=duration_ms)
 
         return {"lettre": lettre}
 
@@ -2063,6 +2100,7 @@ async def medentry_uga_generer(request: MedEntryUGARequest):
     )
 
     try:
+        api_start = time.time()
         with client.messages.stream(
             model=model_used,
             max_tokens=4096,
@@ -2076,13 +2114,14 @@ async def medentry_uga_generer(request: MedEntryUGARequest):
             messages=[{"role": "user", "content": prompt_text}]
         ) as stream:
             response = stream.get_final_message()
+        duration_ms = (time.time() - api_start) * 1000
 
         lettre = response.content[0].text
         tokens_input = response.usage.input_tokens
         tokens_output = response.usage.output_tokens
         cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
 
-        log_usage("/medentry-uga/generer", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, user_email=request.user_email)
+        log_usage("/medentry-uga/generer", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, user_email=request.user_email, duration_ms=duration_ms)
 
         return {"lettre": lettre, "tokens_input": tokens_input, "tokens_output": tokens_output}
 
@@ -2212,6 +2251,7 @@ Génère maintenant la section pour ce problème."""
         output_tokens = 0
 
         try:
+            api_start = time.time()
             with client.messages.stream(
                 model=model_used,
                 max_tokens=4000,
@@ -2229,10 +2269,11 @@ Génère maintenant la section pour ce problème."""
                 response = stream.get_final_message()
                 input_tokens = response.usage.input_tokens
                 output_tokens = response.usage.output_tokens
+            duration_ms = (time.time() - api_start) * 1000
 
             cost_eur = calculate_cost(model_used, input_tokens, output_tokens)
             log_usage("/api/recherche-probleme", model_used, input_tokens, output_tokens, cost_eur,
-                      images_count, pdfs_count, user_email=request.user_email)
+                      images_count, pdfs_count, user_email=request.user_email, duration_ms=duration_ms)
 
             yield f"data: {json.dumps({'type': 'done', 'full_text': full_text, 'tokens_input': input_tokens, 'tokens_output': output_tokens, 'cost_eur': cost_eur}, ensure_ascii=False)}\n\n"
 
