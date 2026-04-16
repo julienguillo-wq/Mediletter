@@ -1048,7 +1048,7 @@ async def analyser(request: AnalyserRequest):
         # Appel à Claude pour extraction (UHQ forcé pour l'analyse)
         with client.messages.stream(
             model=MODELS["ultra_haute_qualite"],  # UHQ pour la recherche des problèmes
-            max_tokens=8000,
+            max_tokens=16000,
             system=[
                 {
                     "type": "text",
@@ -1241,7 +1241,7 @@ async def generer(request: GenererRequest):
 
         with client.messages.stream(
             model=model,
-            max_tokens=8000,
+            max_tokens=16000,
             system=[
                 {
                     "type": "text",
@@ -1567,7 +1567,7 @@ async def assembler(request: AssemblerRequest):
         # Appel à Claude pour assemblage final
         with client.messages.stream(
             model=model_used,
-            max_tokens=8000,
+            max_tokens=16000,
             system=[
                 {
                     "type": "text",
