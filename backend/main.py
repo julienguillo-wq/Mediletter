@@ -1056,7 +1056,7 @@ async def analyser(request: AnalyserRequest):
         api_start = time.time()
         with client.messages.stream(
             model=MODELS["ultra_haute_qualite"],  # UHQ pour la recherche des problèmes
-            max_tokens=8000,
+            max_tokens=16000,
             system=[
                 {
                     "type": "text",
