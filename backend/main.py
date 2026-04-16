@@ -1253,7 +1253,7 @@ async def generer(request: GenererRequest):
         api_start = time.time()
         with client.messages.stream(
             model=MODELS["assemblage"],
-            max_tokens=8000,
+            max_tokens=16000,
             system=[
                 {
                     "type": "text",
@@ -1599,7 +1599,7 @@ async def assembler(request: AssemblerRequest):
         api_start = time.time()
         with client.messages.stream(
             model=model_used,
-            max_tokens=8000,
+            max_tokens=16000,
             system=[
                 {
                     "type": "text",
