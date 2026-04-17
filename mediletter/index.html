@@ -1287,6 +1287,40 @@
             color: var(--gray-600);
         }
 
+        .letter-stream-text {
+            white-space: pre-wrap;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            line-height: 1.9;
+            color: var(--gray-800);
+        }
+
+        .streaming-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            background: #EEF2FF;
+            color: #4F46E5;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .streaming-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 14px;
+            background: #4F46E5;
+            margin-left: 2px;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
         .letter-footer {
             display: flex;
             align-items: center;
@@ -2068,6 +2102,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
 
         // Sections review state
         let generatedSections = [];
+        let assembledLetterText = '';
         let validatedDiagnostic = '';
         let validatedProblems = [];
         let currentEditorIndex = 0;
@@ -3521,45 +3556,103 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
         async function generateFinalLetter() {
             const letterType = document.getElementById('letterType').value;
             const sectionsOrdered = generatedSections.sort((a, b) => a.index - b.index).map(s => s.section);
+            const container = document.getElementById('letterContent');
+            const titleEl = document.getElementById('letterTypeTitle');
+            const metaEl = document.getElementById('letterMeta');
 
-            // Show simplified assembly overlay
-            showAssemblyOverlay();
+            if (titleEl) titleEl.textContent = letterType === 'Lettre de transfert' ? 'Lettre de transfert' : 'Lettre de sortie';
+            if (metaEl) metaEl.innerHTML = '<span class="streaming-badge">Rédaction en cours<span class="streaming-cursor"></span></span>';
+
+            assembledLetterText = '';
+            if (container) container.innerHTML = '<div class="letter-stream-text"></div>';
+
+            goToPage(3);
+
+            const payload = JSON.stringify({
+                session_id: currentSessionId,
+                user_email: currentUserEmail,
+                letter_type: letterType,
+                diagnostic_principal: validatedDiagnostic,
+                sections: sectionsOrdered
+            });
 
             try {
-                const response = await fetchWithRetry(`${BACKEND_URL}/assembler`, {
+                const response = await fetch(`${BACKEND_URL}/assembler-stream`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: currentSessionId,
-                        user_email: currentUserEmail,
-                        letter_type: letterType,
-                        diagnostic_principal: validatedDiagnostic,
-                        sections: sectionsOrdered
-                    })
+                    body: payload
                 });
 
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.detail || `Erreur API`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                const streamEl = container?.querySelector('.letter-stream-text');
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                if (data.type === 'text') {
+                                    assembledLetterText += data.content;
+                                    if (streamEl) {
+                                        streamEl.textContent = assembledLetterText;
+                                        container.scrollTop = container.scrollHeight;
+                                    }
+                                } else if (data.type === 'done') {
+                                    assembledLetterText = data.full_text;
+                                    if (streamEl) streamEl.textContent = assembledLetterText;
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.message);
+                                }
+                            } catch (parseErr) {
+                                if (parseErr.message && !parseErr.message.includes('JSON')) throw parseErr;
+                            }
+                        }
+                    }
                 }
 
-                const data = await response.json();
-
-                hideAssemblyOverlay(true);
-
-                setTimeout(() => {
-                    displayFinalLetter(data.letter);
-                    goToPage(3);
-                    showToast('Lettre générée avec succès !', 'success');
-                }, 600);
-
-                // Save to history
+                const now = new Date();
+                if (metaEl) metaEl.textContent = `${generatedSections.length} sections · Générée le ${now.toLocaleDateString('fr-FR')}`;
+                showToast('Lettre générée avec succès !', 'success');
                 saveToHistory();
 
-            } catch (error) {
-                console.error('Error:', error);
-                hideAssemblyOverlay(false);
-                showToast('Erreur: ' + error.message, 'error');
+            } catch (streamError) {
+                console.warn('Stream failed, falling back to /assembler:', streamError);
+                if (metaEl) metaEl.innerHTML = '<span class="streaming-badge">Assemblage en cours...</span>';
+
+                try {
+                    const response = await fetchWithRetry(`${BACKEND_URL}/assembler`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: payload
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.detail || 'Erreur API');
+                    }
+
+                    const data = await response.json();
+                    assembledLetterText = data.letter;
+                    displayFinalLetter(data.letter);
+
+                    const now = new Date();
+                    if (metaEl) metaEl.textContent = `${generatedSections.length} sections · Générée le ${now.toLocaleDateString('fr-FR')}`;
+                    showToast('Lettre générée avec succès !', 'success');
+                    saveToHistory();
+
+                } catch (fallbackError) {
+                    console.error('Fallback also failed:', fallbackError);
+                    showToast('Erreur: ' + fallbackError.message, 'error');
+                    goToPage(2);
+                }
             }
         }
 
@@ -3593,17 +3686,14 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
         }
 
         function copyLetter() {
-            const content = document.getElementById('letterContent');
-            if (!content) return;
-
-            const text = generatedSections.map((s, i) => `${i + 1}. ${s.probleme}\n${s.section}`).join('\n\n');
+            const text = assembledLetterText || generatedSections.map((s, i) => `${i + 1}. ${s.probleme}\n${s.section}`).join('\n\n');
             navigator.clipboard.writeText(text).then(() => {
                 showToast('Lettre copiee');
             });
         }
 
         function exportLetter() {
-            const text = generatedSections.map((s, i) => `${i + 1}. ${s.probleme}\n${s.section}`).join('\n\n');
+            const text = assembledLetterText || generatedSections.map((s, i) => `${i + 1}. ${s.probleme}\n${s.section}`).join('\n\n');
             const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');

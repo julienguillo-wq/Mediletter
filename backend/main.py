@@ -1635,6 +1635,76 @@ async def assembler(request: AssemblerRequest):
         raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
 
 
+@app.post("/assembler-stream")
+async def assembler_stream(request: AssemblerRequest):
+    """
+    Assemble les sections validées en une lettre finale, en streaming SSE.
+    Chaque delta de texte est envoyé au frontend dès qu'il est disponible.
+    """
+    if request.session_id not in sessions:
+        raise HTTPException(
+            status_code=404,
+            detail="Session non trouvée."
+        )
+
+    session_data = sessions[request.session_id]
+    user_email = request.user_email or session_data.get('user_email')
+    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+
+    model_used = MODELS["assemblage"]
+    sections_text = "\n\n".join(request.sections)
+
+    async def event_generator():
+        full_text = ""
+        input_tokens = 0
+        output_tokens = 0
+
+        try:
+            api_start = time.time()
+            with client.messages.stream(
+                model=model_used,
+                max_tokens=24000,
+                system=[
+                    {
+                        "type": "text",
+                        "text": PROMPT_ASSEMBLAGE,
+                        "cache_control": {"type": "ephemeral"}
+                    }
+                ],
+                messages=[{
+                    "role": "user",
+                    "content": f"Type de lettre : {request.letter_type}\n\nDiagnostic principal : {request.diagnostic_principal}\n\nSections à assembler :\n{sections_text}"
+                }]
+            ) as stream:
+                for text in stream.text_stream:
+                    full_text += text
+                    yield f"data: {json.dumps({'type': 'text', 'content': text}, ensure_ascii=False)}\n\n"
+
+                response = stream.get_final_message()
+                input_tokens = response.usage.input_tokens
+                output_tokens = response.usage.output_tokens
+            duration_ms = (time.time() - api_start) * 1000
+
+            yield f"data: {json.dumps({'type': 'done', 'full_text': full_text, 'tokens_input': input_tokens, 'tokens_output': output_tokens}, ensure_ascii=False)}\n\n"
+
+            cost_eur = calculate_cost(model_used, input_tokens, output_tokens)
+            log_usage("/assembler-stream", model_used, input_tokens, output_tokens, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=user_email, duration_ms=duration_ms)
+
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+            log_usage("/assembler-stream", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=user_email)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
+
 # ==============================================================================
 # VDR - Dictée Vocale Réadaptation (Pipeline 2 étapes)
 # ==============================================================================
