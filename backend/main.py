@@ -89,10 +89,10 @@ sessions: dict = {}
 
 # Modèles disponibles
 MODELS = {
-    "standard": "claude-opus-4-6",
-    "haute_qualite": "claude-opus-4-6",
-    "ultra_haute_qualite": "claude-opus-4-6",
-    "assemblage": "claude-sonnet-4-6",  # Sonnet : 3-5× plus rapide, qualité suffisante pour formatage/assemblage
+    "standard": "claude-opus-4-7",
+    "haute_qualite": "claude-opus-4-7",
+    "ultra_haute_qualite": "claude-opus-4-7",
+    "assemblage": "claude-sonnet-4-6",  # Sonnet conservé pour rapidité et coût sur l'assemblage final
 }
 
 # Thread pool pour parallélisation des appels API
@@ -338,7 +338,7 @@ class LogCorrectionV2Request(BaseModel):
     user_email: Optional[str] = None
     probleme_name: Optional[str] = None        # Nom du problème (ex: "Insuffisance cardiaque")
     diagnostic_principal: Optional[str] = None
-    model_used: Optional[str] = None           # "claude-opus-4-6" ou "claude-sonnet-4-5-20250929"
+    model_used: Optional[str] = None           # "claude-opus-4-7" ou "claude-sonnet-4-6"
     donnees_extraites: Optional[dict] = None   # JSON structuré complet (biologie, ECG, etc.)
     textes_originaux: Optional[str] = None     # Textes bruts du dossier (context + notes + CR)
     problemes_list: Optional[list] = None      # Liste complète des problèmes (pour type="problems")
@@ -571,7 +571,7 @@ Génère maintenant la section pour ce problème uniquement."""
     api_start = time.time()
     with client.messages.stream(
         model=model,
-        max_tokens=4000,
+        max_tokens=5000,
         system=[
             {
                 "type": "text",
@@ -1056,7 +1056,7 @@ async def analyser(request: AnalyserRequest):
         api_start = time.time()
         with client.messages.stream(
             model=MODELS["ultra_haute_qualite"],  # UHQ pour la recherche des problèmes
-            max_tokens=16000,
+            max_tokens=20000,
             system=[
                 {
                     "type": "text",
@@ -1345,7 +1345,7 @@ async def generer_section(request: GenererSectionRequest):
         api_start = time.time()
         with client.messages.stream(
             model=model_used,
-            max_tokens=4000,
+            max_tokens=5000,
             system=[
                 {
                     "type": "text",
@@ -1436,7 +1436,7 @@ async def generer_section_stream(request: GenererSectionRequest):
             api_start = time.time()
             with client.messages.stream(
                 model=model_used,
-                max_tokens=4000,
+                max_tokens=5000,
                 system=[
                     {
                         "type": "text",
@@ -1538,7 +1538,7 @@ IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Co
         api_start = time.time()
         with client.messages.stream(
             model=MODELS["haute_qualite"],
-            max_tokens=4000,
+            max_tokens=5000,
             system=[
                 {
                     "type": "text",
@@ -1877,7 +1877,7 @@ async def analyser_entree(request: AnalyserEntreeRequest):
         api_start = time.time()
         with client.messages.stream(
             model=model_used,
-            max_tokens=4096,
+            max_tokens=5200,
             system=[
                 {
                     "type": "text",
@@ -1958,7 +1958,7 @@ async def generer_entree(request: GenererEntreeRequest):
         api_start = time.time()
         with client.messages.stream(
             model=model_used,
-            max_tokens=4096,
+            max_tokens=5200,
             system=[
                 {
                     "type": "text",
@@ -2103,7 +2103,7 @@ async def medentry_uga_generer(request: MedEntryUGARequest):
         api_start = time.time()
         with client.messages.stream(
             model=model_used,
-            max_tokens=4096,
+            max_tokens=5200,
             system=[
                 {
                     "type": "text",
@@ -2254,7 +2254,7 @@ Génère maintenant la section pour ce problème."""
             api_start = time.time()
             with client.messages.stream(
                 model=model_used,
-                max_tokens=4000,
+                max_tokens=5000,
                 system=[{
                     "type": "text",
                     "text": section_system_prompt,
