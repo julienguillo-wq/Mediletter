@@ -2226,8 +2226,8 @@ async def list_sessions(auth: bool = Depends(verify_admin_key)):
 # ==============================================================================
 
 class RechercheProblemeRequest(BaseModel):
-    probleme: str
-    contexte: str
+    probleme: str = ""
+    contexte: str = ""
     investigations: str = ""
     images_base64: Optional[list] = None
     pdfs_base64: Optional[list] = None
@@ -2241,18 +2241,86 @@ async def recherche_probleme(request: RechercheProblemeRequest):
     Réutilise PROMPT_SECTIONS_BASE + TEMPLATES de gériatrie.
     Accepte images/PDFs en base64 comme content blocks.
     """
-    if not request.probleme.strip():
-        raise HTTPException(status_code=400, detail="Le nom du problème est requis.")
-    if not request.contexte.strip():
-        raise HTTPException(status_code=400, detail="Le contexte clinique est requis.")
+    has_probleme = bool(request.probleme and request.probleme.strip())
+    has_documents = bool(request.images_base64 or request.pdfs_base64)
+    has_contexte = bool(request.contexte and request.contexte.strip())
+    has_investigations = bool(request.investigations and request.investigations.strip())
+
+    if not has_probleme and not has_documents and not has_contexte and not has_investigations:
+        raise HTTPException(
+            status_code=400,
+            detail="Fournissez un problème, des documents ou du contexte."
+        )
 
     images_count = len(request.images_base64) if request.images_base64 else 0
     pdfs_count = len(request.pdfs_base64) if request.pdfs_base64 else 0
 
     PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(request.user_email)
 
-    # Construire le prompt système avec le template adapté au problème
-    section_system_prompt = build_section_prompt(request.probleme, PROMPT_SECTIONS_BASE, TEMPLATES)
+    if has_probleme:
+        # === USAGE 1 : problème connu → rédiger la section ===
+        section_system_prompt = build_section_prompt(
+            request.probleme, PROMPT_SECTIONS_BASE, TEMPLATES
+        )
+
+        user_text = f"""## PROBLÈME À RÉDIGER
+Numéro : 1
+Titre : {request.probleme}
+Est le diagnostic principal : OUI
+
+## TEXTES ORIGINAUX DU DOSSIER
+### Contexte clinique fourni par le médecin
+{request.contexte if has_contexte else "Aucun contexte fourni."}
+
+### Investigations réalisées
+{request.investigations if has_investigations else "Aucune investigation fournie."}
+
+---
+
+## INSTRUCTIONS CRITIQUES
+1. Utilise le template correspondant au type de problème
+2. REMPLACE tous les [X] par les valeurs RÉELLES ci-dessus et dans les documents joints
+3. Si une valeur n'est pas disponible, OMETTRE LA LIGNE ENTIÈRE
+4. Inclus TOUTES les valeurs de laboratoire pertinentes pour ce problème
+5. N'ajoute AUCUNE introduction ni conclusion
+6. Structure : Contexte → Investigations → Discussion → Proposition
+
+Génère maintenant la section pour ce problème."""
+
+    else:
+        # === USAGE 2 : pas de problème → identifier depuis les documents ===
+        section_system_prompt = PROMPT_EXTRACTION
+
+        user_text = f"""## MISSION : IDENTIFICATION DES PROBLÈMES CLINIQUES
+
+Analyse les documents médicaux ci-dessus et identifie les problèmes cliniques actifs en appliquant STRICTEMENT les critères de sélection définis dans tes instructions système.
+
+### Contexte clinique fourni
+{request.contexte if has_contexte else "Aucun contexte clinique fourni."}
+
+### Investigations / notes complémentaires
+{request.investigations if has_investigations else "Aucune investigation fournie."}
+
+---
+
+## FORMAT DE RÉPONSE ATTENDU
+
+Renvoie une liste numérotée des problèmes identifiés, en respectant les critères de sélection (entité clinique, prise en charge active, exclusions).
+
+Pour chaque problème :
+- Titre clair et concis (selon les règles de libellés)
+- Éléments objectifs justifiant ce problème (valeurs bio, signes cliniques, antécédents)
+- Pertinence clinique en une phrase
+
+Format :
+1. **[Titre du problème]**
+   - Éléments objectifs : [valeurs, signes observés dans les documents]
+   - Pertinence : [justification clinique]
+
+2. **[Titre du problème]**
+   ...
+
+N'invente AUCUNE valeur. Ne liste QUE les problèmes qui respectent les critères stricts de sélection. Vise 3 à 6 problèmes, exceptionnellement plus."""
 
     # Construire les content blocks (images + PDFs + texte)
     content_blocks = []
@@ -2286,31 +2354,7 @@ async def recherche_probleme(request: RechercheProblemeRequest):
     # Bloc texte
     content_blocks.append({
         "type": "text",
-        "text": f"""## PROBLÈME À RÉDIGER
-Numéro : 1
-Titre : {request.probleme}
-Est le diagnostic principal : OUI
-
-## TEXTES ORIGINAUX DU DOSSIER
-### Contexte clinique fourni par le médecin
-{request.contexte}
-
-### Investigations réalisées
-{request.investigations if request.investigations.strip() else "Aucune investigation fournie."}
-
-{f"### Documents joints" + chr(10) + f"{images_count} image(s) et {pdfs_count} PDF(s) fournis ci-dessus. Utilise les valeurs visibles dans ces documents." if (images_count + pdfs_count) > 0 else ""}
-
----
-
-## INSTRUCTIONS CRITIQUES
-1. Utilise le template correspondant au type de problème
-2. REMPLACE tous les [X] par les valeurs RÉELLES ci-dessus et dans les documents joints
-3. Si une valeur n'est pas disponible, OMETTRE LA LIGNE ENTIÈRE
-4. Inclus TOUTES les valeurs de laboratoire pertinentes pour ce problème
-5. N'ajoute AUCUNE introduction ni conclusion
-6. Structure : Contexte → Investigations → Discussion → Proposition
-
-Génère maintenant la section pour ce problème."""
+        "text": user_text
     })
 
     model_used = MODELS["haute_qualite"]
