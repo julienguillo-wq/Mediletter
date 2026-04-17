@@ -1,0 +1,678 @@
+[
+  {
+    "filename": "normal-sinus-rhythm-01.png",
+    "ptbxl_id": 1,
+    "scp_codes": {
+      "NORM": 100.0,
+      "LVOLT": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Rythme sinusal normal",
+    "pathology_en": "Normal Sinus Rhythm",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "normal-sinus-rhythm-02.png",
+    "ptbxl_id": 3,
+    "scp_codes": {
+      "NORM": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Rythme sinusal normal",
+    "pathology_en": "Normal Sinus Rhythm",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "normal-sinus-rhythm-03.png",
+    "ptbxl_id": 4,
+    "scp_codes": {
+      "NORM": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Rythme sinusal normal",
+    "pathology_en": "Normal Sinus Rhythm",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "normal-sinus-rhythm-04.png",
+    "ptbxl_id": 5,
+    "scp_codes": {
+      "NORM": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Rythme sinusal normal",
+    "pathology_en": "Normal Sinus Rhythm",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "normal-sinus-rhythm-05.png",
+    "ptbxl_id": 6,
+    "scp_codes": {
+      "NORM": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Rythme sinusal normal",
+    "pathology_en": "Normal Sinus Rhythm",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "sinus-tachycardia-01.png",
+    "ptbxl_id": 12767,
+    "scp_codes": {
+      "STACH": 100.0,
+      "IRBBB": 100.0,
+      "TRIGU": 0.0
+    },
+    "pathology_fr": "Tachycardie sinusale",
+    "pathology_en": "Sinus Tachycardia",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "sinus-tachycardia-02.png",
+    "ptbxl_id": 4408,
+    "scp_codes": {
+      "STACH": 80.0,
+      "PRC(S)": 0.0
+    },
+    "pathology_fr": "Tachycardie sinusale",
+    "pathology_en": "Sinus Tachycardia",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "sinus-tachycardia-03.png",
+    "ptbxl_id": 18178,
+    "scp_codes": {
+      "IMI": 15.0,
+      "STACH": 50.0
+    },
+    "pathology_fr": "Tachycardie sinusale",
+    "pathology_en": "Sinus Tachycardia",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "sinus-bradycardia-01.png",
+    "ptbxl_id": 69,
+    "scp_codes": {
+      "NORM": 100.0,
+      "SBRAD": 0.0
+    },
+    "pathology_fr": "Bradycardie sinusale",
+    "pathology_en": "Sinus Bradycardia",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "sinus-bradycardia-02.png",
+    "ptbxl_id": 225,
+    "scp_codes": {
+      "NORM": 100.0,
+      "SBRAD": 0.0
+    },
+    "pathology_fr": "Bradycardie sinusale",
+    "pathology_en": "Sinus Bradycardia",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "sinus-bradycardia-03.png",
+    "ptbxl_id": 235,
+    "scp_codes": {
+      "NORM": 100.0,
+      "LAFB": 100.0,
+      "SBRAD": 0.0
+    },
+    "pathology_fr": "Bradycardie sinusale",
+    "pathology_en": "Sinus Bradycardia",
+    "category": "rythmes_normaux"
+  },
+  {
+    "filename": "atrial-fibrillation-01.png",
+    "ptbxl_id": 351,
+    "scp_codes": {
+      "AFIB": 100.0,
+      "NST_": 0.0
+    },
+    "pathology_fr": "Fibrillation auriculaire",
+    "pathology_en": "Atrial Fibrillation",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "atrial-fibrillation-02.png",
+    "ptbxl_id": 4117,
+    "scp_codes": {
+      "AFIB": 100.0
+    },
+    "pathology_fr": "Fibrillation auriculaire",
+    "pathology_en": "Atrial Fibrillation",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "atrial-fibrillation-03.png",
+    "ptbxl_id": 7221,
+    "scp_codes": {
+      "AFIB": 100.0
+    },
+    "pathology_fr": "Fibrillation auriculaire",
+    "pathology_en": "Atrial Fibrillation",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "atrial-fibrillation-04.png",
+    "ptbxl_id": 8215,
+    "scp_codes": {
+      "AFIB": 100.0
+    },
+    "pathology_fr": "Fibrillation auriculaire",
+    "pathology_en": "Atrial Fibrillation",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "atrial-fibrillation-05.png",
+    "ptbxl_id": 12542,
+    "scp_codes": {
+      "AFIB": 100.0
+    },
+    "pathology_fr": "Fibrillation auriculaire",
+    "pathology_en": "Atrial Fibrillation",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "atrial-flutter-01.png",
+    "ptbxl_id": 17,
+    "scp_codes": {
+      "AFLT": 100.0,
+      "ABQRS": 0.0,
+      "AFIB": 0.0
+    },
+    "pathology_fr": "Flutter auriculaire",
+    "pathology_en": "Atrial Flutter",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "atrial-flutter-02.png",
+    "ptbxl_id": 18,
+    "scp_codes": {
+      "AFLT": 100.0
+    },
+    "pathology_fr": "Flutter auriculaire",
+    "pathology_en": "Atrial Flutter",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "atrial-flutter-03.png",
+    "ptbxl_id": 20,
+    "scp_codes": {
+      "AFLT": 100.0,
+      "ABQRS": 0.0
+    },
+    "pathology_fr": "Flutter auriculaire",
+    "pathology_en": "Atrial Flutter",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "svt-01.png",
+    "ptbxl_id": 1299,
+    "scp_codes": {
+      "PSVT": 100.0
+    },
+    "pathology_fr": "Tachycardie supraventriculaire",
+    "pathology_en": "Supraventricular Tachycardia",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "svt-02.png",
+    "ptbxl_id": 1919,
+    "scp_codes": {
+      "PSVT": 100.0,
+      "NST_": 0.0,
+      "SVTAC": 0.0
+    },
+    "pathology_fr": "Tachycardie supraventriculaire",
+    "pathology_en": "Supraventricular Tachycardia",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "svt-03.png",
+    "ptbxl_id": 2051,
+    "scp_codes": {
+      "PSVT": 100.0
+    },
+    "pathology_fr": "Tachycardie supraventriculaire",
+    "pathology_en": "Supraventricular Tachycardia",
+    "category": "arythmies_sv"
+  },
+  {
+    "filename": "first-degree-av-block-01.png",
+    "ptbxl_id": 102,
+    "scp_codes": {
+      "ISCAL": 50.0,
+      "1AVB": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BAV 1er degré",
+    "pathology_en": "First Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "first-degree-av-block-02.png",
+    "ptbxl_id": 218,
+    "scp_codes": {
+      "NORM": 80.0,
+      "1AVB": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BAV 1er degré",
+    "pathology_en": "First Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "first-degree-av-block-03.png",
+    "ptbxl_id": 522,
+    "scp_codes": {
+      "1AVB": 100.0,
+      "DIG": 50.0,
+      "NST_": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BAV 1er degré",
+    "pathology_en": "First Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "second-degree-av-block-01.png",
+    "ptbxl_id": 13938,
+    "scp_codes": {
+      "2AVB": 100.0,
+      "IVCD": 100.0,
+      "SARRH": 0.0
+    },
+    "pathology_fr": "BAV 2ème degré",
+    "pathology_en": "Second Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "second-degree-av-block-02.png",
+    "ptbxl_id": 14009,
+    "scp_codes": {
+      "2AVB": 100.0
+    },
+    "pathology_fr": "BAV 2ème degré",
+    "pathology_en": "Second Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "second-degree-av-block-03.png",
+    "ptbxl_id": 11209,
+    "scp_codes": {
+      "NORM": 50.0,
+      "2AVB": 100.0,
+      "SBRAD": 0.0
+    },
+    "pathology_fr": "BAV 2ème degré",
+    "pathology_en": "Second Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "third-degree-av-block-01.png",
+    "ptbxl_id": 7688,
+    "scp_codes": {
+      "3AVB": 100.0,
+      "LVH": 50.0,
+      "ISC_": 100.0,
+      "NST_": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BAV 3ème degré (complet)",
+    "pathology_en": "Third Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "third-degree-av-block-02.png",
+    "ptbxl_id": 8210,
+    "scp_codes": {
+      "3AVB": 100.0,
+      "LNGQT": 100.0
+    },
+    "pathology_fr": "BAV 3ème degré (complet)",
+    "pathology_en": "Third Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "third-degree-av-block-03.png",
+    "ptbxl_id": 16271,
+    "scp_codes": {
+      "ASMI": 50.0,
+      "IMI": 50.0,
+      "3AVB": 100.0,
+      "QWAVE": 0.0
+    },
+    "pathology_fr": "BAV 3ème degré (complet)",
+    "pathology_en": "Third Degree AV Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "lbbb-01.png",
+    "ptbxl_id": 180,
+    "scp_codes": {
+      "CLBBB": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BBG complet",
+    "pathology_en": "Left Bundle Branch Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "lbbb-02.png",
+    "ptbxl_id": 256,
+    "scp_codes": {
+      "CLBBB": 100.0,
+      "PVC": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BBG complet",
+    "pathology_en": "Left Bundle Branch Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "lbbb-03.png",
+    "ptbxl_id": 279,
+    "scp_codes": {
+      "CLBBB": 100.0,
+      "STACH": 0.0
+    },
+    "pathology_fr": "BBG complet",
+    "pathology_en": "Left Bundle Branch Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "rbbb-01.png",
+    "ptbxl_id": 172,
+    "scp_codes": {
+      "CRBBB": 100.0,
+      "LAFB": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BBD complet",
+    "pathology_en": "Right Bundle Branch Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "rbbb-02.png",
+    "ptbxl_id": 195,
+    "scp_codes": {
+      "CRBBB": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BBD complet",
+    "pathology_en": "Right Bundle Branch Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "rbbb-03.png",
+    "ptbxl_id": 424,
+    "scp_codes": {
+      "CRBBB": 100.0,
+      "LAFB": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "BBD complet",
+    "pathology_en": "Right Bundle Branch Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "lafb-01.png",
+    "ptbxl_id": 41,
+    "scp_codes": {
+      "LAFB": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Hémibloc antérieur gauche",
+    "pathology_en": "Left Anterior Fascicular Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "lafb-02.png",
+    "ptbxl_id": 103,
+    "scp_codes": {
+      "IMI": 15.0,
+      "LAFB": 100.0,
+      "ABQRS": 0.0,
+      "STACH": 0.0
+    },
+    "pathology_fr": "Hémibloc antérieur gauche",
+    "pathology_en": "Left Anterior Fascicular Block",
+    "category": "blocs"
+  },
+  {
+    "filename": "stemi-anterior-01.png",
+    "ptbxl_id": 266,
+    "scp_codes": {
+      "ALMI": 100.0,
+      "IMI": 80.0,
+      "LAFB": 100.0,
+      "PVC": 100.0,
+      "ANEUR": 50.0,
+      "QWAVE": 0.0,
+      "INVT": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "STEMI antérieur",
+    "pathology_en": "Anterior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-anterior-02.png",
+    "ptbxl_id": 600,
+    "scp_codes": {
+      "IMI": 80.0,
+      "AMI": 100.0,
+      "IVCD": 100.0,
+      "QWAVE": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "STEMI antérieur",
+    "pathology_en": "Anterior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-anterior-03.png",
+    "ptbxl_id": 623,
+    "scp_codes": {
+      "ALMI": 100.0,
+      "ASMI": 100.0
+    },
+    "pathology_fr": "STEMI antérieur",
+    "pathology_en": "Anterior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-anterior-04.png",
+    "ptbxl_id": 914,
+    "scp_codes": {
+      "ALMI": 100.0,
+      "PVC": 100.0,
+      "STD_": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "STEMI antérieur",
+    "pathology_en": "Anterior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-anterior-05.png",
+    "ptbxl_id": 924,
+    "scp_codes": {
+      "ALMI": 100.0,
+      "ASMI": 100.0,
+      "LAFB": 100.0,
+      "STACH": 0.0
+    },
+    "pathology_fr": "STEMI antérieur",
+    "pathology_en": "Anterior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-inferior-01.png",
+    "ptbxl_id": 184,
+    "scp_codes": {
+      "ILMI": 100.0,
+      "ASMI": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "STEMI inférieur",
+    "pathology_en": "Inferior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-inferior-02.png",
+    "ptbxl_id": 257,
+    "scp_codes": {
+      "ASMI": 50.0,
+      "IMI": 100.0,
+      "PAC": 0.0,
+      "LOWT": 0.0,
+      "STD_": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "STEMI inférieur",
+    "pathology_en": "Inferior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-inferior-03.png",
+    "ptbxl_id": 269,
+    "scp_codes": {
+      "IMI": 100.0,
+      "CRBBB": 100.0,
+      "PAC": 0.0,
+      "LPR": 0.0,
+      "QWAVE": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "STEMI inférieur",
+    "pathology_en": "Inferior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-inferior-04.png",
+    "ptbxl_id": 290,
+    "scp_codes": {
+      "IMI": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "STEMI inférieur",
+    "pathology_en": "Inferior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "stemi-inferior-05.png",
+    "ptbxl_id": 453,
+    "scp_codes": {
+      "IMI": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "STEMI inférieur",
+    "pathology_en": "Inferior MI / STEMI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "posterior-mi-01.png",
+    "ptbxl_id": 3859,
+    "scp_codes": {
+      "PMI": 100.0,
+      "ASMI": 100.0,
+      "IVCD": 100.0,
+      "AFIB": 0.0
+    },
+    "pathology_fr": "Infarctus postérieur",
+    "pathology_en": "Posterior MI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "posterior-mi-02.png",
+    "ptbxl_id": 5543,
+    "scp_codes": {
+      "PMI": 100.0,
+      "LMI": 50.0,
+      "SEHYP": 50.0,
+      "ABQRS": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Infarctus postérieur",
+    "pathology_en": "Posterior MI",
+    "category": "ischemie"
+  },
+  {
+    "filename": "lvh-01.png",
+    "ptbxl_id": 30,
+    "scp_codes": {
+      "LVH": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Hypertrophie ventriculaire gauche",
+    "pathology_en": "Left Ventricular Hypertrophy",
+    "category": "autres"
+  },
+  {
+    "filename": "lvh-02.png",
+    "ptbxl_id": 96,
+    "scp_codes": {
+      "LVH": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Hypertrophie ventriculaire gauche",
+    "pathology_en": "Left Ventricular Hypertrophy",
+    "category": "autres"
+  },
+  {
+    "filename": "lvh-03.png",
+    "ptbxl_id": 138,
+    "scp_codes": {
+      "LVH": 100.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Hypertrophie ventriculaire gauche",
+    "pathology_en": "Left Ventricular Hypertrophy",
+    "category": "autres"
+  },
+  {
+    "filename": "wpw-01.png",
+    "ptbxl_id": 2145,
+    "scp_codes": {
+      "WPW": 100.0
+    },
+    "pathology_fr": "Wolff-Parkinson-White",
+    "pathology_en": "Wolff-Parkinson-White",
+    "category": "autres"
+  },
+  {
+    "filename": "wpw-02.png",
+    "ptbxl_id": 4825,
+    "scp_codes": {
+      "WPW": 100.0,
+      "ABQRS": 0.0,
+      "SR": 0.0
+    },
+    "pathology_fr": "Wolff-Parkinson-White",
+    "pathology_en": "Wolff-Parkinson-White",
+    "category": "autres"
+  },
+  {
+    "filename": "pacemaker-01.png",
+    "ptbxl_id": 144,
+    "scp_codes": {
+      "PACE": 100.0
+    },
+    "pathology_fr": "Rythme électro-entraîné",
+    "pathology_en": "Pacemaker Rhythm",
+    "category": "autres"
+  },
+  {
+    "filename": "pacemaker-02.png",
+    "ptbxl_id": 190,
+    "scp_codes": {
+      "PACE": 100.0
+    },
+    "pathology_fr": "Rythme électro-entraîné",
+    "pathology_en": "Pacemaker Rhythm",
+    "category": "autres"
+  }
+]

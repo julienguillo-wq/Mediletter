@@ -98,7 +98,7 @@ TARGETS = [
     },
     {
         "slug": "svt",
-        "scp_codes": ["SVARR", "SVTAC"],
+        "scp_codes": ["SVARR", "SVTAC", "PSVT"],
         "count": 3,
         "category": "arythmies_sv",
         "pathology_fr": "Tachycardie supraventriculaire",
@@ -289,14 +289,26 @@ def select_records(df: pd.DataFrame) -> list[dict]:
         # Candidates: primary SCP code is one of the wanted codes
         candidates = df[df["_primary_code"].isin(codes_wanted)].copy()
 
-        # Prefer high likelihood
-        candidates = candidates.sort_values("_primary_likelihood", ascending=False)
+        # Fallback: if no primary matches, include records that CONTAIN
+        # any wanted code (even with likelihood 0, e.g. SBRAD, SVARR)
+        if candidates.empty:
+            def _has_code(scp_dict):
+                return bool(codes_wanted & set(scp_dict.keys()))
+            candidates = df[df["_scp_dict"].apply(_has_code)].copy()
+
+        # Sort: prefer high likelihood of the target code, then primary
+        def _target_likelihood(scp_dict):
+            return max((scp_dict.get(c, 0) for c in codes_wanted), default=0)
+        candidates["_target_lh"] = candidates["_scp_dict"].apply(_target_likelihood)
+        candidates = candidates.sort_values(
+            ["_target_lh", "_primary_likelihood"], ascending=[False, False]
+        )
 
         # Prefer validated_by_human if column exists
         if "validated_by_human" in candidates.columns:
             candidates = candidates.sort_values(
-                ["validated_by_human", "_primary_likelihood"],
-                ascending=[False, False],
+                ["validated_by_human", "_target_lh", "_primary_likelihood"],
+                ascending=[False, False, False],
             )
 
         picked = 0
@@ -349,8 +361,8 @@ def generate_ecg_image(
     rhythm_seconds = min(10.0, duration)
     rhythm_samples = int(rhythm_seconds * SAMPLING_RATE)
 
-    # Build lead-name → column-index map
-    lead_idx = {name: i for i, name in enumerate(lead_names)}
+    # Build lead-name → column-index map (case-insensitive: PTB-XL uses AVR/AVL/AVF)
+    lead_idx = {name.upper(): i for i, name in enumerate(lead_names)}
 
     fig = plt.figure(figsize=(12, 8), dpi=100, facecolor='white')
     gs = GridSpec(
@@ -390,7 +402,7 @@ def generate_ecg_image(
             ax = fig.add_subplot(gs[row_i, col_j])
             _setup_ax(ax, cell_seconds, y_range)
 
-            idx = lead_idx.get(lead_name)
+            idx = lead_idx.get(lead_name.upper())
             if idx is not None:
                 # Time offset: each column shows a consecutive 2.5s chunk
                 start = col_j * cell_samples
@@ -414,7 +426,7 @@ def generate_ecg_image(
     ax_rhythm = fig.add_subplot(gs[3, :])
     _setup_ax(ax_rhythm, rhythm_seconds, y_range)
 
-    idx_ii = lead_idx.get('II', 1)
+    idx_ii = lead_idx.get('II', 1)  # II is already uppercase, OK
     seg = signal[:rhythm_samples, idx_ii]
     t = np.arange(len(seg)) / SAMPLING_RATE
     ax_rhythm.plot(t, seg, color='black', linewidth=0.8)

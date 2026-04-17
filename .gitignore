@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 node_modules/
 .claude/
+
+# Analyse corrections — contient données patients et clés Supabase
+analysis_output/
+extract_corrections.py

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECG - Examen aveugle | MedHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ecg: #0D9488;
+            --ecg-light: #14B8A6;
+            --ecg-dark: #0F766E;
+            --success: #10B981;
+            --error: #EF4444;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+            --radius: 16px;
+            --radius-sm: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            --shadow-lg: 0 4px 16px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.06);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--ecg-dark), var(--ecg), var(--ecg-light));
+            color: white;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(13, 148, 136, 0.3);
+        }
+        .header-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.25); }
+        .header-title { font-size: 18px; font-weight: 700; }
+        .header-progress { font-size: 14px; font-weight: 600; opacity: 0.9; }
+        .progress-container { max-width: 800px; margin: 0 auto; padding: 16px 20px 0; }
+        .progress-bar-wrapper { background: var(--border); border-radius: 8px; height: 8px; overflow: hidden; }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--ecg), var(--ecg-light));
+            border-radius: 8px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+        .progress-text { text-align: center; font-size: 13px; color: var(--text-light); margin-top: 6px; font-weight: 500; }
+        .main { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px; }
+        .clinical-context {
+            background: #F0FDFA;
+            border: 1px solid #99F6E4;
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            color: var(--ecg-dark);
+        }
+        .clinical-context-label {
+            font-weight: 700; font-size: 12px; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 6px; color: var(--ecg);
+        }
+        .ecg-image-wrapper {
+            position: relative; border-radius: var(--radius-sm); overflow: hidden;
+            margin-bottom: 20px; cursor: zoom-in; border: 1px solid var(--border);
+        }
+        .ecg-image-wrapper img { width: 100%; display: block; }
+        .zoom-hint {
+            position: absolute; bottom: 10px; right: 10px;
+            background: rgba(0,0,0,0.6); color: white; font-size: 12px;
+            padding: 4px 10px; border-radius: 6px; pointer-events: none; font-weight: 500;
+        }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn {
+            display: flex; align-items: flex-start; gap: 12px; width: 100%; text-align: left;
+            background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-sm);
+            padding: 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px;
+            color: var(--text); cursor: pointer; transition: all 0.2s; line-height: 1.5;
+        }
+        .option-btn:hover:not(.disabled) { border-color: var(--ecg); background: #F0FDFA; }
+        .option-btn .option-letter {
+            flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px;
+            background: #F1F5F9; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; color: var(--text-light); transition: all 0.2s;
+        }
+        .option-btn:hover:not(.disabled) .option-letter { background: var(--ecg); color: white; }
+        .option-btn.correct { border-color: var(--success); background: #F0FDF4; }
+        .option-btn.correct .option-letter { background: var(--success); color: white; }
+        .option-btn.incorrect { border-color: var(--error); background: #FEF2F2; }
+        .option-btn.incorrect .option-letter { background: var(--error); color: white; }
+        .option-btn.disabled { cursor: default; }
+        .option-btn.dimmed { opacity: 0.5; }
+        .feedback { margin-top: 20px; padding: 20px; border-radius: var(--radius-sm); display: none; }
+        .feedback.show { display: block; }
+        .feedback.correct-feedback { background: #F0FDF4; border: 1px solid #BBF7D0; }
+        .feedback.incorrect-feedback { background: #FEF2F2; border: 1px solid #FECACA; }
+        .feedback-title { font-weight: 700; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .feedback.correct-feedback .feedback-title { color: #059669; }
+        .feedback.incorrect-feedback .feedback-title { color: #DC2626; }
+        .feedback-explanation { font-size: 14px; color: var(--text); line-height: 1.7; margin-bottom: 12px; }
+        .key-features { margin-top: 12px; }
+        .key-features-label { font-weight: 700; font-size: 13px; color: var(--ecg); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .key-features ul { list-style: none; padding: 0; }
+        .key-features li { position: relative; padding-left: 20px; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+        .key-features li::before { content: ''; position: absolute; left: 0; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--ecg); }
+        .next-btn {
+            display: none; width: 100%; padding: 16px;
+            background: linear-gradient(135deg, var(--ecg), var(--ecg-light));
+            color: white; border: none; border-radius: var(--radius-sm);
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700;
+            cursor: pointer; margin-top: 20px; transition: opacity 0.2s, transform 0.1s;
+        }
+        .next-btn:hover { opacity: 0.9; }
+        .next-btn:active { transform: scale(0.98); }
+        .next-btn.show { display: block; }
+        .lightbox {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center;
+            align-items: center; cursor: zoom-out;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 8px; }
+        .lightbox-close {
+            position: absolute; top: 16px; right: 20px; color: white; font-size: 32px;
+            cursor: pointer; background: rgba(255,255,255,0.15); border: none;
+            width: 44px; height: 44px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-weight: 300;
+        }
+        .results-screen { display: none; }
+        .results-screen.active { display: block; }
+        .quiz-screen.hidden { display: none; }
+        .results-header { text-align: center; padding: 40px 20px; }
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%; margin: 0 auto 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 40px; color: white;
+        }
+        .score-circle.excellent { background: linear-gradient(135deg, #059669, var(--success)); }
+        .score-circle.good { background: linear-gradient(135deg, var(--ecg-dark), var(--ecg-light)); }
+        .score-circle.average { background: linear-gradient(135deg, #D97706, #F59E0B); }
+        .score-circle.poor { background: linear-gradient(135deg, #DC2626, var(--error)); }
+        .score-circle .score-label { font-size: 13px; font-weight: 600; opacity: 0.9; }
+        .results-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        .results-subtitle { color: var(--text-light); font-size: 15px; }
+        .errors-section { margin-top: 24px; }
+        .errors-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: var(--error); }
+        .error-card {
+            background: var(--card); border-radius: var(--radius-sm); box-shadow: var(--shadow);
+            padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--error);
+        }
+        .error-card-header { display: flex; gap: 12px; margin-bottom: 12px; }
+        .error-card-thumb {
+            width: 80px; height: 60px; border-radius: 8px; object-fit: cover;
+            flex-shrink: 0; border: 1px solid var(--border); cursor: zoom-in;
+        }
+        .error-card-info { flex: 1; min-width: 0; }
+        .error-card-q { font-size: 13px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; }
+        .error-answer { font-size: 14px; margin-bottom: 4px; }
+        .error-answer.user-ans { color: var(--error); }
+        .error-answer.correct-ans { color: var(--success); font-weight: 600; }
+        .error-answer span { font-weight: 700; }
+        .restart-btn {
+            display: block; width: 100%; max-width: 400px; margin: 30px auto 0; padding: 16px;
+            background: linear-gradient(135deg, var(--ecg), var(--ecg-light));
+            color: white; border: none; border-radius: var(--radius-sm);
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .restart-btn:hover { opacity: 0.9; }
+        .home-btn {
+            display: block; width: 100%; max-width: 400px; margin: 12px auto 0; padding: 16px;
+            background: white; color: var(--ecg); border: 2px solid var(--ecg);
+            border-radius: var(--radius-sm); font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+        }
+        .home-btn:hover { background: #F0FDFA; }
+        @media (max-width: 600px) {
+            .header-title { font-size: 15px; }
+            .card { padding: 18px; }
+            .question-text { font-size: 16px; }
+            .option-btn { padding: 14px; font-size: 14px; }
+            .score-circle { width: 120px; height: 120px; font-size: 34px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-inner">
+            <a href="index.html" class="back-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Retour
+            </a>
+            <span class="header-title">Examen ECG</span>
+            <span class="header-progress" id="headerProgress">1/65</span>
+        </div>
+    </div>
+
+    <div class="quiz-screen" id="quizScreen">
+        <div class="progress-container">
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">ECG 1/65</div>
+        </div>
+        <div class="main">
+            <div class="clinical-context" id="clinicalContext">
+                <div class="clinical-context-label">Contexte clinique</div>
+                <div id="clinicalContextText"></div>
+            </div>
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div class="ecg-image-wrapper" id="ecgImageWrapper">
+                    <img id="ecgImage" src="" alt="">
+                    <div class="zoom-hint">Cliquer pour agrandir</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="question-text">Interpr&eacute;tez ce trac&eacute; ECG</div>
+                <div class="options-list" id="optionsList"></div>
+                <div class="feedback" id="feedback">
+                    <div class="feedback-title" id="feedbackTitle"></div>
+                    <div class="feedback-explanation" id="feedbackExplanation"></div>
+                    <div class="key-features" id="keyFeatures">
+                        <div class="key-features-label">Points cl&eacute;s</div>
+                        <ul id="keyFeaturesList"></ul>
+                    </div>
+                </div>
+                <button class="next-btn" id="nextBtn">Question suivante</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="results-screen" id="resultsScreen">
+        <div class="main">
+            <div class="card">
+                <div class="results-header">
+                    <div class="score-circle" id="scoreCircle">
+                        <span id="scoreValue"></span>
+                        <span class="score-label" id="scorePercent"></span>
+                    </div>
+                    <div class="results-title" id="resultsTitle"></div>
+                    <div class="results-subtitle" id="resultsSubtitle"></div>
+                </div>
+            </div>
+            <div class="errors-section" id="errorsSection">
+                <div class="errors-title" id="errorsTitle"></div>
+                <div id="errorsList"></div>
+            </div>
+            <button class="restart-btn" onclick="restartQuiz()">Recommencer l'examen</button>
+            <a href="index.html" class="home-btn" style="text-align:center; text-decoration:none;">Retour &agrave; l'accueil</a>
+            <div style="height: 40px;"></div>
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <img id="lightboxImg" src="" alt="">
+    </div>
+
+    <script src="questions.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        function shuffle(arr) {
+            var a = arr.slice();
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+            }
+            return a;
+        }
+
+        function stripLabel(text) {
+            return text.replace(/^[A-D]\)\s*/, '');
+        }
+
+        function buildDistractorPool(currentCategory) {
+            var pool = [];
+            var seen = {};
+            for (var k = 0; k < ECG_QUESTIONS.length; k++) {
+                var q = ECG_QUESTIONS[k];
+                if (q.category === currentCategory) continue;
+                var correctText = stripLabel(q.options[q.correct]);
+                if (!seen[correctText]) {
+                    seen[correctText] = true;
+                    pool.push({ text: correctText, category: q.category });
+                }
+            }
+            return pool;
+        }
+
+        function pickDistractors(pool, correctText) {
+            var filtered = pool.filter(function(d) { return d.text !== correctText; });
+            if (filtered.length < 3) {
+                return shuffle(filtered).slice(0, 3).map(function(d) { return d.text; });
+            }
+            var shuffled = shuffle(filtered);
+            var picked = [shuffled[0]];
+            var cats = {};
+            cats[shuffled[0].category] = true;
+            var catCount = 1;
+
+            for (var i = 1; i < shuffled.length && picked.length < 3; i++) {
+                if (catCount < 2 && !cats[shuffled[i].category]) {
+                    picked.push(shuffled[i]);
+                    cats[shuffled[i].category] = true;
+                    catCount++;
+                } else if (catCount >= 2) {
+                    picked.push(shuffled[i]);
+                    if (!cats[shuffled[i].category]) {
+                        cats[shuffled[i].category] = true;
+                        catCount++;
+                    }
+                }
+            }
+            if (picked.length < 3) {
+                for (var i2 = 1; i2 < shuffled.length && picked.length < 3; i2++) {
+                    if (picked.indexOf(shuffled[i2]) === -1) {
+                        picked.push(shuffled[i2]);
+                    }
+                }
+            }
+            return picked.map(function(d) { return d.text; });
+        }
+
+        function buildOptions(question) {
+            var correctText = stripLabel(question.options[question.correct]);
+            var pool = buildDistractorPool(question.category);
+            var distractors = pickDistractors(pool, correctText);
+            var labels = ['A', 'B', 'C', 'D'];
+            var combined = [{ text: correctText, isCorrect: true }];
+            for (var d = 0; d < distractors.length; d++) {
+                combined.push({ text: distractors[d], isCorrect: false });
+            }
+            var shuffled = shuffle(combined);
+            return shuffled.map(function(item, i) {
+                return { label: labels[i], text: item.text, isCorrect: item.isCorrect };
+            });
+        }
+
+        var questions = [];
+        var currentIndex = 0;
+        var score = 0;
+        var errors = [];
+        var currentOptions = [];
+        var answered = false;
+
+        var quizScreen = document.getElementById('quizScreen');
+        var resultsScreen = document.getElementById('resultsScreen');
+        var headerProgress = document.getElementById('headerProgress');
+        var progressBar = document.getElementById('progressBar');
+        var progressText = document.getElementById('progressText');
+        var clinicalContext = document.getElementById('clinicalContext');
+        var clinicalContextText = document.getElementById('clinicalContextText');
+        var ecgImage = document.getElementById('ecgImage');
+        var ecgImageWrapper = document.getElementById('ecgImageWrapper');
+        var optionsList = document.getElementById('optionsList');
+        var feedbackEl = document.getElementById('feedback');
+        var feedbackTitle = document.getElementById('feedbackTitle');
+        var feedbackExplanation = document.getElementById('feedbackExplanation');
+        var keyFeaturesList = document.getElementById('keyFeaturesList');
+        var keyFeaturesDiv = document.getElementById('keyFeatures');
+        var nextBtn = document.getElementById('nextBtn');
+        var lightbox = document.getElementById('lightbox');
+        var lightboxImg = document.getElementById('lightboxImg');
+
+        function init() {
+            questions = shuffle(ECG_QUESTIONS);
+            currentIndex = 0;
+            score = 0;
+            errors = [];
+            answered = false;
+            resultsScreen.classList.remove('active');
+            quizScreen.classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            answered = false;
+            var q = questions[currentIndex];
+            var total = questions.length;
+            var num = currentIndex + 1;
+
+            headerProgress.textContent = num + '/' + total;
+            progressText.textContent = 'ECG ' + num + '/' + total;
+            progressBar.style.width = ((num / total) * 100) + '%';
+
+            if (q.clinical_context) {
+                clinicalContext.style.display = 'block';
+                clinicalContextText.textContent = q.clinical_context;
+            } else {
+                clinicalContext.style.display = 'none';
+            }
+
+            ecgImage.src = 'images/' + q.image + '?v=3';
+            ecgImage.alt = q.image_alt || 'ECG';
+
+            currentOptions = buildOptions(q);
+
+            optionsList.innerHTML = '';
+            currentOptions.forEach(function(opt, i) {
+                var btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = '<span class="option-letter">' + opt.label + '</span><span>' + opt.label + ') ' + opt.text + '</span>';
+                btn.addEventListener('click', function() { handleAnswer(i); });
+                optionsList.appendChild(btn);
+            });
+
+            feedbackEl.classList.remove('show', 'correct-feedback', 'incorrect-feedback');
+            nextBtn.classList.remove('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleAnswer(selectedIndex) {
+            if (answered) return;
+            answered = true;
+
+            var q = questions[currentIndex];
+            var selected = currentOptions[selectedIndex];
+            var correctOpt = currentOptions.filter(function(o) { return o.isCorrect; })[0];
+            var isCorrect = selected.isCorrect;
+
+            var buttons = optionsList.querySelectorAll('.option-btn');
+            for (var b = 0; b < buttons.length; b++) {
+                buttons[b].classList.add('disabled');
+                if (currentOptions[b].isCorrect) {
+                    buttons[b].classList.add('correct');
+                } else if (b === selectedIndex && !isCorrect) {
+                    buttons[b].classList.add('incorrect');
+                } else {
+                    buttons[b].classList.add('dimmed');
+                }
+            }
+
+            if (isCorrect) {
+                score++;
+                feedbackEl.classList.add('correct-feedback');
+                feedbackTitle.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Bonne r\u00e9ponse !';
+            } else {
+                feedbackEl.classList.add('incorrect-feedback');
+                feedbackTitle.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Mauvaise r\u00e9ponse';
+                errors.push({
+                    question: q,
+                    userAnswer: selected.label + ') ' + selected.text,
+                    correctAnswer: correctOpt.label + ') ' + correctOpt.text
+                });
+            }
+
+            feedbackExplanation.textContent = q.explanation || '';
+
+            if (q.key_features && q.key_features.length > 0) {
+                keyFeaturesDiv.style.display = 'block';
+                keyFeaturesList.innerHTML = '';
+                q.key_features.forEach(function(kf) {
+                    var li = document.createElement('li');
+                    li.textContent = kf;
+                    keyFeaturesList.appendChild(li);
+                });
+            } else {
+                keyFeaturesDiv.style.display = 'none';
+            }
+
+            feedbackEl.classList.add('show');
+
+            if (currentIndex < questions.length - 1) {
+                nextBtn.textContent = 'Question suivante';
+            } else {
+                nextBtn.textContent = 'Voir les r\u00e9sultats';
+            }
+            nextBtn.classList.add('show');
+
+            setTimeout(function() {
+                feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        nextBtn.addEventListener('click', function() {
+            currentIndex++;
+            if (currentIndex >= questions.length) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        });
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.add('active');
+
+            var total = questions.length;
+            var pct = Math.round((score / total) * 100);
+
+            document.getElementById('scoreValue').textContent = score + '/' + total;
+            document.getElementById('scorePercent').textContent = pct + '%';
+
+            var circle = document.getElementById('scoreCircle');
+            circle.className = 'score-circle';
+            if (pct >= 90) {
+                circle.classList.add('excellent');
+                document.getElementById('resultsTitle').textContent = 'Excellent !';
+                document.getElementById('resultsSubtitle').textContent = 'Ma\u00eetrise remarquable de l\u2019interpr\u00e9tation ECG.';
+            } else if (pct >= 70) {
+                circle.classList.add('good');
+                document.getElementById('resultsTitle').textContent = 'Bon travail !';
+                document.getElementById('resultsSubtitle').textContent = 'Solides connaissances, quelques points \u00e0 revoir.';
+            } else if (pct >= 50) {
+                circle.classList.add('average');
+                document.getElementById('resultsTitle').textContent = 'Peut mieux faire';
+                document.getElementById('resultsSubtitle').textContent = 'R\u00e9visez les bases et les cas sp\u00e9cifiques.';
+            } else {
+                circle.classList.add('poor');
+                document.getElementById('resultsTitle').textContent = '\u00c0 retravailler';
+                document.getElementById('resultsSubtitle').textContent = 'Une r\u00e9vision approfondie est recommand\u00e9e.';
+            }
+
+            headerProgress.textContent = pct + '%';
+
+            var errSec = document.getElementById('errorsSection');
+            var errList = document.getElementById('errorsList');
+            var errTitle = document.getElementById('errorsTitle');
+
+            if (errors.length > 0) {
+                errSec.style.display = 'block';
+                errTitle.textContent = errors.length + ' erreur' + (errors.length > 1 ? 's' : '') + ' \u00e0 revoir';
+                errList.innerHTML = '';
+
+                errors.forEach(function(err, i) {
+                    var card = document.createElement('div');
+                    card.className = 'error-card';
+                    card.innerHTML =
+                        '<div class="error-card-header">' +
+                            '<img class="error-card-thumb" src="images/' + err.question.image + '?v=3" alt="ECG" onclick="openLightbox(this.src)">' +
+                            '<div class="error-card-info">' +
+                                '<div class="error-card-q">ECG #' + (i + 1) + '</div>' +
+                                '<div class="error-answer user-ans"><span>Votre r\u00e9ponse :</span> ' + escapeHtml(err.userAnswer) + '</div>' +
+                                '<div class="error-answer correct-ans"><span>R\u00e9ponse correcte :</span> ' + escapeHtml(err.correctAnswer) + '</div>' +
+                            '</div>' +
+                        '</div>';
+                    errList.appendChild(card);
+                });
+            } else {
+                errSec.style.display = 'none';
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        ecgImageWrapper.addEventListener('click', function() {
+            lightboxImg.src = ecgImage.src;
+            lightbox.classList.add('active');
+        });
+
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox || e.target === lightboxImg) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        window.closeLightbox = function() { lightbox.classList.remove('active'); };
+        window.openLightbox = function(src) { lightboxImg.src = src; lightbox.classList.add('active'); };
+        window.restartQuiz = function() { init(); };
+
+        init();
+    })();
+    </script>
+</body>
+</html>

@@ -627,6 +627,59 @@
             .ecg-image-wrapper { max-height: 250px; }
             .ecg-clinical-context { padding: 0.75rem 1rem; font-size: 0.8rem; }
         }
+    
+        /* Exam Mode Button */
+        .exam-mode-wrapper {
+            margin-bottom: 1.5rem;
+        }
+        .exam-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            background: linear-gradient(135deg, var(--ecg-dark), var(--ecg), var(--ecg-light));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
+            text-decoration: none;
+        }
+        .exam-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(13, 148, 136, 0.4);
+        }
+        .exam-btn:active { transform: translateY(0) scale(0.98); }
+        .exam-btn .exam-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+        .exam-btn .exam-text {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .exam-btn .exam-title {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+        .exam-btn .exam-desc {
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
@@ -656,87 +709,18 @@
                     <p class="home-subtitle">Interpr&eacute;tation des trac&eacute;s &eacute;lectrocardiographiques</p>
                 </div>
 
-                <!-- Categories -->
-                <div class="categories">
-                    <div class="cat-card" onclick="startQuiz('rythmes_normaux')">
-                        <div class="cat-icon rythmes_normaux">💓</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Rythmes normaux</div>
-                            <div class="cat-desc">Rythme sinusal et variantes physiologiques</div>
-                        </div>
-                        <div class="cat-badge" id="badge-rythmes_normaux">0 Q</div>
-                    </div>
-                    <div class="cat-card" onclick="startQuiz('arythmies_sv')">
-                        <div class="cat-icon arythmies_sv">⚡</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Arythmies supraventriculaires</div>
-                            <div class="cat-desc">FA, flutter, TSV, WPW</div>
-                        </div>
-                        <div class="cat-badge" id="badge-arythmies_sv">0 Q</div>
-                    </div>
-                    <div class="cat-card" onclick="startQuiz('arythmies_v')">
-                        <div class="cat-icon arythmies_v">🔴</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Arythmies ventriculaires</div>
-                            <div class="cat-desc">TV, FV, torsades de pointes, ESV</div>
-                        </div>
-                        <div class="cat-badge" id="badge-arythmies_v">0 Q</div>
-                    </div>
-                    <div class="cat-card" onclick="startQuiz('blocs')">
-                        <div class="cat-icon blocs">🚧</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Troubles de conduction</div>
-                            <div class="cat-desc">BAV, blocs de branche, h&eacute;miblocs</div>
-                        </div>
-                        <div class="cat-badge" id="badge-blocs">0 Q</div>
-                    </div>
-                    <div class="cat-card" onclick="startQuiz('ischemie')">
-                        <div class="cat-icon ischemie">💔</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Isch&eacute;mie &amp; Infarctus</div>
-                            <div class="cat-desc">STEMI, NSTEMI, sous-d&eacute;calage ST</div>
-                        </div>
-                        <div class="cat-badge" id="badge-ischemie">0 Q</div>
-                    </div>
-                    <div class="cat-card" onclick="startQuiz('autres')">
-                        <div class="cat-icon autres">🔬</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Autres pathologies</div>
-                            <div class="cat-desc">Hypertrophies, troubles ioniques, p&eacute;ricardite</div>
-                        </div>
-                        <div class="cat-badge" id="badge-autres">0 Q</div>
-                    </div>
-                </div>
-
-                <!-- Quiz Modes -->
-                <div class="quiz-modes">
-                    <button class="mode-btn" onclick="startQuiz('all', 30)">
-                        <span class="mode-count">30</span>
-                        <span class="mode-label">Quiz complet</span>
-                    </button>
-                    <button class="mode-btn" onclick="startQuiz('all', 10)">
-                        <span class="mode-count">10</span>
-                        <span class="mode-label">Quiz rapide</span>
-                    </button>
-                </div>
-
-                <!-- Stats -->
-                <div class="stats-section">
-                    <h3>Vos statistiques</h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="stat-avg">&mdash;</div>
-                            <div class="stat-label">Score moyen</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="stat-count">0</div>
-                            <div class="stat-label">Quiz compl&eacute;t&eacute;s</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="stat-total">0</div>
-                            <div class="stat-label">Questions vues</div>
-                        </div>
-                    </div>
+                <!-- Exam Button -->
+                <div class="exam-mode-wrapper" style="margin-top: 1rem;">
+                    <a href="exam.html" class="exam-btn">
+                        <span class="exam-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                        </span>
+                        <span class="exam-text">
+                            <span class="exam-title">Commencer l&rsquo;examen</span>
+                            <span class="exam-desc">Toutes cat&eacute;gories m&eacute;lang&eacute;es &middot; sans indice</span>
+                        </span>
+                    </a>
+                    <p style="text-align:center; margin-top:1rem; font-size:0.9rem; color:#64748B; font-weight:500;">65 trac&eacute;s &middot; toutes pathologies m&eacute;lang&eacute;es</p>
                 </div>
             </div>
 
