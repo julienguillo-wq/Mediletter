@@ -210,7 +210,7 @@ Ne jamais écrire "cf rapport" ou "cf annexe" - toujours mettre les valeurs.
 - Nommer les médicaments par leur nom commercial exact tel que fourni dans les données (ex: "Abasaglar 25U et NovoRapid" et non "insuline")
 - Toujours donner les valeurs chiffrées même si elles sont dans la norme, ne pas écrire "dans la norme" sans les valeurs
 - Utiliser "Contexte :" comme en-tête de section, pas "Contexte / discussion :" sauf si une vraie discussion clinique suit avec un raisonnement médical
-- Quand c'est pertinent, commencer le contexte par "Patient de [âge] ans connu pour les antécédents susmentionnés" pour ancrer le texte
+- Pour le diagnostic principal uniquement, commencer le contexte par "Patient de [âge] ans connu pour les antécédents susmentionnés" (voir section OUVERTURE DE SECTION)
 - Ne jamais reformuler ni résumer les données du médecin — les restituer fidèlement telles que fournies
 - Pour les scores gériatriques (MNA, NRS, CDR, etc.), utiliser le score EXACT des données, ne jamais l'estimer ou le modifier
 - Inclure systématiquement les facteurs de risque pertinents en les listant exhaustivement, ne pas les simplifier ou les regrouper vaguement
@@ -236,7 +236,51 @@ Ne jamais écrire "cf rapport" ou "cf annexe" - toujours mettre les valeurs.
 
 ### PROPOSITIONS : FORMAT
 - Dans la section "Proposition :", mettre chaque proposition sur sa propre ligne.
-- Séparer chaque proposition par un saut de ligne, sans tiret ni puce.
+- Les propositions sont listées en lignes successives SANS ligne vide entre elles. Une proposition par ligne, séparées uniquement par un retour à la ligne simple (\n), sans tiret ni puce.
+- Format correct :
+  Propositions :
+  Surveillance de l'hémoglobine.
+  Contrôle CRP à 48h.
+  Adaptation antibiothérapie selon antibiogramme.
+- Format INCORRECT (ne pas faire) :
+  Propositions :
+  Surveillance de l'hémoglobine.
+
+  Contrôle CRP à 48h.
+
+  Adaptation antibiothérapie selon antibiogramme.
+
+## CONVENTION DATES ET VALEURS
+Les parenthèses pour dates et précisions sont INTERDITES. Remplacer systématiquement par une construction en prose.
+Règles :
+- Date d'un examen : "ECG du 07.03.2026, rythme sinusal..." (PAS "ECG (07.03.2026) : rythme sinusal")
+- Date d'une valeur biologique : "CRP à 44 mg/l du 13.03.2026" (PAS "CRP à 44 mg/l (13.03.2026)")
+- Précision accessoire d'un résultat : "rythme sinusal avec QTc à 440 ms selon Bazett" (PAS "rythme sinusal (QTc 440 ms selon Bazett)")
+- Valeurs multiples datées : "Hémoglobine du 07.03 à 95 g/l puis 87 g/l du 11.03" (PAS "Hémoglobine à 95 g/l (07.03) puis 87 g/l (11.03)")
+- Exception unique : les unités et normes quand elles précisent une valeur biologique ("créatinine 120 µmol/l (N : 45-80)") peuvent conserver les parenthèses.
+
+## OUVERTURE DE SECTION
+La formule "Patient(e) de X ans connu(e) pour les antécédents susmentionnés" est réservée au PREMIER problème (diagnostic principal), jamais aux problèmes suivants.
+- Si is_diagnostic_principal = true : ouverture autorisée avec présentation du patient. Exemple : "Patiente de 82 ans connue pour les antécédents susmentionnés, admise pour..."
+- Si is_diagnostic_principal = false : ouverture DIRECTE sur le problème, sans redescription du patient. Exemple : "L'anémie est constatée à l'admission avec une Hb à 87 g/l..." ou "À l'admission, la CRP est élevée à 112 mg/l..."
+- Ne jamais répéter l'âge du patient ni la formule "connu(e) pour les antécédents susmentionnés" dans les problèmes secondaires.
+
+## STRUCTURE SI PAS D'INVESTIGATIONS
+Si aucune investigation pertinente n'est disponible pour ce problème (pas de bilan biologique spécifique, pas d'imagerie, pas de score), la section utilise la structure fusionnée suivante :
+Contexte/Discussion :
+[Contexte clinique et discussion fusionnés en un paragraphe]
+Propositions :
+[...]
+Ne PAS afficher de rubrique "Investigations :" vide.
+Si des investigations existent, conserver la structure classique à 3 sections :
+Contexte :
+[...]
+Investigations :
+[...]
+Discussion :
+[...]
+Propositions :
+[...]
 
 ## INSTRUCTIONS FINALES
 1. Utilise le template EXACT fourni ci-dessous pour structurer ta réponse
@@ -252,12 +296,6 @@ TEMPLATES = {
 
 Contexte : le bilan biologique objective une anémie [normocytaire/microcytaire/macrocytaire], [normochrome/hypochrome/hyperchrome], [hyporégénérative/régénérative] dans un contexte [d'anticoagulation/d'antiagrégation/de toxicité médullaire/inflammatoire]. Le/La patient/e ne présente pas de signe d'extériorisation. Nous identifions une carence en [X] que nous substituons.
 
-Discussion :
-- Tx d'Hb à l'arrivée = [X] g/l
-- Tx d'Hb à la sortie = [X] g/l
-- Substitution d'acide folique pour [1/3] mois et vitamine B12 selon schéma.
-- Ferinject à [X] mg
-
 Investigations :
 Laboratoire :
 - B9 [X] nmol/l
@@ -265,6 +303,12 @@ Laboratoire :
 - TSH [X] U/l
 - Ferritine [X] µg/l
 - Taux de saturation [X] %
+
+Discussion :
+- Tx d'Hb à l'arrivée = [X] g/l
+- Tx d'Hb à la sortie = [X] g/l
+- Substitution d'acide folique pour [1/3] mois et vitamine B12 selon schéma.
+- Ferinject à [X] mg
 
 Proposition :
 - Suite de la substitution en acide folique pour [un mois/trois mois] au total et vitamine B12 selon schéma.
