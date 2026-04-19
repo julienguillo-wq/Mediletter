@@ -1416,6 +1416,7 @@ IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Co
 async def assembler(request: AssemblerRequest):
     """
     Assemble les sections validées en une lettre finale.
+    Concaténation Python pure — aucun appel LLM.
     """
     if request.session_id not in sessions:
         raise HTTPException(
@@ -1423,62 +1424,29 @@ async def assembler(request: AssemblerRequest):
             detail="Session non trouvée."
         )
 
-    # Récupérer les prompts selon le service de l'utilisateur
-    session_data = sessions[request.session_id]
-    user_email = request.user_email or session_data.get('user_email')
-    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(user_email)
+    sections = [s.strip() for s in request.sections if s.strip()]
+    if not sections:
+        raise HTTPException(status_code=400, detail="Aucune section à assembler.")
 
-    model_used = MODELS["assemblage"]
+    start = time.time()
+    letter = "\n\n".join(sections)
+    duration_ms = (time.time() - start) * 1000
 
-    try:
-        # Joindre toutes les sections
-        sections_text = "\n\n".join(request.sections)
+    user_email = request.user_email or sessions[request.session_id].get('user_email')
+    log_usage("/assembler", "python-concat", 0, 0, 0, 0, 0, success=True, session_id=request.session_id, user_email=user_email, duration_ms=duration_ms)
 
-        # Appel à Claude pour assemblage final
-        api_start = time.time()
-        with client.messages.stream(
-            model=model_used,
-            max_tokens=24000,
-            system=[
-                {
-                    "type": "text",
-                    "text": PROMPT_ASSEMBLAGE,
-                    "cache_control": {"type": "ephemeral"}
-                }
-            ],
-            messages=[{
-                "role": "user",
-                "content": f"Type de lettre : {request.letter_type}\n\nDiagnostic principal : {request.diagnostic_principal}\n\nSections à assembler :\n{sections_text}"
-            }]
-        ) as stream:
-            response = stream.get_final_message()
-        duration_ms = (time.time() - api_start) * 1000
-        letter = response.content[0].text
-
-        # Logger la requête
-        tokens_input = response.usage.input_tokens
-        tokens_output = response.usage.output_tokens
-        cost_eur = calculate_cost(model_used, tokens_input, tokens_output)
-        log_usage("/assembler", model_used, tokens_input, tokens_output, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email, duration_ms=duration_ms)
-
-        return AssemblerResponse(
-            session_id=request.session_id,
-            letter=letter,
-            status="assembled"
-        )
-
-    except anthropic.APIError as e:
-        log_usage("/assembler", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=request.user_email)
-        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+    return AssemblerResponse(
+        session_id=request.session_id,
+        letter=letter,
+        status="assembled"
+    )
 
 
 @app.post("/assembler-stream")
 async def assembler_stream(request: AssemblerRequest):
     """
     Assemble les sections validées en une lettre finale, en streaming SSE.
-    Chaque delta de texte est envoyé au frontend dès qu'il est disponible.
+    Concaténation Python pure — un seul event SSE pour compatibilité frontend.
     """
     if request.session_id not in sessions:
         raise HTTPException(
@@ -1486,52 +1454,27 @@ async def assembler_stream(request: AssemblerRequest):
             detail="Session non trouvée."
         )
 
-    session_data = sessions[request.session_id]
-    user_email = request.user_email or session_data.get('user_email')
-    PROMPT_EXTRACTION, PROMPT_SECTIONS_BASE, TEMPLATES, PROMPT_ASSEMBLAGE = get_prompts(user_email)
-
-    model_used = MODELS["assemblage"]
-    sections_text = "\n\n".join(request.sections)
+    user_email = request.user_email or sessions[request.session_id].get('user_email')
 
     async def event_generator():
-        full_text = ""
-        input_tokens = 0
-        output_tokens = 0
-
         try:
-            api_start = time.time()
-            with client.messages.stream(
-                model=model_used,
-                max_tokens=24000,
-                system=[
-                    {
-                        "type": "text",
-                        "text": PROMPT_ASSEMBLAGE,
-                        "cache_control": {"type": "ephemeral"}
-                    }
-                ],
-                messages=[{
-                    "role": "user",
-                    "content": f"Type de lettre : {request.letter_type}\n\nDiagnostic principal : {request.diagnostic_principal}\n\nSections à assembler :\n{sections_text}"
-                }]
-            ) as stream:
-                for text in stream.text_stream:
-                    full_text += text
-                    yield f"data: {json.dumps({'type': 'text', 'content': text}, ensure_ascii=False)}\n\n"
+            sections = [s.strip() for s in request.sections if s.strip()]
+            if not sections:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'Aucune section à assembler.'}, ensure_ascii=False)}\n\n"
+                return
 
-                response = stream.get_final_message()
-                input_tokens = response.usage.input_tokens
-                output_tokens = response.usage.output_tokens
-            duration_ms = (time.time() - api_start) * 1000
+            start = time.time()
+            letter = "\n\n".join(sections)
+            duration_ms = (time.time() - start) * 1000
 
-            yield f"data: {json.dumps({'type': 'done', 'full_text': full_text, 'tokens_input': input_tokens, 'tokens_output': output_tokens}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'text', 'content': letter}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'full_text': letter, 'tokens_input': 0, 'tokens_output': 0}, ensure_ascii=False)}\n\n"
 
-            cost_eur = calculate_cost(model_used, input_tokens, output_tokens)
-            log_usage("/assembler-stream", model_used, input_tokens, output_tokens, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=user_email, duration_ms=duration_ms)
+            log_usage("/assembler-stream", "python-concat", 0, 0, 0, 0, 0, success=True, session_id=request.session_id, user_email=user_email, duration_ms=duration_ms)
 
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
-            log_usage("/assembler-stream", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=user_email)
+            log_usage("/assembler-stream", "python-concat", 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=user_email)
 
     return StreamingResponse(
         event_generator(),
