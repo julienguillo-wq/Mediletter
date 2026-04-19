@@ -335,6 +335,25 @@ class LogCorrectionV2Request(BaseModel):
 # Helpers
 # ==============================================================================
 
+def assemble_sections_numbered(sections: list[str]) -> str:
+    numbered = []
+    num = 1
+    for section in sections:
+        cleaned = section.strip()
+        if not cleaned:
+            continue
+        lines = cleaned.split('\n', 1)
+        title = lines[0].strip()
+        rest = lines[1].strip() if len(lines) > 1 else ''
+        if rest:
+            numbered_section = f"{num}. {title}\n\n{rest}"
+        else:
+            numbered_section = f"{num}. {title}"
+        numbered.append(numbered_section)
+        num += 1
+    return "\n\n\n".join(numbered)
+
+
 def build_content_blocks(request: AnalyserRequest) -> list:
     """Construit les blocs de contenu pour l'API Claude (texte + images)."""
     content = []
@@ -1418,13 +1437,12 @@ async def assembler(request: AssemblerRequest):
             detail="Session non trouvée."
         )
 
-    sections = [s.strip() for s in request.sections if s.strip()]
-    if not sections:
-        raise HTTPException(status_code=400, detail="Aucune section à assembler.")
-
     start = time.time()
-    letter = "\n\n".join(sections)
+    letter = assemble_sections_numbered(request.sections)
     duration_ms = (time.time() - start) * 1000
+
+    if not letter:
+        raise HTTPException(status_code=400, detail="Aucune section à assembler.")
 
     user_email = request.user_email or sessions[request.session_id].get('user_email')
     log_usage("/assembler", "python-concat", 0, 0, 0, 0, 0, success=True, session_id=request.session_id, user_email=user_email, duration_ms=duration_ms)
@@ -1452,13 +1470,11 @@ async def assembler_stream(request: AssemblerRequest):
 
     async def event_generator():
         try:
-            sections = [s.strip() for s in request.sections if s.strip()]
-            if not sections:
+            start = time.time()
+            letter = assemble_sections_numbered(request.sections)
+            if not letter:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Aucune section à assembler.'}, ensure_ascii=False)}\n\n"
                 return
-
-            start = time.time()
-            letter = "\n\n".join(sections)
             duration_ms = (time.time() - start) * 1000
 
             yield f"data: {json.dumps({'type': 'text', 'content': letter}, ensure_ascii=False)}\n\n"
