@@ -2107,6 +2107,28 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
         let validatedProblems = [];
         let currentEditorIndex = 0;
 
+        // Smart auto-scroll: disabled when user scrolls up manually
+        let autoScrollEnabled = true;
+
+        function initSmartScroll(element) {
+            autoScrollEnabled = true;
+            const disableAutoScroll = () => {
+                const distFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+                if (distFromBottom > 50) {
+                    autoScrollEnabled = false;
+                }
+            };
+            const checkReEnable = () => {
+                const distFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+                if (distFromBottom < 50) {
+                    autoScrollEnabled = true;
+                }
+            };
+            element.addEventListener('wheel', disableAutoScroll, { passive: true });
+            element.addEventListener('touchmove', disableAutoScroll, { passive: true });
+            element.addEventListener('scroll', checkReEnable, { passive: true });
+        }
+
         // History
         const HISTORY_KEY = 'mediletter_history';
         const DRAFT_KEY = 'mediletter_draft';
@@ -2928,6 +2950,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             // Vider le textarea et montrer le curseur
             textareaElement.value = '';
             textareaElement.style.opacity = '1';
+            initSmartScroll(textareaElement);
 
             try {
                 const response = await fetchWithRetry(`${BACKEND_URL}/generer-section-stream`, {
@@ -2974,7 +2997,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                                     }
                                     fullText += data.content;
                                     textareaElement.value = fullText;
-                                    textareaElement.scrollTop = textareaElement.scrollHeight;
+                                    if (autoScrollEnabled) textareaElement.scrollTop = textareaElement.scrollHeight;
                                 } else if (data.type === 'done') {
                                     textareaElement.value = data.full_text;
                                     return data.full_text;
@@ -3588,6 +3611,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 const streamEl = container?.querySelector('.letter-stream-text');
+                if (container) initSmartScroll(container);
 
                 while (true) {
                     const { done, value } = await reader.read();
@@ -3603,7 +3627,7 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
                                     assembledLetterText += data.content;
                                     if (streamEl) {
                                         streamEl.textContent = assembledLetterText;
-                                        container.scrollTop = container.scrollHeight;
+                                        if (autoScrollEnabled) container.scrollTop = container.scrollHeight;
                                     }
                                 } else if (data.type === 'done') {
                                     assembledLetterText = data.full_text;
