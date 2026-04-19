@@ -1164,10 +1164,7 @@ async def generer_section(request: GenererSectionRequest):
         textes_section = "\n\n".join(textes_originaux) if textes_originaux else "Aucun texte fourni"
 
         # Contexte de génération pour UN SEUL problème
-        generation_context = f"""## DIAGNOSTIC PRINCIPAL
-{session_data.get('diagnostic_principal', 'Non spécifié')}
-
-## PROBLÈME À TRAITER (numéro {request.probleme_index})
+        generation_context = f"""## PROBLÈME À TRAITER (numéro {request.probleme_index})
 {request.probleme_index}. {request.probleme}
 
 {"IMPORTANT: Ce problème EST le diagnostic principal. Inclure l'anamnèse par système et le status d'entrée." if request.is_diagnostic_principal else ""}
@@ -1250,10 +1247,7 @@ async def generer_section_stream(request: GenererSectionRequest):
 
     textes_section = "\n\n".join(textes_originaux) if textes_originaux else "Aucun texte fourni"
 
-    generation_context = f"""## DIAGNOSTIC PRINCIPAL
-{session_data.get('diagnostic_principal', 'Non spécifié')}
-
-## PROBLÈME À TRAITER (numéro {request.probleme_index})
+    generation_context = f"""## PROBLÈME À TRAITER (numéro {request.probleme_index})
 {request.probleme_index}. {request.probleme}
 
 {"IMPORTANT: Ce problème EST le diagnostic principal. Inclure l'anamnèse par système et le status d'entrée." if request.is_diagnostic_principal else ""}
