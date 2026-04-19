@@ -518,74 +518,27 @@ Proposition :
 # ÉTAPE 3 : ASSEMBLAGE final de la lettre
 # ==============================================================================
 
-PROMPT_ASSEMBLAGE = """Tu es un médecin hospitalier finalisant une lettre de sortie/transfert.
+PROMPT_ASSEMBLAGE = """Tu es un assembleur de lettre médicale.
 
-## MISSION
-Assemble les sections générées en une lettre médicale cohérente.
+## MISSION UNIQUE
+Concaténer les sections fournies dans l'ordre, séparées par une ligne vide.
 
-## RÈGLES STRICTES
-1. NE PAS ajouter d'introduction générale avant les problèmes
-2. NE PAS ajouter de conclusion après les problèmes (pas de "En résumé", "Pour conclure", etc.)
-3. Garder UNIQUEMENT la formule d'appel et la signature
-4. Les sections des problèmes sont déjà complètes - ne pas les modifier
-5. NE PAS utiliser de formatage markdown (## ### **) - texte brut uniquement
+## RÈGLES ABSOLUES
+1. NE RÉDIGE AUCUN texte qui n'est pas dans les sections fournies
+2. NE AJOUTE AUCUNE formule de politesse (pas de "Cher Confrère", pas de "Chère Consœur", pas de "salutations")
+3. NE AJOUTE AUCUNE introduction, conclusion, transition, ou phrase de liaison
+4. NE AJOUTE AUCUNE signature, en-tête ou pied de page
+5. NE AJOUTE AUCUN tableau, bilan, habitus, traitement de sortie
+6. NE MODIFIE PAS le contenu des sections
+7. PAS de formatage markdown (## ### **)
 
-## FORMAT EXACT
+## FORMAT DE SORTIE
+[Section 1 telle quelle]
 
-```
-Cher Confrère, Chère Consœur,
+[Section 2 telle quelle]
 
-Nous vous adressons ce compte-rendu concernant votre patient(e) [Nom], [âge] ans, hospitalisé(e) du [date] au [date] dans notre service pour [motif principal].
+[Section N telle quelle]
 
-[INSÉRER ICI LES SECTIONS DES PROBLÈMES - SANS MODIFICATION]
+Ta sortie = la concaténation exacte des sections fournies, séparées par une ligne vide. Rien de plus, rien de moins.
 
----
-
-Habitus/Social :
-[Alcool, tabac, habitat, escaliers, ascenseur, avec qui vit le patient, aide à domicile, repas, ménage, déplacements, moyen auxiliaire]
-
-PROJET GLOBAL : [RAD / CTR / EMS / Transfert]
-
-Bilan gériatrique standardisé :
-
-| Examen | Date | Score | Interprétation |
-|--------|------|-------|----------------|
-| Barthel | [date] | [X]/100 | [Interprétation] |
-| Tinetti | [date] | [X]/7 | [Interprétation] |
-| TUG | [date] | [X] sec | [Interprétation] |
-| SPPB | [date] | [X]/12 | [Interprétation] |
-| MOCA | [date] | [X]/30 | [Interprétation] |
-| Mini-GDS | [date] | [X]/4 | [Interprétation] |
-| MNA | [date] | [X]/14 | [Interprétation] |
-| NRS | [date] | [X]/7 | [Interprétation] |
-| BMI | [date] | [X] kg/m² | [Interprétation] |
-
----
-
-Éléments à surveiller après l'hospitalisation :
-[Liste à puces consolidant TOUTES les propositions de chaque section]
-
-Traitement de sortie :
-[Liste des médicaments avec posologie exacte]
-
----
-
-Le traitement de sortie figure en annexe.
-
-Nous restons à votre disposition pour tout renseignement complémentaire.
-
-Avec nos meilleures salutations.
-
-Dr [Nom]
-Département de Gériatrie, Réadaptation et Soins Palliatifs
-RHNe - Réseau Hospitalier Neuchâtelois
-```
-
-## CE QU'IL NE FAUT PAS FAIRE
-- ❌ "Ce compte-rendu détaille les différents problèmes pris en charge..."
-- ❌ "En résumé, le séjour a permis de..."
-- ❌ "Nous espérons que ces informations vous seront utiles..."
-- ❌ Toute phrase de liaison ou de transition entre les problèmes
-- ❌ Formatage markdown (## ### **) dans le texte
-
-Assemble maintenant la lettre finale."""
+Assemble maintenant."""
