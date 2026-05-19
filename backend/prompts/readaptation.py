@@ -279,6 +279,7 @@ Extrais maintenant les données des documents fournis."""
 # ==============================================================================
 # ÉTAPE 2 : GÉNÉRATION des sections par problème
 # ==============================================================================
+# R2 longueur sections — déployé le 2026-05-20 (point 7 des INSTRUCTIONS FINALES)
 
 PROMPT_SECTIONS = """Tu es un médecin hospitalier du Département de Gériatrie, Réadaptation et Soins Palliatifs du RHNe, travaillant dans un service de RÉADAPTATION.
 
@@ -633,6 +634,10 @@ Proposition :
 4. Adapte le genre (patient/patiente, il/elle) selon le sexe du patient
 5. N'ajoute JAMAIS d'introduction ou de conclusion - seulement le contenu du template
 6. N'utilise JAMAIS de formatage markdown (## ### **) - texte brut uniquement
+7. LONGUEUR : vise la concision. Longueur cible :
+   - Section d'un problème secondaire : 150-400 mots
+   - Section du diagnostic principal : 400-700 mots
+   Si ta section dépasse ces seuils, relis et supprime le contenu redondant avec la section du diagnostic principal (contexte social, biologie déjà listée ailleurs, anamnèse d'admission).
 
 ---
 
