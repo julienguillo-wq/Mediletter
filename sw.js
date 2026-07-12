@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medhub-v23';
+const CACHE_NAME = 'medhub-v24';
 const ASSETS = [
     './',
     './index.html',
@@ -10,11 +10,7 @@ const ASSETS = [
     './recherche/index.html',
     './medentry/index.html',
     './medentry/uga.html',
-    './medentry/vdr.html',
-    './sarc/index.html',
-    './sarc/questions.js',
-    './ecg/index.html',
-    './ecg/questions.js'
+    './medentry/vdr.html'
 ];
 
 // Install
