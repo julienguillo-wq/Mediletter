@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medhub-v24';
+const CACHE_NAME = 'medhub-v25';
 const ASSETS = [
     './',
     './index.html',
@@ -41,6 +41,26 @@ self.addEventListener('fetch', (e) => {
 
     if (e.request.url.includes('api.anthropic.com')) return;
 
+    // Pages HTML (navigations) → network-first : on tente le réseau pour avoir
+    // toujours la dernière version, on retombe sur le cache seulement hors-ligne.
+    const accepteHTML = e.request.headers.get('accept') || '';
+    const estNavigation = e.request.mode === 'navigate' || accepteHTML.includes('text/html');
+
+    if (estNavigation) {
+        e.respondWith(
+            fetch(e.request)
+                .then(reponse => {
+                    // Mettre à jour le cache avec la version fraîche
+                    const copie = reponse.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(e.request, copie));
+                    return reponse;
+                })
+                .catch(() => caches.match(e.request).then(cached => cached || caches.match('./index.html')))
+        );
+        return;
+    }
+
+    // Assets (icônes, JS, images…) → cache-first pour la vitesse.
     e.respondWith(
         caches.match(e.request)
             .then(cached => cached || fetch(e.request))
