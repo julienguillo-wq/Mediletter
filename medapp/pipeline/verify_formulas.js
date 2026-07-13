@@ -164,13 +164,19 @@ function refResult(inputs, vector, funcsSrc, fcalc) {
 
 function verifyScore(sc) {
   const html = readCache(sc.id);
-  if (!html) return { verifiee: false, raison: 'pas de cache' };
-  const fcalc = extractFCalc(html);
-  if (!fcalc) return { verifiee: false, raison: 'pas de f_Calculer' };
+  if (!html) return { verifiee: false, raison: 'pas de cache', counts: null };
   const inputs = parseInputs(html);
-  const nChoix = Object.keys(inputs.radios).length + Object.keys(inputs.checks).length;
-  // Le moteur générique ne gère que radios/checkboxes ; s'il y a des numbers/selects, on tente quand même
-  if (nChoix === 0) return { verifiee: false, raison: 'aucun item de choix' };
+  const counts = {
+    radios: Object.keys(inputs.radios).length,
+    checks: Object.keys(inputs.checks).length,
+    numbers: inputs.numbers.length,
+    selects: Object.keys(inputs.selects).length,
+    hasFCalc: !!extractFCalc(html),
+  };
+  const fcalc = extractFCalc(html);
+  if (!fcalc) return { verifiee: false, raison: 'pas de f_Calculer', counts };
+  const nChoix = counts.radios + counts.checks;
+  if (nChoix === 0) return { verifiee: false, raison: 'aucun item de choix', counts };
   const funcsSrc = extractFunctions(html);
   const N = ARGV.vectors;
   let refErrs = 0;
@@ -181,11 +187,11 @@ function verifyScore(sc) {
     const refNum = parseFloat(ref);
     const mine = genericSum(inputs, v);
     if (isNaN(refNum) || Math.abs(refNum - mine) > 1e-9) {
-      return { verifiee: false, raison: `mismatch au vecteur ${i}` };
+      return { verifiee: false, raison: `mismatch au vecteur ${i}`, counts };
     }
   }
-  if (refErrs > N * 0.1) return { verifiee: false, raison: 'référence en erreur' };
-  return { verifiee: true, raison: `identique sur ${N - refErrs} vecteurs` };
+  if (refErrs > N * 0.1) return { verifiee: false, raison: 'référence en erreur', counts };
+  return { verifiee: true, raison: `identique sur ${N - refErrs} vecteurs`, counts };
 }
 
 const ARGV = { one: null, vectors: 100 };
@@ -197,18 +203,23 @@ for (let i = 2; i < process.argv.length; i++) {
 function main() {
   const data = JSON.parse(fs.readFileSync(SCORES, 'utf8'));
   let verified = 0, tested = 0;
+  const report = [];
   for (const sc of data.scores) {
     if (ARGV.one && sc.id !== ARGV.one) continue;
     const r = verifyScore(sc);
     sc.formule_verifiee = r.verifiee;
     tested++;
     if (r.verifiee) verified++;
+    report.push({ id: sc.id, categorie: sc.categorie, verifiee: r.verifiee, raison: r.raison, counts: r.counts });
     if (ARGV.one) console.log(sc.id, '->', JSON.stringify(r));
   }
   if (!ARGV.one) {
     data.meta.formules_verifiees = verified;
     fs.writeFileSync(SCORES, JSON.stringify(data, null, 2));
-    console.log(`Vérifiées: ${verified}/${tested} scores (formule_verifiee:true)`);
+    const rp = path.join(DIR, '_raw', 'verif_report.json');
+    fs.mkdirSync(path.dirname(rp), { recursive: true });
+    fs.writeFileSync(rp, JSON.stringify(report, null, 2));
+    console.log(`Vérifiées: ${verified}/${tested} scores. Rapport: ${rp}`);
   }
 }
 main();

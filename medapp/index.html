@@ -6304,8 +6304,13 @@ FORMAT :
         const scoreIcon = s => (window.CAT_META && window.CAT_META[s.categorie] ? window.CAT_META[s.categorie].icon : 'ti-calculator');
         const scoreColor = s => (window.CAT_META && window.CAT_META[s.categorie] ? window.CAT_META[s.categorie].color : 'general');
         const isValidated = id => validated.has(id);
-        const statusOf = s => (s.formule_verifiee || isValidated(s.id)) ? 'ok' : 'warn';
-        const dotHTML = s => `<span class="mx-dot ${statusOf(s)}" title="${statusOf(s)==='ok'?'Formule vérifiée':'À vérifier'}"></span>`;
+        let HIST_IDS = new Set();
+        // Règle absolue : seul CALCULE_VERIFIE calcule/affiche un résultat.
+        const statutOf = id => HIST_IDS.has(id) ? 'CALCULE_VERIFIE'
+            : (SCORES_BY_ID[id] ? (SCORES_BY_ID[id].statut || 'CALCULE_NON_VERIFIE') : 'CALCULE_NON_VERIFIE');
+        const isOk = id => statutOf(id) === 'CALCULE_VERIFIE';
+        const statusOf = s => isOk(s && s.id) ? 'ok' : 'warn';
+        const dotHTML = s => `<span class="mx-dot ${statusOf(s)}" title="${statusOf(s)==='ok'?'Calcul vérifié':'Calcul non disponible'}"></span>`;
 
         // --- Chargement des validations partagées (backend, fallback localStorage) ---
         async function loadValidations(){
@@ -6337,6 +6342,11 @@ FORMAT :
             catch(e){ console.warn('[medapp] scores.json indisponible', e); return false; }
             const scores = (data && data.scores) || [];
             if (!scores.length) return false;
+            // Capturer les 44 calculateurs historiques (app-native) AVANT remplacement
+            const historiques = (typeof CALCS !== 'undefined' && Array.isArray(CALCS))
+                ? CALCS.map(c => ({ id: c.id, name: c.name, short: c.short, cat: c.cat, desc: c.desc, _hist: true }))
+                : [];
+            HIST_IDS = new Set(historiques.map(c => c.id));
             SCORES_BY_ID = {};
             const mapped = scores.map(s => {
                 SCORES_BY_ID[s.id] = s;
@@ -6346,19 +6356,22 @@ FORMAT :
                 };
             });
             if (typeof CALCS !== 'undefined' && Array.isArray(CALCS)) {
-                CALCS.length = 0; mapped.forEach(m => CALCS.push(m));
+                CALCS.length = 0;
+                historiques.forEach(m => CALCS.push(m));   // historiques d'abord (CALCULE_VERIFIE)
+                // dédoublonnage : l'historique (formule codée) prime sur l'équivalent medicalcul
+                mapped.filter(m => !HIST_IDS.has(m.id)).forEach(m => CALCS.push(m));
             }
             return true;
         }
 
         // --- Overrides de rendu avec pastilles ---
         function rowHTML(c){
-            const s = SCORES_BY_ID[c.id];
+            const meta = { categorie: c.cat };
             return `<div class="mx-row" onclick="openCalc('${c.id}')">
-                <div class="mx-row-icon c-${scoreColor(s||{})}"><i class="ti ${scoreIcon(s||{})}"></i></div>
+                <div class="mx-row-icon c-${scoreColor(meta)}"><i class="ti ${scoreIcon(meta)}"></i></div>
                 <div class="mx-row-body"><div class="mx-row-title">${c.name}</div>
                     <div class="mx-row-sub">${catLabel2(c.cat)} · ${c.desc||''}</div></div>
-                ${s?dotHTML(s):''}
+                ${dotHTML(c)}
                 <i class="ti ti-chevron-right mx-row-chevron"></i>
             </div>`;
         }
@@ -6372,9 +6385,9 @@ FORMAT :
         window.renderFavorites = function(){
             const grid = document.getElementById('favGrid'); if (!grid) return;
             const favs = (typeof favorites!=='undefined'?favorites:[]).map(id=>CALCS.find(c=>c.id===id)).filter(Boolean).slice(0,6);
-            grid.innerHTML = favs.length ? favs.map(c => { const s=SCORES_BY_ID[c.id];
+            grid.innerHTML = favs.length ? favs.map(c => { const meta={categorie:c.cat};
                 return `<div class="fav-card" onclick="openCalc('${c.id}')">
-                    <div class="mx-fav-top"><i class="ti ${scoreIcon(s||{})} ic-${scoreColor(s||{})}"></i>${s?dotHTML(s):'<i class="ti ti-star mx-fav-star"></i>'}</div>
+                    <div class="mx-fav-top"><i class="ti ${scoreIcon(meta)} ic-${scoreColor(meta)}"></i>${dotHTML(c)}</div>
                     <div class="mx-fav-title">${c.name}</div><div class="mx-fav-sub">${c.short||''}</div></div>`;
             }).join('') : `<div class="mx-empty" style="grid-column:1/-1"><i class="ti ti-star"></i>Aucun favori</div>`;
         };
@@ -6423,8 +6436,8 @@ FORMAT :
             const {sum, used} = computeResult(s, st);
             const band = interpFor(s, sum);
             const sev = band && band.severite ? band.severite : 'normal';
-            const statusBadge = ok ? `<span class="mx-status ok"><i class="ti ti-rosette-discount-check"></i>Vérifié</span>`
-                                   : `<span class="mx-status warn"><i class="ti ti-alert-triangle"></i>À vérifier</span>`;
+            const statusBadge = ok ? `<span class="mx-status ok"><i class="ti ti-rosette-discount-check"></i>Calcul vérifié</span>`
+                                   : `<span class="mx-status warn"><i class="ti ti-alert-triangle"></i>Calcul non disponible</span>`;
             page.innerHTML = `
                 <div class="calc-header">
                     <button class="btn-back" onclick="closeDyn()"><i class="ti ti-arrow-left"></i></button>
@@ -6433,17 +6446,17 @@ FORMAT :
                     ${statusBadge}
                 </div>
                 <div class="calc-body">
-                    ${!ok ? `<div class="mx-dyn-warn"><i class="ti ti-alert-triangle"></i><span>Formule non vérifiée automatiquement. Résultat indicatif — à confirmer sur la source avant usage clinique.</span></div>`:''}
+                    ${(!ok && hasForm) ? `<div class="mx-dyn-warn"><i class="ti ti-alert-triangle"></i><span>Calcul non disponible : formule non vérifiée. Les items sont affichés à titre documentaire — utilisez la source d'origine pour le calcul.</span></div>`:''}
                     ${hasForm ? `<div class="form-card">${(s.items||[]).map((it,i)=>itemHTML(it,i,st)).join('')}</div>
-                    <div class="result-card has-result ${sev==='danger'?'danger':''}" style="margin-top:16px">
+                    ${ok ? `<div class="result-card has-result ${sev==='danger'?'danger':''}" style="margin-top:16px">
                         <div class="result-label">Résultat${used?'':' — sélectionnez'}</div>
                         <div class="result-value">${used?sum:'—'}</div>
                         ${band?`<div class="result-interp show ${sev}">${band.texte||''}</div>`:''}
-                    </div>` : `<div class="mx-ref-only"><i class="ti ti-file-text" style="font-size:22px;display:block;margin-bottom:6px;opacity:.5"></i>Fiche de référence (pas de calcul).</div>`}
+                    </div>` : ''}` : `<div class="mx-ref-only"><i class="ti ti-file-text" style="font-size:22px;display:block;margin-bottom:6px;opacity:.5"></i>Fiche de référence (pas de calcul).</div>`}
                     ${s.reference?`<div class="mx-dyn-ref">Réf. : ${s.reference}</div>`:''}
                     <div class="mx-dyn-ref">Source : <a href="${s.source_url}" target="_blank" rel="noopener">medicalcul.free.fr</a></div>
-                    ${canValidate?`<button class="mx-validate" onclick="doValidate('${s.id}')"><i class="ti ti-check"></i>Valider cette fiche</button>`:''}
-                    ${(!ok && isValidated(s.id))?`<div class="mx-status ok" style="margin-top:12px"><i class="ti ti-rosette-discount-check"></i>Relu</div>`:''}
+                    ${canValidate?`<button class="mx-validate" onclick="doValidate('${s.id}')"><i class="ti ti-check"></i>Marquer comme relu</button>`:''}
+                    ${(!ok && isValidated(s.id))?`<div class="mx-status ok" style="margin-top:12px"><i class="ti ti-rosette-discount-check"></i>Contenu relu</div>`:''}
                 </div>`;
             page.querySelectorAll('.mx-dyn-opt').forEach(el => el.addEventListener('click', function(){
                 const i = this.dataset.i;
@@ -6455,7 +6468,13 @@ FORMAT :
             page.classList.add('active');
             document.body.style.overflow='hidden';
         }
-        window.openCalc = function(id){ if (SCORES_BY_ID[id]) renderDyn(id); };
+        window.openCalc = function(id){
+            if (HIST_IDS.has(id)){
+                const page = document.getElementById('calc-' + id);
+                if (page){ page.classList.add('active'); document.body.style.overflow='hidden'; return; }
+            }
+            if (SCORES_BY_ID[id]) renderDyn(id);
+        };
         window.closeDyn = function(){ const p=document.getElementById('mx-dyn'); if(p){p.classList.remove('active'); p._state={};} document.body.style.overflow=''; };
         window.doValidate = async function(id){ await validateScore(id); const s=SCORES_BY_ID[id]; renderDyn(id); if(typeof renderCalcList==='function') renderCalcList(); if(typeof renderFavorites==='function') renderFavorites(); };
 
