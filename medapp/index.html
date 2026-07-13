@@ -11,8 +11,10 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚕️</text></svg>">
     <link rel="apple-touch-icon" href="../icon-192x192.png">
     <link rel="manifest" href="../manifest.json">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.14.0/dist/tabler-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
     --primary: #2563EB;
@@ -2077,11 +2079,216 @@ header {
     cursor: pointer;
     font-size: 18px;
 }
+/* =====================================================================
+   REFONTE UX 2026 — Design system (maquettes MedApp Pro)
+   Base blanche, bordures fines 1px, radius 10-14, Inter, icônes Tabler.
+   Bloc placé en fin de feuille : gagne par ordre de source sur l'ancien style.
+   ===================================================================== */
+:root {
+    --mx-surface-0: #EEF1F5;
+    --mx-surface-1: #F6F8FA;
+    --mx-surface-2: #FFFFFF;
+    --mx-border: #E3E6EA;
+    --mx-text-primary: #1A1D21;
+    --mx-text-secondary: #5C636B;
+    --mx-text-muted: #9AA1A9;
+    --mx-accent: #185FA5;
+    --mx-accent-bg: #E6F1FB;
+    --mx-star: #BA7517;
+    --mx-red: #A32D2D;   --mx-red-bg: #FCEBEB;   --mx-red-border: #F0C5C5;
+    --mx-amber: #854F0B; --mx-amber-bg: #FAEEDA;
+    --mx-green: #3B6D11; --mx-green-bg: #EAF3DE;
+    --mx-radius: 10px;
+}
+[data-theme="dark"] {
+    /* Structure dark prête (implémentation fine en second temps) */
+    --mx-surface-0: #14171A;
+    --mx-surface-1: #1B1F23;
+    --mx-surface-2: #212529;
+    --mx-border: #313539;
+    --mx-text-primary: #F2F4F6;
+    --mx-text-secondary: #B4BAC1;
+    --mx-text-muted: #7B838B;
+    --mx-accent: #4E9BE0;
+    --mx-accent-bg: #17324B;
+}
+
+/* Palettes spécialités (icône teintée par spécialité) */
+.c-nephro    { background:#E1F5EE; color:#0F6E56; }
+.c-cardio    { background:#FBEAF0; color:#993556; }
+.c-neuro     { background:#EEEDFE; color:#534AB7; }
+.c-geria     { background:#FAECE7; color:#993C1D; }
+.c-rea       { background:#FCEBEB; color:#A32D2D; }
+.c-pneumo    { background:#E1F0F5; color:#15697B; }
+.c-gastro    { background:#F5EEDD; color:#8A6420; }
+.c-pediatrie { background:#FBEBDF; color:#A85B1B; }
+.c-general   { background:#EDEFF2; color:#5C636B; }
+.ic-nephro    { color:#0F6E56; } .ic-cardio { color:#993556; }
+.ic-neuro     { color:#534AB7; } .ic-geria  { color:#993C1D; }
+.ic-rea       { color:#A32D2D; } .ic-pneumo { color:#15697B; }
+.ic-gastro    { color:#8A6420; } .ic-pediatrie { color:#A85B1B; }
+.ic-general   { color:#5C636B; }
+
+/* ---------- Shell global (mobile-first) ---------- */
+body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--mx-surface-0); }
+.mx .app-container { background:var(--mx-surface-2); }
+
+/* On neutralise l'ancien header/onglets/nav */
+.mx header,
+.mx .main-tabs,
+.mx .user-profile,
+.mx .tabs-wrapper { display:none !important; }
+
+/* Header compact refondu */
+.mx-header { display:flex; align-items:center; justify-content:space-between; padding:16px 18px 10px; }
+.mx-brand { display:flex; align-items:center; gap:10px; }
+.mx-back { width:34px; height:34px; border-radius:50%; border:1px solid var(--mx-border); background:var(--mx-surface-2); display:flex; align-items:center; justify-content:center; color:var(--mx-text-secondary); font-size:18px; text-decoration:none; }
+.mx-brand-icon { width:38px; height:38px; border-radius:11px; background:var(--mx-accent-bg); color:var(--mx-accent); display:flex; align-items:center; justify-content:center; font-size:21px; }
+.mx-brand-name { font-size:16px; font-weight:600; color:var(--mx-text-primary); }
+.mx-brand-sub { font-size:11px; color:var(--mx-text-muted); letter-spacing:.04em; text-transform:uppercase; }
+.mx-header-actions { display:flex; align-items:center; gap:8px; }
+.mx-iconbtn { width:34px; height:34px; border-radius:50%; border:1px solid var(--mx-border); background:var(--mx-surface-2); display:flex; align-items:center; justify-content:center; color:var(--mx-text-secondary); font-size:17px; cursor:pointer; }
+.mx-avatar { width:34px; height:34px; border-radius:50%; background:#EEEDFE; color:#3C3489; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; cursor:pointer; }
+
+/* Barre de recherche + compteur */
+.mx .search-container { position:static; margin:0 18px 14px; }
+.mx .search-container.hidden { display:none; }
+.mx-searchbar { display:flex; align-items:center; gap:8px; background:var(--mx-surface-1); border:1px solid var(--mx-border); border-radius:12px; padding:11px 14px; color:var(--mx-text-muted); font-size:14px; cursor:text; }
+.mx-searchbar i { font-size:17px; }
+.mx-searchbar input { flex:1; border:none; background:transparent; outline:none; font:inherit; color:var(--mx-text-primary); }
+.mx-searchbar input::placeholder { color:var(--mx-text-muted); }
+.mx-count { font-size:11px; border:1px solid var(--mx-border); border-radius:6px; padding:2px 7px; color:var(--mx-text-muted); }
+.mx-kbd { font-size:11px; border:1px solid var(--mx-border); border-radius:5px; padding:1px 7px; background:var(--mx-surface-2); color:var(--mx-text-muted); }
+.mx .search-results { top:calc(100% + 4px); left:0; right:0; }
+
+/* Pills de catégories */
+.mx-chips { display:flex; gap:8px; padding:0 18px 16px; overflow-x:auto; scrollbar-width:none; }
+.mx-chips::-webkit-scrollbar { display:none; }
+.mx-chip { flex-shrink:0; font-size:13px; padding:7px 15px; border-radius:999px; border:1px solid var(--mx-border); background:var(--mx-surface-2); color:var(--mx-text-secondary); white-space:nowrap; cursor:pointer; }
+.mx-chip.active { background:var(--mx-text-primary); color:#fff; border-color:var(--mx-text-primary); font-weight:500; }
+
+/* Index alphabétique A-Z */
+.mx-alpha { display:flex; gap:4px; padding:0 18px 16px; overflow-x:auto; scrollbar-width:none; }
+.mx-alpha::-webkit-scrollbar { display:none; }
+.mx-alpha-letter { flex-shrink:0; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:500; color:var(--mx-text-secondary); border:1px solid var(--mx-border); border-radius:8px; background:var(--mx-surface-2); cursor:pointer; transition:all .12s; }
+.mx-alpha-letter:hover { border-color:var(--mx-accent); color:var(--mx-accent); background:var(--mx-accent-bg); }
+.mx-alpha-letter.active { background:var(--mx-accent); color:#fff; border-color:var(--mx-accent); }
+.mx-alpha-letter.empty { color:var(--mx-text-muted); opacity:.45; cursor:default; pointer-events:none; }
+
+/* Sections accueil */
+.mx-sec { padding:0 18px; }
+.mx-sec-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.mx-sec-title { font-size:13px; font-weight:600; color:var(--mx-text-secondary); letter-spacing:.03em; }
+.mx-sec-link { font-size:12px; color:var(--mx-accent); cursor:pointer; }
+
+/* Favoris */
+.mx .fav-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:22px; }
+.mx .fav-card { background:var(--mx-surface-2); border:1px solid var(--mx-border); border-radius:14px; padding:13px; cursor:pointer; box-shadow:none; text-align:left; transition:border-color .15s; }
+.mx .fav-card:hover { transform:none; }
+.mx .mx-main.content { padding:8px 0 96px; }
+.mx .fav-card, .mx-row { min-width:0; }
+.mx-fav-title, .mx-row-title { overflow-wrap:anywhere; }
+.mx .fav-card:hover { border-color:var(--mx-text-muted); }
+.mx-fav-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+.mx-fav-top .ti:first-child { font-size:19px; }
+.mx-fav-star { color:var(--mx-star); font-size:15px; }
+.mx-fav-title { font-size:14px; font-weight:600; color:var(--mx-text-primary); }
+.mx-fav-sub { font-size:12px; color:var(--mx-text-muted); margin-top:2px; }
+
+/* Récents / liste dense */
+.mx-list { padding:0 18px 8px; }
+.mx-row { display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--mx-border); cursor:pointer; }
+.mx-row:last-child { border-bottom:none; }
+.mx-row-icon { width:38px; height:38px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:19px; }
+.mx-row-body { flex:1; min-width:0; }
+.mx-row-title { font-size:14px; font-weight:600; color:var(--mx-text-primary); }
+.mx-row-sub { font-size:12px; color:var(--mx-text-muted); }
+.mx-row-time { font-size:12px; color:var(--mx-text-muted); }
+.mx-row-chevron { color:var(--mx-text-muted); font-size:16px; }
+.mx-empty { text-align:center; padding:40px 20px; color:var(--mx-text-muted); font-size:13px; }
+.mx-empty i { font-size:34px; display:block; margin-bottom:10px; opacity:.5; }
+
+/* Barre d'onglets basse (Calculs / Guidelines / MedChat / Historique) */
+.mx-tabbar { position:sticky; bottom:0; border-top:1px solid var(--mx-border); display:flex; padding:8px 0 max(12px, env(safe-area-inset-bottom)); background:var(--mx-surface-2); z-index:50; }
+.mx-tab { flex:1; text-align:center; color:var(--mx-text-muted); font-size:11px; cursor:pointer; background:none; border:none; font-family:inherit; }
+.mx-tab i { font-size:22px; display:block; margin-bottom:2px; }
+.mx-tab.active { color:var(--mx-accent); font-weight:500; }
+
+/* Espace pour la tabbar */
+.mx .section-calculs, .mx .section-guidelines { padding-bottom:8px; }
+
+/* ---------- Formulaires & résultats partagés (55 calculateurs) ---------- */
+.mx .calc-page { background:var(--mx-surface-2); font-family:'Inter',sans-serif; }
+.mx .calc-header { background:var(--mx-surface-2); border-bottom:1px solid var(--mx-border); backdrop-filter:none; }
+.mx .btn-back { background:var(--mx-surface-2); border:1px solid var(--mx-border); color:var(--mx-text-secondary); border-radius:9px; box-shadow:none; }
+.mx .btn-back:hover { background:var(--mx-surface-1); }
+.mx .calc-header-title { font-size:17px; font-weight:600; color:var(--mx-text-primary); }
+.mx .calc-header-sub { color:var(--mx-text-muted); }
+.mx .btn-fav { color:var(--mx-text-muted); }
+.mx .btn-fav.active { color:var(--mx-star); background:transparent; }
+.mx .form-card { background:var(--mx-surface-2); border:1px solid var(--mx-border); border-radius:14px; box-shadow:none; }
+.mx .form-title { color:var(--mx-text-primary); font-weight:600; }
+.mx .form-label { color:var(--mx-text-secondary); font-weight:500; }
+.mx .form-input, .mx .form-select { background:var(--mx-surface-1); border:1px solid var(--mx-border); border-radius:10px; color:var(--mx-text-primary); box-shadow:none; }
+.mx .form-input:focus, .mx .form-select:focus { border-color:var(--mx-accent); box-shadow:0 0 0 3px var(--mx-accent-bg); background:var(--mx-surface-2); }
+.mx .radio-opt, .mx .score-opt, .mx .check-opt { background:var(--mx-surface-1); border:1px solid var(--mx-border); border-radius:10px; box-shadow:none; }
+.mx .radio-opt.selected, .mx .score-opt.selected, .mx .check-opt.selected { border-color:var(--mx-accent); background:var(--mx-accent-bg); }
+.mx .score-num { background:var(--mx-surface-2); border:1px solid var(--mx-border); color:var(--mx-text-secondary); }
+.mx .score-opt.selected .score-num { background:var(--mx-accent); color:#fff; border-color:var(--mx-accent); }
+.mx .check-box { border:1.5px solid var(--mx-border); }
+.mx .check-opt.selected .check-box { background:var(--mx-accent); border-color:var(--mx-accent); }
+.mx .result-card { background:var(--mx-surface-1); border:1px solid var(--mx-border); border-radius:14px; box-shadow:none; }
+.mx .result-label { color:var(--mx-text-muted); letter-spacing:.04em; }
+.mx .result-value { color:var(--mx-text-primary); font-size:44px; font-weight:700; }
+.mx .result-interp { border-radius:10px; font-weight:500; }
+.mx .result-interp.normal { background:var(--mx-green-bg); color:var(--mx-green); }
+.mx .result-interp.warning { background:var(--mx-amber-bg); color:var(--mx-amber); }
+.mx .result-interp.danger { background:var(--mx-red-bg); color:var(--mx-red); }
+.mx .result-card.has-result.danger { border-color:var(--mx-red-border); }
+.mx .ref-toggle { background:var(--mx-surface-1); border:1px solid var(--mx-border); border-radius:10px; color:var(--mx-text-secondary); }
+.mx .btn-primary { background:var(--mx-accent); border-radius:10px; box-shadow:none; }
+.mx .btn-secondary { border:1px solid var(--mx-border); border-radius:10px; background:var(--mx-surface-2); color:var(--mx-text-secondary); }
+
+/* ---------- Desktop : sidebar catégories + index A-Z ---------- */
+.mx-sidebar { display:none; }
+@media (min-width:900px) {
+    .mx .app-container { max-width:1080px; margin:24px auto; border:1px solid var(--mx-border); border-radius:16px; overflow:hidden; box-shadow:0 24px 60px rgba(26,29,33,.08); }
+    .mx-alpha { display:none; }
+    .mx-body { display:grid; grid-template-columns:200px minmax(0,1fr); }
+    .mx-sidebar { display:block; border-right:1px solid var(--mx-border); padding:16px 12px; background:var(--mx-surface-1); }
+    .mx-side-item { display:flex; align-items:center; gap:9px; padding:8px 11px; border-radius:9px; font-size:13px; color:var(--mx-text-secondary); cursor:pointer; }
+    .mx-side-item i { font-size:16px; }
+    .mx-side-item .n { margin-left:auto; font-size:11px; color:var(--mx-text-muted); }
+    .mx-side-item.active { background:var(--mx-surface-2); border:1px solid var(--mx-border); font-weight:600; color:var(--mx-text-primary); }
+    .mx-side-item:not(.active):hover { background:rgba(0,0,0,.03); }
+    .mx-alpha-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:14px; padding-top:14px; border-top:1px solid var(--mx-border); }
+    .mx-alpha-grid .mx-alpha-letter { width:auto; height:26px; font-size:12px; border-radius:6px; }
+    .mx-chips { display:none; }
+    .mx-main { padding:18px 26px; }
+    .mx .fav-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .mx-kbd-wrap { display:inline; }
+}
+.mx-kbd-wrap { display:none; }
+.mx-alpha-grid { display:none; }
     </style>
 <script defer="" data-domain="giulia-tu-es-la-plus-jolie.tiiny.site" src="https://analytics.tiiny.site/js/plausible.js"></script><meta property="og:url" content="https://giulia-tu-es-la-plus-jolie.tiiny.site/" data-id="th-modified"><meta property="og:type" content="website" data-id="th-modified"></head>
-<body>
+<body class="mx">
     <div class="app-container">
-        <header>
+        <div class="mx-header">
+            <div class="mx-brand">
+                <a href="../index.html" class="mx-back" title="Retour au hub"><i class="ti ti-arrow-left"></i></a>
+                <div class="mx-brand-icon"><i class="ti ti-stethoscope"></i></div>
+                <div>
+                    <div class="mx-brand-name">MedApp Pro</div>
+                    <div class="mx-brand-sub" id="mxBrandSub">Gériatrie UGA</div>
+                </div>
+            </div>
+            <div class="mx-header-actions">
+                <button class="mx-iconbtn" onclick="toggleTheme()" title="Changer le thème"><i class="ti ti-moon"></i></button>
+                <div class="mx-avatar" id="mxAvatar" onclick="openSettingsModal()">GS</div>
+            </div>
+        </div>
+        <header hidden>
             <div class="header-main">
                 <div class="header-left">
                     <a href="../index.html" class="back-btn" title="Retour au hub">
@@ -2137,37 +2344,49 @@ header {
         
         
         <div class="section-calculs" id="sectionCalculs">
-            <div class="tabs-wrapper">
-                <div class="tabs">
-                    <button class="tab active" data-cat="all">Tous</button>
-                    <button class="tab" data-cat="geriatrie"><span class="tab-icon">🧓</span> Gériatrie</button>
-                    <button class="tab" data-cat="nephro"><span class="tab-icon">🫘</span> Néphro</button>
-                    <button class="tab" data-cat="cardio"><span class="tab-icon">❤️</span> Cardio</button>
-                    <button class="tab" data-cat="rea"><span class="tab-icon">🏥</span> Réa</button>
-                    <button class="tab" data-cat="pneumo"><span class="tab-icon">🫁</span> Pneumo</button>
-                    <button class="tab" data-cat="neuro"><span class="tab-icon">🧠</span> Neuro</button>
-                    <button class="tab" data-cat="gastro"><span class="tab-icon">🔬</span> Gastro</button>
-                    <button class="tab" data-cat="pediatrie"><span class="tab-icon">👶</span> Pédiatrie</button>
-                    <button class="tab" data-cat="general"><span class="tab-icon">📐</span> Général</button>
+            <div class="search-container" id="mxSearchContainer">
+                <div class="mx-searchbar" onclick="document.getElementById('mxSearchInput').focus()">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="mxSearchInput" placeholder="Rechercher un score…" autocomplete="off">
+                    <span class="mx-count" id="mxCount">0</span>
+                    <span class="mx-kbd mx-kbd-wrap">⌘K</span>
                 </div>
+                <div class="search-results" id="mxSearchResults"></div>
             </div>
-            
-            <main class="content">
-                <div class="page active" id="page-home">
-                    <div class="section-header"><h2 class="section-title">⭐ Favoris</h2></div>
-                    <div class="fav-grid" id="favGrid"></div>
-                    <div class="section-header"><h2 class="section-title">📋 Tous les scores</h2></div>
-                    <div class="calc-list" id="calcList"></div>
-                </div>
-                <div class="page" id="page-history">
-                    <div class="section-header"><h2 class="section-title">📊 Historique</h2></div>
-                    <div id="historyList"></div>
-                </div>
-                <div class="page" id="page-favorites">
-                    <div class="section-header"><h2 class="section-title">⭐ Mes favoris</h2></div>
-                    <div class="calc-list" id="favList"></div>
-                </div>
-            </main>
+
+            <div class="mx-chips" id="mxChips"></div>
+            <div class="mx-alpha" id="mxAlpha"></div>
+
+            <div class="mx-body">
+                <aside class="mx-sidebar">
+                    <div id="mxSide"></div>
+                    <div class="mx-alpha-grid" id="mxAlphaGrid"></div>
+                </aside>
+                <main class="mx-main content">
+                    <div class="page active" id="page-home">
+                        <div class="mx-sec" id="homeFav">
+                            <div class="mx-sec-head"><span class="mx-sec-title">Favoris</span><span class="mx-sec-link" onclick="navToTab('history')">Historique</span></div>
+                            <div class="fav-grid" id="favGrid"></div>
+                        </div>
+                        <div id="homeRecents">
+                            <div class="mx-sec"><div class="mx-sec-head"><span class="mx-sec-title">Récents</span></div></div>
+                            <div class="mx-list" id="recentList"></div>
+                        </div>
+                        <div id="filteredWrap" style="display:none">
+                            <div class="mx-sec"><div class="mx-sec-head"><span class="mx-sec-title" id="filteredTitle">Résultats</span><span class="mx-sec-link" onclick="clearFilter()">Effacer</span></div></div>
+                            <div class="mx-list" id="calcList"></div>
+                        </div>
+                    </div>
+                    <div class="page" id="page-history">
+                        <div class="mx-sec"><div class="mx-sec-head"><span class="mx-sec-title">Historique</span></div></div>
+                        <div class="mx-list" id="historyList"></div>
+                    </div>
+                    <div class="page" id="page-favorites">
+                        <div class="mx-sec"><div class="mx-sec-head"><span class="mx-sec-title">Mes favoris</span></div></div>
+                        <div class="mx-list" id="favList"></div>
+                    </div>
+                </main>
+            </div>
         </div>
 
         
@@ -2214,10 +2433,11 @@ header {
         </div>
 
         
-        <nav class="bottom-nav">
-            <button class="nav-item active" data-page="home"><span class="nav-icon">🏠</span><span class="nav-label">Accueil</span></button>
-            <button class="nav-item" data-page="history"><span class="nav-icon">📊</span><span class="nav-label">Historique</span></button>
-            <button class="nav-item" data-page="favorites"><span class="nav-icon">⭐</span><span class="nav-label">Favoris</span></button>
+        <nav class="mx-tabbar">
+            <button class="mx-tab active" data-tab="calculs" onclick="navToTab('calculs')"><i class="ti ti-calculator"></i>Calculs</button>
+            <button class="mx-tab" data-tab="guidelines" onclick="navToTab('guidelines')"><i class="ti ti-book"></i>Guidelines</button>
+            <button class="mx-tab" data-tab="medchat" onclick="navToTab('medchat')"><i class="ti ti-message-circle"></i>MedChat</button>
+            <button class="mx-tab" data-tab="history" onclick="navToTab('history')"><i class="ti ti-history"></i>Historique</button>
         </nav>
     </div>
 
@@ -2858,16 +3078,16 @@ header {
                 <div class="calc-header-title">Clairance Créatinine</div>
                 <div class="calc-header-sub">Cockcroft-Gault</div>
             </div>
-            <button class="btn-fav active" onclick="toggleFav('cg')">⭐</button>
+            <button class="btn-fav active" onclick="toggleFav('cg')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">👤 Patient</div>
+                <div class="form-title">Patient</div>
                 <div class="form-group">
                     <label class="form-label">Sexe</label>
                     <div class="radio-group">
-                        <label class="radio-opt selected" onclick="selectRadio(this,'cg-sex')"><input type="radio" name="cg-sex" value="M" checked=""><span class="radio-label">👨 Homme</span></label>
-                        <label class="radio-opt" onclick="selectRadio(this,'cg-sex')"><input type="radio" name="cg-sex" value="F"><span class="radio-label">👩 Femme</span></label>
+                        <label class="radio-opt selected" onclick="selectRadio(this,'cg-sex')"><input type="radio" name="cg-sex" value="M" checked=""><span class="radio-label">Homme</span></label>
+                        <label class="radio-opt" onclick="selectRadio(this,'cg-sex')"><input type="radio" name="cg-sex" value="F"><span class="radio-label">Femme</span></label>
                     </div>
                 </div>
                 <div class="form-group">
@@ -2900,11 +3120,11 @@ header {
                 <div class="calc-header-title">IMC</div>
                 <div class="calc-header-sub">Indice de Masse Corporelle</div>
             </div>
-            <button class="btn-fav active" onclick="toggleFav('imc')">⭐</button>
+            <button class="btn-fav active" onclick="toggleFav('imc')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📐 Mesures</div>
+                <div class="form-title">Mesures</div>
                 <div class="form-group">
                     <label class="form-label">Taille <span>(cm)</span></label>
                     <div class="input-unit" data-unit="cm"><input type="number" class="form-input" id="imc-taille" placeholder="175" oninput="calcIMC()"></div>
@@ -2931,11 +3151,11 @@ header {
                 <div class="calc-header-title">Score de Glasgow</div>
                 <div class="calc-header-sub">État de conscience</div>
             </div>
-            <button class="btn-fav active" onclick="toggleFav('glasgow')">⭐</button>
+            <button class="btn-fav active" onclick="toggleFav('glasgow')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">👁️ Ouverture des yeux (Y)</div>
+                <div class="form-title">Ouverture des yeux (Y)</div>
                 <div class="score-opts" id="gla-y">
                     <div class="score-opt" onclick="selectScore(this,'gla-y');calcGlasgow()" data-val="4"><div class="score-num">4</div><div class="score-text">Spontanée</div></div>
                     <div class="score-opt" onclick="selectScore(this,'gla-y');calcGlasgow()" data-val="3"><div class="score-num">3</div><div class="score-text">À la demande</div></div>
@@ -2944,7 +3164,7 @@ header {
                 </div>
             </div>
             <div class="form-card">
-                <div class="form-title">💬 Réponse verbale (V)</div>
+                <div class="form-title">Réponse verbale (V)</div>
                 <div class="score-opts" id="gla-v">
                     <div class="score-opt" onclick="selectScore(this,'gla-v');calcGlasgow()" data-val="5"><div class="score-num">5</div><div class="score-text">Orientée</div></div>
                     <div class="score-opt" onclick="selectScore(this,'gla-v');calcGlasgow()" data-val="4"><div class="score-num">4</div><div class="score-text">Confuse</div></div>
@@ -2954,7 +3174,7 @@ header {
                 </div>
             </div>
             <div class="form-card">
-                <div class="form-title">💪 Réponse motrice (M)</div>
+                <div class="form-title">Réponse motrice (M)</div>
                 <div class="score-opts" id="gla-m">
                     <div class="score-opt" onclick="selectScore(this,'gla-m');calcGlasgow()" data-val="6"><div class="score-num">6</div><div class="score-text">Obéit aux ordres</div></div>
                     <div class="score-opt" onclick="selectScore(this,'gla-m');calcGlasgow()" data-val="5"><div class="score-num">5</div><div class="score-text">Localise la douleur</div></div>
@@ -2981,11 +3201,11 @@ header {
                 <div class="calc-header-title">qSOFA</div>
                 <div class="calc-header-sub">Quick SOFA - Dépistage sepsis</div>
             </div>
-            <button class="btn-fav active" onclick="toggleFav('qsofa')">⭐</button>
+            <button class="btn-fav active" onclick="toggleFav('qsofa')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📋 Critères</div>
+                <div class="form-title">Critères</div>
                 <div class="check-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcQsofa()"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Fréquence respiratoire ≥ 22/min</div><div class="check-pts">+1 point</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcQsofa()"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Altération de la conscience (Glasgow &lt; 15)</div><div class="check-pts">+1 point</div></div></div>
@@ -3009,11 +3229,11 @@ header {
                 <div class="calc-header-title">CHA₂DS₂-VASc</div>
                 <div class="calc-header-sub">Risque AVC dans la FA</div>
             </div>
-            <button class="btn-fav active" onclick="toggleFav('chads')">⭐</button>
+            <button class="btn-fav active" onclick="toggleFav('chads')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📋 Critères</div>
+                <div class="form-title">Critères</div>
                 <div class="check-list" id="chads-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcChads()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title"><strong>C</strong> - Insuffisance cardiaque / FEVG ≤ 40%</div><div class="check-pts">+1</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcChads()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title"><strong>H</strong> - Hypertension artérielle</div><div class="check-pts">+1</div></div></div>
@@ -3042,11 +3262,11 @@ header {
                 <div class="calc-header-title">Score Wells EP</div>
                 <div class="calc-header-sub">Probabilité embolie pulmonaire</div>
             </div>
-            <button class="btn-fav active" onclick="toggleFav('wellsep')">⭐</button>
+            <button class="btn-fav active" onclick="toggleFav('wellsep')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📋 Critères</div>
+                <div class="form-title">Critères</div>
                 <div class="check-list" id="wellsep-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcWellsEP()" data-pts="3"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Signes cliniques de TVP</div><div class="check-pts">+3</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcWellsEP()" data-pts="3"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Diagnostic alternatif moins probable</div><div class="check-pts">+3</div></div></div>
@@ -3071,12 +3291,12 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">DFG CKD-EPI</div><div class="calc-header-sub">CKD-EPI 2021</div></div>
-            <button class="btn-fav" onclick="toggleFav('ckdepi')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('ckdepi')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">👤 Patient</div>
-                <div class="form-group"><label class="form-label">Sexe</label><div class="radio-group"><label class="radio-opt selected" onclick="selectRadio(this,'ckdepi-sex')"><input type="radio" name="ckdepi-sex" value="M" checked=""><span class="radio-label">👨 Homme</span></label><label class="radio-opt" onclick="selectRadio(this,'ckdepi-sex')"><input type="radio" name="ckdepi-sex" value="F"><span class="radio-label">👩 Femme</span></label></div></div>
+                <div class="form-title">Patient</div>
+                <div class="form-group"><label class="form-label">Sexe</label><div class="radio-group"><label class="radio-opt selected" onclick="selectRadio(this,'ckdepi-sex')"><input type="radio" name="ckdepi-sex" value="M" checked=""><span class="radio-label">Homme</span></label><label class="radio-opt" onclick="selectRadio(this,'ckdepi-sex')"><input type="radio" name="ckdepi-sex" value="F"><span class="radio-label">Femme</span></label></div></div>
                 <div class="form-group"><label class="form-label">Âge</label><div class="input-unit" data-unit="ans"><input type="number" class="form-input" id="ckdepi-age" placeholder="65" oninput="calcCKDEPI()"></div></div>
                 <div class="form-group"><label class="form-label">Créatininémie</label><div class="input-unit" data-unit="µmol/L"><input type="number" class="form-input" id="ckdepi-creat" placeholder="88" oninput="calcCKDEPI()"></div></div>
             </div>
@@ -3089,11 +3309,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Natrémie corrigée</div><div class="calc-header-sub">Correction pour hyperglycémie</div></div>
-            <button class="btn-fav" onclick="toggleFav('nacorr')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('nacorr')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">🧪 Biologie</div>
+                <div class="form-title">Biologie</div>
                 <div class="form-group"><label class="form-label">Natrémie mesurée</label><div class="input-unit" data-unit="mmol/L"><input type="number" class="form-input" id="nacorr-na" placeholder="135" oninput="calcNaCorr()"></div></div>
                 <div class="form-group"><label class="form-label">Glycémie</label><div class="input-unit" data-unit="mmol/L"><input type="number" class="form-input" id="nacorr-glyc" placeholder="5" oninput="calcNaCorr()"></div></div>
             </div>
@@ -3106,11 +3326,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Osmolarité plasmatique</div><div class="calc-header-sub">Osmolarité calculée</div></div>
-            <button class="btn-fav" onclick="toggleFav('osmo')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('osmo')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">🧪 Biologie</div>
+                <div class="form-title">Biologie</div>
                 <div class="form-group"><label class="form-label">Natrémie</label><div class="input-unit" data-unit="mmol/L"><input type="number" class="form-input" id="osmo-na" placeholder="140" oninput="calcOsmo()"></div></div>
                 <div class="form-group"><label class="form-label">Glycémie</label><div class="input-unit" data-unit="mmol/L"><input type="number" class="form-input" id="osmo-glyc" placeholder="5" oninput="calcOsmo()"></div></div>
                 <div class="form-group"><label class="form-label">Urée</label><div class="input-unit" data-unit="mmol/L"><input type="number" class="form-input" id="osmo-uree" placeholder="5" oninput="calcOsmo()"></div></div>
@@ -3124,11 +3344,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Trou anionique</div><div class="calc-header-sub">Anion gap</div></div>
-            <button class="btn-fav" onclick="toggleFav('ta')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('ta')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">🧪 Ionogramme</div>
+                <div class="form-title">Ionogramme</div>
                 <div class="form-group"><label class="form-label">Natrémie (Na+)</label><div class="input-unit" data-unit="mmol/L"><input type="number" class="form-input" id="ta-na" placeholder="140" oninput="calcTA()"></div></div>
                 <div class="form-group"><label class="form-label">Chlorémie (Cl-)</label><div class="input-unit" data-unit="mmol/L"><input type="number" class="form-input" id="ta-cl" placeholder="105" oninput="calcTA()"></div></div>
                 <div class="form-group"><label class="form-label">Bicarbonates (HCO3-)</label><div class="input-unit" data-unit="mmol/L"><input type="number" class="form-input" id="ta-hco3" placeholder="24" oninput="calcTA()"></div></div>
@@ -3142,11 +3362,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Calcémie corrigée</div><div class="calc-header-sub">Correction pour albumine</div></div>
-            <button class="btn-fav" onclick="toggleFav('cacorr')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('cacorr')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">🧪 Biologie</div>
+                <div class="form-title">Biologie</div>
                 <div class="form-group"><label class="form-label">Calcémie mesurée</label><div class="input-unit" data-unit="mmol/L"><input type="number" step="0.01" class="form-input" id="cacorr-ca" placeholder="2.4" oninput="calcCaCorr()"></div></div>
                 <div class="form-group"><label class="form-label">Albuminémie</label><div class="input-unit" data-unit="g/L"><input type="number" class="form-input" id="cacorr-alb" placeholder="40" oninput="calcCaCorr()"></div></div>
             </div>
@@ -3159,11 +3379,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">HAS-BLED</div><div class="calc-header-sub">Risque hémorragique</div></div>
-            <button class="btn-fav" onclick="toggleFav('hasbled')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('hasbled')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📋 Critères</div>
+                <div class="form-title">Critères</div>
                 <div class="check-list" id="hasbled-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcHASBLED()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title"><strong>H</strong> - HTA non contrôlée</div><div class="check-pts">+1</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcHASBLED()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title"><strong>A</strong> - Anomalie rénale</div><div class="check-pts">+1</div></div></div>
@@ -3185,11 +3405,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">QTc corrigé</div><div class="calc-header-sub">Bazett &amp; Fridericia</div></div>
-            <button class="btn-fav" onclick="toggleFav('qtc')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('qtc')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📊 ECG</div>
+                <div class="form-title">ECG</div>
                 <div class="form-group"><label class="form-label">Intervalle QT mesuré</label><div class="input-unit" data-unit="ms"><input type="number" class="form-input" id="qtc-qt" placeholder="400" oninput="calcQTc()"></div></div>
                 <div class="form-group"><label class="form-label">Fréquence cardiaque</label><div class="input-unit" data-unit="bpm"><input type="number" class="form-input" id="qtc-fc" placeholder="70" oninput="calcQTc()"></div></div>
             </div>
@@ -3202,15 +3422,15 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Score SOFA</div><div class="calc-header-sub">Défaillance d'organes</div></div>
-            <button class="btn-fav" onclick="toggleFav('sofa')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('sofa')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
-            <div class="form-card"><div class="form-title">🫁 Respiration (PaO2/FiO2)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">≥400 (0)</option><option value="1">300-399 (1)</option><option value="2">200-299 (2)</option><option value="3">&lt;200+VM (3)</option><option value="4">&lt;100+VM (4)</option></select></div>
-            <div class="form-card"><div class="form-title">🧠 Neurologie (Glasgow)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">15 (0)</option><option value="1">13-14 (1)</option><option value="2">10-12 (2)</option><option value="3">6-9 (3)</option><option value="4">&lt;6 (4)</option></select></div>
-            <div class="form-card"><div class="form-title">❤️ Cardiovasculaire</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">PAM ≥70 (0)</option><option value="1">PAM &lt;70 (1)</option><option value="2">Dopa ≤5 (2)</option><option value="3">Dopa &gt;5 (3)</option><option value="4">NA &gt;0.1 (4)</option></select></div>
-            <div class="form-card"><div class="form-title">🟡 Foie (Bili µmol/L)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">&lt;20 (0)</option><option value="1">20-32 (1)</option><option value="2">33-101 (2)</option><option value="3">102-204 (3)</option><option value="4">&gt;204 (4)</option></select></div>
-            <div class="form-card"><div class="form-title">🩸 Coagulation (Plaq G/L)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">≥150 (0)</option><option value="1">100-149 (1)</option><option value="2">50-99 (2)</option><option value="3">20-49 (3)</option><option value="4">&lt;20 (4)</option></select></div>
-            <div class="form-card"><div class="form-title">🫘 Rein (Créat µmol/L)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">&lt;110 (0)</option><option value="1">110-170 (1)</option><option value="2">171-299 (2)</option><option value="3">300-440 (3)</option><option value="4">&gt;440 (4)</option></select></div>
+            <div class="form-card"><div class="form-title">Respiration (PaO2/FiO2)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">≥400 (0)</option><option value="1">300-399 (1)</option><option value="2">200-299 (2)</option><option value="3">&lt;200+VM (3)</option><option value="4">&lt;100+VM (4)</option></select></div>
+            <div class="form-card"><div class="form-title">Neurologie (Glasgow)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">15 (0)</option><option value="1">13-14 (1)</option><option value="2">10-12 (2)</option><option value="3">6-9 (3)</option><option value="4">&lt;6 (4)</option></select></div>
+            <div class="form-card"><div class="form-title">Cardiovasculaire</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">PAM ≥70 (0)</option><option value="1">PAM &lt;70 (1)</option><option value="2">Dopa ≤5 (2)</option><option value="3">Dopa &gt;5 (3)</option><option value="4">NA &gt;0.1 (4)</option></select></div>
+            <div class="form-card"><div class="form-title">Foie (Bili µmol/L)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">&lt;20 (0)</option><option value="1">20-32 (1)</option><option value="2">33-101 (2)</option><option value="3">102-204 (3)</option><option value="4">&gt;204 (4)</option></select></div>
+            <div class="form-card"><div class="form-title">Coagulation (Plaq G/L)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">≥150 (0)</option><option value="1">100-149 (1)</option><option value="2">50-99 (2)</option><option value="3">20-49 (3)</option><option value="4">&lt;20 (4)</option></select></div>
+            <div class="form-card"><div class="form-title">Rein (Créat µmol/L)</div><select class="form-input sofa-select" onchange="calcSOFA()"><option value="0">&lt;110 (0)</option><option value="1">110-170 (1)</option><option value="2">171-299 (2)</option><option value="3">300-440 (3)</option><option value="4">&gt;440 (4)</option></select></div>
             <div class="result-card has-result" id="sofa-result"><div class="result-label">Score SOFA</div><div class="result-value" id="sofa-val">0</div><div class="result-unit">/ 24</div><div class="result-interp show normal" id="sofa-interp">✓ Mortalité &lt;3%</div></div>
         </div>
     </div>
@@ -3220,15 +3440,15 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">NEWS 2</div><div class="calc-header-sub">Early Warning Score</div></div>
-            <button class="btn-fav" onclick="toggleFav('news')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('news')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
-            <div class="form-card"><div class="form-title">🫁 FR</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤8 (3)</option><option value="1">9-11 (1)</option><option value="0" selected="">12-20 (0)</option><option value="2">21-24 (2)</option><option value="3">≥25 (3)</option></select></div>
-            <div class="form-card"><div class="form-title">💨 SpO2</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤91% (3)</option><option value="2">92-93% (2)</option><option value="1">94-95% (1)</option><option value="0" selected="">≥96% (0)</option></select></div>
-            <div class="form-card"><div class="form-title">🌡️ T°</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤35.0 (3)</option><option value="1">35.1-36 (1)</option><option value="0" selected="">36.1-38 (0)</option><option value="1">38.1-39 (1)</option><option value="2">≥39.1 (2)</option></select></div>
-            <div class="form-card"><div class="form-title">🩺 PAS</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤90 (3)</option><option value="2">91-100 (2)</option><option value="1">101-110 (1)</option><option value="0" selected="">111-219 (0)</option><option value="3">≥220 (3)</option></select></div>
-            <div class="form-card"><div class="form-title">❤️ FC</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤40 (3)</option><option value="1">41-50 (1)</option><option value="0" selected="">51-90 (0)</option><option value="1">91-110 (1)</option><option value="2">111-130 (2)</option><option value="3">≥131 (3)</option></select></div>
-            <div class="form-card"><div class="form-title">🧠 Conscience</div><select class="form-input news-select" onchange="calcNEWS()"><option value="0" selected="">Alerte (0)</option><option value="3">Confusion (3)</option></select></div>
+            <div class="form-card"><div class="form-title">FR</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤8 (3)</option><option value="1">9-11 (1)</option><option value="0" selected="">12-20 (0)</option><option value="2">21-24 (2)</option><option value="3">≥25 (3)</option></select></div>
+            <div class="form-card"><div class="form-title">SpO2</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤91% (3)</option><option value="2">92-93% (2)</option><option value="1">94-95% (1)</option><option value="0" selected="">≥96% (0)</option></select></div>
+            <div class="form-card"><div class="form-title">T°</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤35.0 (3)</option><option value="1">35.1-36 (1)</option><option value="0" selected="">36.1-38 (0)</option><option value="1">38.1-39 (1)</option><option value="2">≥39.1 (2)</option></select></div>
+            <div class="form-card"><div class="form-title">PAS</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤90 (3)</option><option value="2">91-100 (2)</option><option value="1">101-110 (1)</option><option value="0" selected="">111-219 (0)</option><option value="3">≥220 (3)</option></select></div>
+            <div class="form-card"><div class="form-title">FC</div><select class="form-input news-select" onchange="calcNEWS()"><option value="3">≤40 (3)</option><option value="1">41-50 (1)</option><option value="0" selected="">51-90 (0)</option><option value="1">91-110 (1)</option><option value="2">111-130 (2)</option><option value="3">≥131 (3)</option></select></div>
+            <div class="form-card"><div class="form-title">Conscience</div><select class="form-input news-select" onchange="calcNEWS()"><option value="0" selected="">Alerte (0)</option><option value="3">Confusion (3)</option></select></div>
             <div class="result-card has-result" id="news-result"><div class="result-label">Score NEWS 2</div><div class="result-value" id="news-val">0</div><div class="result-unit">/ 20</div><div class="result-interp show normal" id="news-interp">✓ Risque faible</div></div>
         </div>
     </div>
@@ -3238,11 +3458,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Score Wells TVP</div><div class="calc-header-sub">Probabilité thrombose veineuse</div></div>
-            <button class="btn-fav" onclick="toggleFav('wellstvp')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('wellstvp')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📋 Critères</div>
+                <div class="form-title">Critères</div>
                 <div class="check-list" id="wellstvp-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcWellsTVP()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Cancer actif</div><div class="check-pts">+1</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcWellsTVP()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Paralysie ou immobilisation MI</div><div class="check-pts">+1</div></div></div>
@@ -3265,11 +3485,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">CURB-65</div><div class="calc-header-sub">Gravité pneumopathie</div></div>
-            <button class="btn-fav" onclick="toggleFav('curb65')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('curb65')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📋 Critères</div>
+                <div class="form-title">Critères</div>
                 <div class="check-list" id="curb65-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcCURB65()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title"><strong>C</strong> - Confusion</div><div class="check-pts">+1</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcCURB65()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title"><strong>U</strong> - Urée &gt;7 mmol/L</div><div class="check-pts">+1</div></div></div>
@@ -3287,16 +3507,16 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Score Fine (PSI)</div><div class="calc-header-sub">Pneumonia Severity Index</div></div>
-            <button class="btn-fav" onclick="toggleFav('fine')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('fine')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">👤 Patient</div>
-                <div class="form-group"><label class="form-label">Sexe</label><div class="radio-group"><label class="radio-opt selected" onclick="selectRadio(this,'fine-sex');calcFine()"><input type="radio" name="fine-sex" value="M" checked=""><span class="radio-label">👨 Homme</span></label><label class="radio-opt" onclick="selectRadio(this,'fine-sex');calcFine()"><input type="radio" name="fine-sex" value="F"><span class="radio-label">👩 Femme (-10)</span></label></div></div>
+                <div class="form-title">Patient</div>
+                <div class="form-group"><label class="form-label">Sexe</label><div class="radio-group"><label class="radio-opt selected" onclick="selectRadio(this,'fine-sex');calcFine()"><input type="radio" name="fine-sex" value="M" checked=""><span class="radio-label">Homme</span></label><label class="radio-opt" onclick="selectRadio(this,'fine-sex');calcFine()"><input type="radio" name="fine-sex" value="F"><span class="radio-label">Femme (-10)</span></label></div></div>
                 <div class="form-group"><label class="form-label">Âge</label><div class="input-unit" data-unit="ans"><input type="number" class="form-input" id="fine-age" placeholder="65" oninput="calcFine()"></div></div>
             </div>
             <div class="form-card">
-                <div class="form-title">📋 Critères</div>
+                <div class="form-title">Critères</div>
                 <div class="check-list" id="fine-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcFine()" data-pts="10"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Vie en institution</div><div class="check-pts">+10</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcFine()" data-pts="30"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Cancer</div><div class="check-pts">+30</div></div></div>
@@ -3320,14 +3540,14 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Child-Pugh</div><div class="calc-header-sub">Insuffisance hépatique</div></div>
-            <button class="btn-fav" onclick="toggleFav('child')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('child')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
-            <div class="form-card"><div class="form-title">🟡 Bilirubine (µmol/L)</div><select class="form-input child-select" onchange="calcChild()"><option value="1">&lt;35 (1)</option><option value="2">35-50 (2)</option><option value="3">&gt;50 (3)</option></select></div>
-            <div class="form-card"><div class="form-title">🩸 Albumine (g/L)</div><select class="form-input child-select" onchange="calcChild()"><option value="1">&gt;35 (1)</option><option value="2">28-35 (2)</option><option value="3">&lt;28 (3)</option></select></div>
-            <div class="form-card"><div class="form-title">⏱️ INR</div><select class="form-input child-select" onchange="calcChild()"><option value="1">&lt;1.7 (1)</option><option value="2">1.7-2.3 (2)</option><option value="3">&gt;2.3 (3)</option></select></div>
-            <div class="form-card"><div class="form-title">💧 Ascite</div><select class="form-input child-select" onchange="calcChild()"><option value="1">Absente (1)</option><option value="2">Minime (2)</option><option value="3">Modérée (3)</option></select></div>
-            <div class="form-card"><div class="form-title">🧠 Encéphalopathie</div><select class="form-input child-select" onchange="calcChild()"><option value="1">Absente (1)</option><option value="2">Grade I-II (2)</option><option value="3">Grade III-IV (3)</option></select></div>
+            <div class="form-card"><div class="form-title">Bilirubine (µmol/L)</div><select class="form-input child-select" onchange="calcChild()"><option value="1">&lt;35 (1)</option><option value="2">35-50 (2)</option><option value="3">&gt;50 (3)</option></select></div>
+            <div class="form-card"><div class="form-title">Albumine (g/L)</div><select class="form-input child-select" onchange="calcChild()"><option value="1">&gt;35 (1)</option><option value="2">28-35 (2)</option><option value="3">&lt;28 (3)</option></select></div>
+            <div class="form-card"><div class="form-title">⏱ INR</div><select class="form-input child-select" onchange="calcChild()"><option value="1">&lt;1.7 (1)</option><option value="2">1.7-2.3 (2)</option><option value="3">&gt;2.3 (3)</option></select></div>
+            <div class="form-card"><div class="form-title">Ascite</div><select class="form-input child-select" onchange="calcChild()"><option value="1">Absente (1)</option><option value="2">Minime (2)</option><option value="3">Modérée (3)</option></select></div>
+            <div class="form-card"><div class="form-title">Encéphalopathie</div><select class="form-input child-select" onchange="calcChild()"><option value="1">Absente (1)</option><option value="2">Grade I-II (2)</option><option value="3">Grade III-IV (3)</option></select></div>
             <div class="result-card has-result" id="child-result"><div class="result-label">Score Child-Pugh</div><div class="result-value" id="child-val">5</div><div class="result-unit">/ 15</div><div class="result-interp show normal" id="child-interp">✓ Classe A</div></div>
         </div>
     </div>
@@ -3337,11 +3557,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Score MELD</div><div class="calc-header-sub">End-Stage Liver Disease</div></div>
-            <button class="btn-fav" onclick="toggleFav('meld')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('meld')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">🧪 Biologie</div>
+                <div class="form-title">Biologie</div>
                 <div class="form-group"><label class="form-label">Bilirubine</label><div class="input-unit" data-unit="µmol/L"><input type="number" class="form-input" id="meld-bili" placeholder="20" oninput="calcMELD()"></div></div>
                 <div class="form-group"><label class="form-label">INR</label><div class="input-unit" data-unit=""><input type="number" step="0.1" class="form-input" id="meld-inr" placeholder="1.2" oninput="calcMELD()"></div></div>
                 <div class="form-group"><label class="form-label">Créatinine</label><div class="input-unit" data-unit="µmol/L"><input type="number" class="form-input" id="meld-creat" placeholder="90" oninput="calcMELD()"></div></div>
@@ -3355,15 +3575,15 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Glasgow-Blatchford</div><div class="calc-header-sub">Hémorragie digestive haute</div></div>
-            <button class="btn-fav" onclick="toggleFav('gbs')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('gbs')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
-            <div class="form-card"><div class="form-title">🩸 Hémoglobine</div><select class="form-input gbs-select" onchange="calcGBS()"><option value="0">≥13H/≥12F (0)</option><option value="1">12-12.9H/10-11.9F (1)</option><option value="3">10-11.9H (3)</option><option value="6">&lt;10 (6)</option></select></div>
-            <div class="form-card"><div class="form-title">🩺 PAS</div><select class="form-input gbs-select" onchange="calcGBS()"><option value="0">≥110 (0)</option><option value="1">100-109 (1)</option><option value="2">90-99 (2)</option><option value="3">&lt;90 (3)</option></select></div>
-            <div class="form-card"><div class="form-title">❤️ FC</div><select class="form-input gbs-select" onchange="calcGBS()"><option value="0">&lt;100 (0)</option><option value="1">≥100 (1)</option></select></div>
-            <div class="form-card"><div class="form-title">🧪 Urée</div><select class="form-input gbs-select" onchange="calcGBS()"><option value="0">&lt;6.5 (0)</option><option value="2">6.5-7.9 (2)</option><option value="3">8-9.9 (3)</option><option value="4">10-25 (4)</option><option value="6">&gt;25 (6)</option></select></div>
+            <div class="form-card"><div class="form-title">Hémoglobine</div><select class="form-input gbs-select" onchange="calcGBS()"><option value="0">≥13H/≥12F (0)</option><option value="1">12-12.9H/10-11.9F (1)</option><option value="3">10-11.9H (3)</option><option value="6">&lt;10 (6)</option></select></div>
+            <div class="form-card"><div class="form-title">PAS</div><select class="form-input gbs-select" onchange="calcGBS()"><option value="0">≥110 (0)</option><option value="1">100-109 (1)</option><option value="2">90-99 (2)</option><option value="3">&lt;90 (3)</option></select></div>
+            <div class="form-card"><div class="form-title">FC</div><select class="form-input gbs-select" onchange="calcGBS()"><option value="0">&lt;100 (0)</option><option value="1">≥100 (1)</option></select></div>
+            <div class="form-card"><div class="form-title">Urée</div><select class="form-input gbs-select" onchange="calcGBS()"><option value="0">&lt;6.5 (0)</option><option value="2">6.5-7.9 (2)</option><option value="3">8-9.9 (3)</option><option value="4">10-25 (4)</option><option value="6">&gt;25 (6)</option></select></div>
             <div class="form-card">
-                <div class="form-title">📋 Autres</div>
+                <div class="form-title">Autres</div>
                 <div class="check-list" id="gbs-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcGBS()" data-pts="2"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Méléna</div><div class="check-pts">+2</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcGBS()" data-pts="2"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Syncope</div><div class="check-pts">+2</div></div></div>
@@ -3380,11 +3600,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Score Alvarado</div><div class="calc-header-sub">Probabilité appendicite</div></div>
-            <button class="btn-fav" onclick="toggleFav('alvarado')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('alvarado')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📋 MANTRELS</div>
+                <div class="form-title">MANTRELS</div>
                 <div class="check-list" id="alvarado-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcAlvarado()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title"><strong>M</strong> - Migration douleur FID</div><div class="check-pts">+1</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcAlvarado()" data-pts="1"><div class="check-box">✓</div><div class="check-text"><div class="check-title"><strong>A</strong> - Anorexie</div><div class="check-pts">+1</div></div></div>
@@ -3405,11 +3625,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Canadian CT Head</div><div class="calc-header-sub">Indication TDM crânien</div></div>
-            <button class="btn-fav" onclick="toggleFav('canadian')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('canadian')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">⚠️ Critères de haut risque</div>
+                <div class="form-title">Critères de haut risque</div>
                 <div class="check-list" id="canadian-list">
                     <div class="check-opt" onclick="toggleCheck(this);calcCanadian()"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Glasgow &lt;15 à 2h</div></div></div>
                     <div class="check-opt" onclick="toggleCheck(this);calcCanadian()"><div class="check-box">✓</div><div class="check-text"><div class="check-title">Suspicion fracture ouverte/embarrure</div></div></div>
@@ -3429,11 +3649,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Surface corporelle</div><div class="calc-header-sub">Formule de Dubois</div></div>
-            <button class="btn-fav" onclick="toggleFav('sc')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('sc')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">📐 Mesures</div>
+                <div class="form-title">Mesures</div>
                 <div class="form-group"><label class="form-label">Taille</label><div class="input-unit" data-unit="cm"><input type="number" class="form-input" id="sc-taille" placeholder="175" oninput="calcSC()"></div></div>
                 <div class="form-group"><label class="form-label">Poids</label><div class="input-unit" data-unit="kg"><input type="number" class="form-input" id="sc-poids" placeholder="70" oninput="calcSC()"></div></div>
             </div>
@@ -3446,12 +3666,12 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Poids idéal</div><div class="calc-header-sub">Formule de Lorentz</div></div>
-            <button class="btn-fav" onclick="toggleFav('poids')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('poids')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">👤 Patient</div>
-                <div class="form-group"><label class="form-label">Sexe</label><div class="radio-group"><label class="radio-opt selected" onclick="selectRadio(this,'poids-sex');calcPoidsIdeal()"><input type="radio" name="poids-sex" value="M" checked=""><span class="radio-label">👨 Homme</span></label><label class="radio-opt" onclick="selectRadio(this,'poids-sex');calcPoidsIdeal()"><input type="radio" name="poids-sex" value="F"><span class="radio-label">👩 Femme</span></label></div></div>
+                <div class="form-title">Patient</div>
+                <div class="form-group"><label class="form-label">Sexe</label><div class="radio-group"><label class="radio-opt selected" onclick="selectRadio(this,'poids-sex');calcPoidsIdeal()"><input type="radio" name="poids-sex" value="M" checked=""><span class="radio-label">Homme</span></label><label class="radio-opt" onclick="selectRadio(this,'poids-sex');calcPoidsIdeal()"><input type="radio" name="poids-sex" value="F"><span class="radio-label">Femme</span></label></div></div>
                 <div class="form-group"><label class="form-label">Taille</label><div class="input-unit" data-unit="cm"><input type="number" class="form-input" id="poids-taille" placeholder="175" oninput="calcPoidsIdeal()"></div></div>
             </div>
             <div class="result-card" id="poids-result"><div class="result-label">Poids idéal</div><div class="result-value" id="poids-val">--</div><div class="result-unit">kg</div><div class="result-interp" id="poids-interp"></div></div>
@@ -3463,11 +3683,11 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Dose selon poids</div><div class="calc-header-sub">Calculateur posologie</div></div>
-            <button class="btn-fav" onclick="toggleFav('dose')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('dose')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-title">💊 Posologie</div>
+                <div class="form-title">Posologie</div>
                 <div class="form-group"><label class="form-label">Poids</label><div class="input-unit" data-unit="kg"><input type="number" class="form-input" id="dose-poids" placeholder="70" oninput="calcDose()"></div></div>
                 <div class="form-group"><label class="form-label">Dose prescrite</label><div class="input-unit" data-unit="mg/kg"><input type="number" step="0.1" class="form-input" id="dose-dose" placeholder="10" oninput="calcDose()"></div></div>
             </div>
@@ -3480,15 +3700,15 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Score Apgar</div><div class="calc-header-sub">Évaluation nouveau-né</div></div>
-            <button class="btn-fav" onclick="toggleFav('apgar')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('apgar')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
-            <div class="form-card"><div class="form-title">❤️ FC</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Absente (0)</option><option value="1">&lt;100 (1)</option><option value="2">≥100 (2)</option></select></div>
-            <div class="form-card"><div class="form-title">🫁 Respiration</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Absente (0)</option><option value="1">Lente (1)</option><option value="2">Cri vigoureux (2)</option></select></div>
-            <div class="form-card"><div class="form-title">💪 Tonus</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Flasque (0)</option><option value="1">Flexion (1)</option><option value="2">Actif (2)</option></select></div>
-            <div class="form-card"><div class="form-title">😤 Réactivité</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Aucune (0)</option><option value="1">Grimace (1)</option><option value="2">Cri (2)</option></select></div>
-            <div class="form-card"><div class="form-title">🎨 Coloration</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Cyanose (0)</option><option value="1">Extrémités (1)</option><option value="2">Rose (2)</option></select></div>
-            <div class="result-card has-result" id="apgar-result"><div class="result-label">Score Apgar</div><div class="result-value" id="apgar-val">0</div><div class="result-unit">/ 10</div><div class="result-interp show danger" id="apgar-interp">⛔ État critique</div></div>
+            <div class="form-card"><div class="form-title">FC</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Absente (0)</option><option value="1">&lt;100 (1)</option><option value="2">≥100 (2)</option></select></div>
+            <div class="form-card"><div class="form-title">Respiration</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Absente (0)</option><option value="1">Lente (1)</option><option value="2">Cri vigoureux (2)</option></select></div>
+            <div class="form-card"><div class="form-title">Tonus</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Flasque (0)</option><option value="1">Flexion (1)</option><option value="2">Actif (2)</option></select></div>
+            <div class="form-card"><div class="form-title">Réactivité</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Aucune (0)</option><option value="1">Grimace (1)</option><option value="2">Cri (2)</option></select></div>
+            <div class="form-card"><div class="form-title">Coloration</div><select class="form-input apgar-select" onchange="calcApgar()"><option value="0">Cyanose (0)</option><option value="1">Extrémités (1)</option><option value="2">Rose (2)</option></select></div>
+            <div class="result-card has-result" id="apgar-result"><div class="result-label">Score Apgar</div><div class="result-value" id="apgar-val">0</div><div class="result-unit">/ 10</div><div class="result-interp show danger" id="apgar-interp"> État critique</div></div>
         </div>
     </div>
 
@@ -3497,14 +3717,14 @@ header {
         <div class="calc-header">
             <button class="btn-back" onclick="closeCalc()">←</button>
             <div class="calc-header-info"><div class="calc-header-title">Score Silverman</div><div class="calc-header-sub">Détresse respi néonatale</div></div>
-            <button class="btn-fav" onclick="toggleFav('silverman')">⭐</button>
+            <button class="btn-fav" onclick="toggleFav('silverman')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
-            <div class="form-card"><div class="form-title">🫁 Balancement</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Synchrone (0)</option><option value="1">Immobile (1)</option><option value="2">Balancement (2)</option></select></div>
-            <div class="form-card"><div class="form-title">📍 Tirage</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Absent (0)</option><option value="1">Modéré (1)</option><option value="2">Intense (2)</option></select></div>
-            <div class="form-card"><div class="form-title">⬇️ Entonnoir</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Absent (0)</option><option value="1">Modéré (1)</option><option value="2">Intense (2)</option></select></div>
-            <div class="form-card"><div class="form-title">👃 BAN</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Absent (0)</option><option value="1">Modéré (1)</option><option value="2">Intense (2)</option></select></div>
-            <div class="form-card"><div class="form-title">😮 Geignement</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Absent (0)</option><option value="1">Stétho (1)</option><option value="2">Audible (2)</option></select></div>
+            <div class="form-card"><div class="form-title">Balancement</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Synchrone (0)</option><option value="1">Immobile (1)</option><option value="2">Balancement (2)</option></select></div>
+            <div class="form-card"><div class="form-title">Tirage</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Absent (0)</option><option value="1">Modéré (1)</option><option value="2">Intense (2)</option></select></div>
+            <div class="form-card"><div class="form-title">Entonnoir</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Absent (0)</option><option value="1">Modéré (1)</option><option value="2">Intense (2)</option></select></div>
+            <div class="form-card"><div class="form-title">BAN</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Absent (0)</option><option value="1">Modéré (1)</option><option value="2">Intense (2)</option></select></div>
+            <div class="form-card"><div class="form-title">Geignement</div><select class="form-input silverman-select" onchange="calcSilverman()"><option value="0">Absent (0)</option><option value="1">Stétho (1)</option><option value="2">Audible (2)</option></select></div>
             <div class="result-card has-result" id="silverman-result"><div class="result-label">Score Silverman</div><div class="result-value" id="silverman-val">0</div><div class="result-unit">/ 10</div><div class="result-interp show normal" id="silverman-interp">✓ Détresse légère</div></div>
         </div>
     </div>
@@ -3520,11 +3740,11 @@ header {
                 <div class="calc-header-title">ADL - Échelle de Katz</div>
                 <div class="calc-header-sub">Autonomie activités quotidiennes</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('adl')">★</button>
+            <button class="btn-fav" onclick="toggleFav('adl')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🧓 Activités de base</div>
+                <div class="form-card-title"> Activités de base</div>
                 <div class="check-list" id="adl-list">
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcADL()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Hygiène corporelle</div><div class="check-desc">Se lave seul (entrée/sortie baignoire)</div></div></div>
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcADL()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Habillage</div><div class="check-desc">S'habille seul complètement</div></div></div>
@@ -3546,11 +3766,11 @@ header {
                 <div class="calc-header-title">IADL - Lawton &amp; Brody</div>
                 <div class="calc-header-sub">Activités instrumentales</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('iadl')">★</button>
+            <button class="btn-fav" onclick="toggleFav('iadl')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🏠 Activités instrumentales</div>
+                <div class="form-card-title"> Activités instrumentales</div>
                 <div class="check-list" id="iadl-list">
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcIADL()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Téléphone</div><div class="check-desc">Utilise le téléphone de sa propre initiative</div></div></div>
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcIADL()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Courses</div><div class="check-desc">Fait les courses seul</div></div></div>
@@ -3574,11 +3794,11 @@ header {
                 <div class="calc-header-title">MNA-SF</div>
                 <div class="calc-header-sub">Dépistage dénutrition</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('mnasf')">★</button>
+            <button class="btn-fav" onclick="toggleFav('mnasf')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🍽️ Mini Nutritional Assessment - Short Form</div>
+                <div class="form-card-title"> Mini Nutritional Assessment - Short Form</div>
                 <div class="form-group">
                     <label class="form-label">A. Diminution des apports (3 derniers mois)</label>
                     <select class="form-select mnasf-select" onchange="calcMNASF()">
@@ -3641,11 +3861,11 @@ header {
                 <div class="calc-header-title">GDS-15</div>
                 <div class="calc-header-sub">Geriatric Depression Scale</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('gds15')">★</button>
+            <button class="btn-fav" onclick="toggleFav('gds15')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">😔 Questions (répondre par Oui/Non)</div>
+                <div class="form-card-title"> Questions (répondre par Oui/Non)</div>
                 <div class="check-list" id="gds15-list">
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcGDS15()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">1. Insatisfaction vie</div><div class="check-desc">Êtes-vous globalement insatisfait de votre vie ?</div></div></div>
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcGDS15()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">2. Abandon activités</div><div class="check-desc">Avez-vous abandonné beaucoup de vos activités ?</div></div></div>
@@ -3676,11 +3896,11 @@ header {
                 <div class="calc-header-title">Mini-GDS</div>
                 <div class="calc-header-sub">Dépistage dépression rapide</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('gds4')">★</button>
+            <button class="btn-fav" onclick="toggleFav('gds4')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">😔 4 questions de dépistage</div>
+                <div class="form-card-title"> 4 questions de dépistage</div>
                 <div class="check-list" id="gds4-list">
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcGDS4()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Découragé</div><div class="check-desc">Vous sentez-vous souvent découragé(e) et triste ?</div></div></div>
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcGDS4()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Vie vide</div><div class="check-desc">Avez-vous le sentiment que votre vie est vide ?</div></div></div>
@@ -3700,11 +3920,11 @@ header {
                 <div class="calc-header-title">Index de Charlson</div>
                 <div class="calc-header-sub">Comorbidités</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('charlson')">★</button>
+            <button class="btn-fav" onclick="toggleFav('charlson')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">📋 Comorbidités (cocher si présent)</div>
+                <div class="form-card-title"> Comorbidités (cocher si présent)</div>
                 <div class="check-list" id="charlson-list">
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcCharlson()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Infarctus du myocarde</div><div class="check-desc">+1 point</div></div></div>
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcCharlson()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Insuffisance cardiaque</div><div class="check-desc">+1 point</div></div></div>
@@ -3739,11 +3959,11 @@ header {
                 <div class="calc-header-title">Timed Get Up and Go</div>
                 <div class="calc-header-sub">Test de mobilité</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('getupgo')">★</button>
+            <button class="btn-fav" onclick="toggleFav('getupgo')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🚶 Instructions</div>
+                <div class="form-card-title"> Instructions</div>
                 <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Le patient se lève d'une chaise avec accoudoirs, marche 3 mètres, fait demi-tour, revient s'asseoir. Chronométrer.</p>
                 <div class="form-group">
                     <label class="form-label">Temps (secondes)</label>
@@ -3762,11 +3982,11 @@ header {
                 <div class="calc-header-title">Échelle de Braden</div>
                 <div class="calc-header-sub">Risque d'escarres</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('braden')">★</button>
+            <button class="btn-fav" onclick="toggleFav('braden')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🛏️ Évaluation</div>
+                <div class="form-card-title"> Évaluation</div>
                 <div class="form-group">
                     <label class="form-label">Perception sensorielle</label>
                     <select class="form-select braden-select" onchange="calcBraden()">
@@ -3833,11 +4053,11 @@ header {
                 <div class="calc-header-title">Score G8</div>
                 <div class="calc-header-sub">Oncogériatrie</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('g8')">★</button>
+            <button class="btn-fav" onclick="toggleFav('g8')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🎗️ Dépistage fragilité en oncologie</div>
+                <div class="form-card-title"> Dépistage fragilité en oncologie</div>
                 <div class="form-group">
                     <label class="form-label">Appétit (3 derniers mois)</label>
                     <select class="form-select g8-select" onchange="calcG8()">
@@ -3917,11 +4137,11 @@ header {
                 <div class="calc-header-title">CAM</div>
                 <div class="calc-header-sub">Confusion Assessment Method</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('cam')">★</button>
+            <button class="btn-fav" onclick="toggleFav('cam')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">😵 Critères diagnostiques du délirium</div>
+                <div class="form-card-title"> Critères diagnostiques du délirium</div>
                 <div class="check-list" id="cam-list">
                     <div class="check-opt" data-crit="1" onclick="toggleCheck(this);calcCAM()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">1. Début aigu et fluctuant</div><div class="check-desc">Changement brutal de l'état mental, fluctuant dans la journée</div></div></div>
                     <div class="check-opt" data-crit="2" onclick="toggleCheck(this);calcCAM()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">2. Inattention</div><div class="check-desc">Difficulté à maintenir l'attention, facilement distrait</div></div></div>
@@ -3941,11 +4161,11 @@ header {
                 <div class="calc-header-title">Critères de Fried</div>
                 <div class="calc-header-sub">Fragilité</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('fried')">★</button>
+            <button class="btn-fav" onclick="toggleFav('fried')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">💪 5 critères de fragilité</div>
+                <div class="form-card-title"> 5 critères de fragilité</div>
                 <div class="check-list" id="fried-list">
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcFried()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Perte de poids involontaire</div><div class="check-desc">&gt; 4.5 kg ou &gt; 5% du poids en 1 an</div></div></div>
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcFried()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Fatigue / Épuisement</div><div class="check-desc">Sensation d'épuisement ≥ 3 jours/semaine</div></div></div>
@@ -3966,11 +4186,11 @@ header {
                 <div class="calc-header-title">MNA Complet</div>
                 <div class="calc-header-sub">Mini Nutritional Assessment</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('mna')">★</button>
+            <button class="btn-fav" onclick="toggleFav('mna')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🍽️ Utilisez le MNA-SF pour le dépistage</div>
+                <div class="form-card-title"> Utilisez le MNA-SF pour le dépistage</div>
                 <p style="font-size:13px;color:var(--text-secondary);margin:16px 0;">Le MNA complet (18 questions) est réalisé si le MNA-SF indique un risque. Utilisez le MNA-SF disponible dans cette application pour le dépistage initial.</p>
                 <button class="form-input" style="background:var(--primary);color:white;border:none;cursor:pointer;font-weight:600;" onclick="openCalc('mnasf')">Ouvrir MNA-SF →</button>
             </div>
@@ -3985,11 +4205,11 @@ header {
                 <div class="calc-header-title">MMSE</div>
                 <div class="calc-header-sub">Mini Mental State Examination</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('mmse')">★</button>
+            <button class="btn-fav" onclick="toggleFav('mmse')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🧠 Score MMSE</div>
+                <div class="form-card-title"> Score MMSE</div>
                 <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Entrez le score total du MMSE réalisé (max 30 points)</p>
                 <div class="form-group">
                     <label class="form-label">Score total (/30)</label>
@@ -4008,11 +4228,11 @@ header {
                 <div class="calc-header-title">Test de l'Horloge</div>
                 <div class="calc-header-sub">Clock Drawing Test</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('horloge')">★</button>
+            <button class="btn-fav" onclick="toggleFav('horloge')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🕐 Évaluation du dessin</div>
+                <div class="form-card-title"> Évaluation du dessin</div>
                 <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Demandez au patient de dessiner une horloge indiquant 11h10</p>
                 <div class="form-group">
                     <label class="form-label">Score de Shulman (/5)</label>
@@ -4039,11 +4259,11 @@ header {
                 <div class="calc-header-title">Test de Tinetti</div>
                 <div class="calc-header-sub">Équilibre et marche</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('tinetti')">★</button>
+            <button class="btn-fav" onclick="toggleFav('tinetti')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🚶 Score Tinetti</div>
+                <div class="form-card-title"> Score Tinetti</div>
                 <div class="form-group">
                     <label class="form-label">Équilibre statique (/16)</label>
                     <input type="number" class="form-input tinetti-input" id="tinetti-eq" min="0" max="16" placeholder="0-16" oninput="calcTinetti()">
@@ -4065,11 +4285,11 @@ header {
                 <div class="calc-header-title">Échelle de Norton</div>
                 <div class="calc-header-sub">Risque d'escarres</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('norton')">★</button>
+            <button class="btn-fav" onclick="toggleFav('norton')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🛏️ Évaluation</div>
+                <div class="form-card-title"> Évaluation</div>
                 <div class="form-group">
                     <label class="form-label">État physique</label>
                     <select class="form-select norton-select" onchange="calcNorton()"><option value="4">4 - Bon</option><option value="3">3 - Moyen</option><option value="2">2 - Mauvais</option><option value="1">1 - Très mauvais</option></select>
@@ -4103,11 +4323,11 @@ header {
                 <div class="calc-header-title">SPPB</div>
                 <div class="calc-header-sub">Short Physical Performance Battery</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('sppb')">★</button>
+            <button class="btn-fav" onclick="toggleFav('sppb')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🏃 Performance physique</div>
+                <div class="form-card-title"> Performance physique</div>
                 <div class="form-group">
                     <label class="form-label">Équilibre</label>
                     <select class="form-select sppb-select" onchange="calcSPPB()"><option value="0">0 - Impossible</option><option value="1">1 - Pieds joints seul</option><option value="2">2 - Semi-tandem 10s</option><option value="3">3 - Tandem 3-9s</option><option value="4">4 - Tandem ≥10s</option></select>
@@ -4133,11 +4353,11 @@ header {
                 <div class="calc-header-title">Mini-Zarit</div>
                 <div class="calc-header-sub">Fardeau de l'aidant</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('zarit')">★</button>
+            <button class="btn-fav" onclick="toggleFav('zarit')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">🤝 Évaluation de l'aidant</div>
+                <div class="form-card-title"> Évaluation de l'aidant</div>
                 <div class="check-list" id="zarit-list">
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcZarit()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Manque de temps personnel</div></div></div>
                     <div class="check-opt" data-pts="1" onclick="toggleCheck(this);calcZarit()"><span class="check-box">✓</span><div class="check-info"><div class="check-label">Stress entre aide et responsabilités</div></div></div>
@@ -4159,11 +4379,11 @@ header {
                 <div class="calc-header-title">AGGIR Simplifié</div>
                 <div class="calc-header-sub">Estimation GIR</div>
             </div>
-            <button class="btn-fav" onclick="toggleFav('aggir')">★</button>
+            <button class="btn-fav" onclick="toggleFav('aggir')"><i class="ti ti-star"></i></button>
         </div>
         <div class="calc-body">
             <div class="form-card">
-                <div class="form-card-title">📊 Estimation basée sur ADL/IADL</div>
+                <div class="form-card-title"> Estimation basée sur ADL/IADL</div>
                 <div class="form-group">
                     <label class="form-label">Score ADL (/6)</label>
                     <input type="number" class="form-input" id="aggir-adl" min="0" max="6" placeholder="0-6" oninput="calcAGGIR()">
@@ -5655,6 +5875,245 @@ FORMAT :
         <button class="install-banner-close" onclick="closeInstallBanner()">×</button>
     </div>
 
+
+    <!-- ============================================================
+         REFONTE UX 2026 — Logique du shell Calculs (surcharge)
+         Redéfinit les fonctions de rendu/navigation pour le nouveau
+         design system. Les scores et calculateurs existants sont réutilisés.
+         ============================================================ -->
+    <script>
+    (function(){
+        const CAT_META = {
+            geriatrie: { label:'Gériatrie', color:'geria',     icon:'ti-user-heart' },
+            nephro:    { label:'Néphro',    color:'nephro',    icon:'ti-droplet' },
+            cardio:    { label:'Cardio',    color:'cardio',    icon:'ti-heart' },
+            rea:       { label:'Réa',       color:'rea',       icon:'ti-first-aid-kit' },
+            pneumo:    { label:'Pneumo',    color:'pneumo',    icon:'ti-lungs' },
+            neuro:     { label:'Neuro',     color:'neuro',     icon:'ti-brain' },
+            gastro:    { label:'Gastro',    color:'gastro',    icon:'ti-flask' },
+            pediatrie: { label:'Pédiatrie', color:'pediatrie', icon:'ti-mood-kid' },
+            general:   { label:'Général',   color:'general',   icon:'ti-ruler-measure' }
+        };
+        // Icônes spécifiques marquantes (sinon icône de catégorie)
+        const ICON_OVERRIDE = {
+            cg:'ti-flask', ckdepi:'ti-droplet', chads:'ti-heart', hasbled:'ti-droplet-half',
+            glasgow:'ti-brain', qtc:'ti-activity-heartbeat', mna:'ti-scale', mnasf:'ti-scale',
+            mmse:'ti-brain', horloge:'ti-clock', getupgo:'ti-clock', tinetti:'ti-walk',
+            sppb:'ti-run', charlson:'ti-clipboard-list', cam:'ti-mood-confuzed',
+            imc:'ti-scale', braden:'ti-bed', norton:'ti-bed', zarit:'ti-heart-handshake',
+            news:'ti-alert-triangle', qsofa:'ti-urgent', sofa:'ti-building-hospital',
+            curb65:'ti-lungs', fine:'ti-lungs', apgar:'ti-baby-carriage'
+        };
+        // Expose to global for inline handlers
+        window.CAT_META = CAT_META;
+        window.mxCurrentLetter = null;
+
+        const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+        const letterOf = name => norm(name).trim().charAt(0).toUpperCase();
+        window.sIcon = c => ICON_OVERRIDE[c.id] || (CAT_META[c.cat]||CAT_META.general).icon;
+        window.sColor = c => (CAT_META[c.cat]||CAT_META.general).color;
+        const catLabel = cat => cat==='all' ? 'Tous' : (CAT_META[cat]||{label:cat}).label;
+
+        // ---------- Catégories (pills + sidebar) ----------
+        window.renderChips = function(){
+            const cats = ['all', ...Object.keys(CAT_META)];
+            const activeCat = window.mxCurrentLetter ? null : currentCat;
+            const chips = document.getElementById('mxChips');
+            if (chips) chips.innerHTML = cats.map(cat =>
+                `<span class="mx-chip ${activeCat===cat?'active':''}" onclick="selectCat('${cat}')">${catLabel(cat)}</span>`
+            ).join('');
+            const side = document.getElementById('mxSide');
+            if (side) side.innerHTML = cats.map(cat => {
+                const icon = cat==='all' ? 'ti-layout-grid' : CAT_META[cat].icon;
+                const n = cat==='all' ? CALCS.length : CALCS.filter(c=>c.cat===cat).length;
+                return `<div class="mx-side-item ${activeCat===cat?'active':''}" onclick="selectCat('${cat}')"><i class="ti ${icon}"></i>${catLabel(cat)}<span class="n">${n}</span></div>`;
+            }).join('');
+        };
+
+        // ---------- Index alphabétique dynamique ----------
+        window.renderAlpha = function(){
+            const present = new Set(CALCS.map(c=>letterOf(c.name)));
+            const html = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(L=>{
+                const empty = !present.has(L);
+                const active = window.mxCurrentLetter===L;
+                const cls = `mx-alpha-letter${empty?' empty':''}${active?' active':''}`;
+                return `<span class="${cls}" ${empty?'':`onclick="selectLetter('${L}')"`}>${L}</span>`;
+            }).join('');
+            const a = document.getElementById('mxAlpha'); if (a) a.innerHTML = html;
+            const g = document.getElementById('mxAlphaGrid'); if (g) g.innerHTML = html;
+        };
+
+        window.selectCat = function(cat){ currentCat = cat; window.mxCurrentLetter = null; refreshBrowse(); };
+        window.selectLetter = function(L){ window.mxCurrentLetter = L; currentCat = 'all'; refreshBrowse(); };
+        window.clearFilter = function(){ currentCat = 'all'; window.mxCurrentLetter = null; refreshBrowse(); };
+
+        function refreshBrowse(){ renderChips(); renderAlpha(); updateHomeView(); }
+
+        // ---------- Bascule accueil / liste filtrée ----------
+        window.updateHomeView = function(){
+            const filtering = currentCat !== 'all' || window.mxCurrentLetter;
+            const fav = document.getElementById('homeFav');
+            const rec = document.getElementById('homeRecents');
+            const wrap = document.getElementById('filteredWrap');
+            if (fav) fav.style.display = filtering ? 'none' : '';
+            if (rec) rec.style.display = filtering ? 'none' : '';
+            if (wrap) wrap.style.display = filtering ? 'block' : 'none';
+            if (filtering){
+                renderCalcList();
+                const t = document.getElementById('filteredTitle');
+                if (t) t.textContent = window.mxCurrentLetter ? ('Lettre ' + window.mxCurrentLetter) : catLabel(currentCat);
+            } else {
+                renderFavorites();
+                renderRecents();
+            }
+        };
+
+        // ---------- Rendus (surcharges) ----------
+        function rowHTML(c){
+            return `<div class="mx-row" onclick="openCalc('${c.id}')">
+                <div class="mx-row-icon c-${sColor(c)}"><i class="ti ${sIcon(c)}"></i></div>
+                <div class="mx-row-body"><div class="mx-row-title">${c.name}</div><div class="mx-row-sub">${catLabel(c.cat)} · ${c.desc}</div></div>
+                <i class="ti ti-chevron-right mx-row-chevron"></i>
+            </div>`;
+        }
+
+        window.renderCalcList = function(){
+            const list = document.getElementById('calcList'); if (!list) return;
+            const f = CALCS.filter(c =>
+                (currentCat==='all' || c.cat===currentCat) &&
+                (!window.mxCurrentLetter || letterOf(c.name)===window.mxCurrentLetter)
+            );
+            list.innerHTML = f.length ? f.map(rowHTML).join('')
+                : `<div class="mx-empty"><i class="ti ti-mood-empty"></i>Aucun score</div>`;
+        };
+
+        window.renderFavorites = function(){
+            const grid = document.getElementById('favGrid'); if (!grid) return;
+            const favs = favorites.map(id=>CALCS.find(c=>c.id===id)).filter(Boolean).slice(0,6);
+            grid.innerHTML = favs.length ? favs.map(c =>
+                `<div class="fav-card" onclick="openCalc('${c.id}')">
+                    <div class="mx-fav-top"><i class="ti ${sIcon(c)} ic-${sColor(c)}"></i><i class="ti ti-star mx-fav-star"></i></div>
+                    <div class="mx-fav-title">${c.name}</div><div class="mx-fav-sub">${c.short}</div>
+                </div>`
+            ).join('') : `<div class="mx-empty" style="grid-column:1/-1"><i class="ti ti-star"></i>Aucun favori</div>`;
+        };
+
+        window.renderRecents = function(){
+            const el = document.getElementById('recentList'); if (!el) return;
+            const seen = new Set(); const rec = [];
+            for (const h of history){ if (seen.has(h.calc)) continue; seen.add(h.calc);
+                const c = CALCS.find(x=>x.id===h.calc); if (c) rec.push({c,h});
+                if (rec.length>=6) break; }
+            el.innerHTML = rec.length ? rec.map(({c,h}) =>
+                `<div class="mx-row" onclick="openCalc('${c.id}')">
+                    <div class="mx-row-icon c-${sColor(c)}"><i class="ti ${sIcon(c)}"></i></div>
+                    <div class="mx-row-body"><div class="mx-row-title">${c.name}</div><div class="mx-row-sub">${catLabel(c.cat)} · ${c.short}</div></div>
+                    <span class="mx-row-time">${h.date||''}</span>
+                </div>`
+            ).join('') : `<div class="mx-empty"><i class="ti ti-history"></i>Aucun calcul récent</div>`;
+        };
+
+        window.renderHistory = function(){
+            const list = document.getElementById('historyList'); if (!list) return;
+            list.innerHTML = history.length ? history.slice(0,30).map(h => {
+                const c = CALCS.find(x=>x.id===h.calc);
+                const col = c?sColor(c):'general', ic = c?sIcon(c):'ti-calculator';
+                return `<div class="mx-row" onclick="openCalc('${h.calc}')">
+                    <div class="mx-row-icon c-${col}"><i class="ti ${ic}"></i></div>
+                    <div class="mx-row-body"><div class="mx-row-title">${h.name}</div><div class="mx-row-sub">${h.date||''}</div></div>
+                    <span class="mx-row-time" style="font-weight:600;color:var(--mx-text-primary)">${h.value} ${h.unit||''}</span>
+                </div>`;
+            }).join('') : `<div class="mx-empty"><i class="ti ti-history"></i>Aucun calcul récent</div>`;
+        };
+
+        window.renderFavPage = function(){
+            const list = document.getElementById('favList'); if (!list) return;
+            const favs = favorites.map(id=>CALCS.find(c=>c.id===id)).filter(Boolean);
+            list.innerHTML = favs.length ? favs.map(rowHTML).join('')
+                : `<div class="mx-empty"><i class="ti ti-star"></i>Aucun favori</div>`;
+        };
+
+        // ---------- Navigation ----------
+        window.switchSection = function(section){
+            const calc = document.getElementById('sectionCalculs');
+            const guide = document.getElementById('sectionGuidelines');
+            const chat = document.getElementById('sectionMedchat');
+            if (calc) calc.classList.add('hidden');
+            if (guide) guide.classList.remove('active');
+            if (chat) chat.classList.remove('active');
+            if (section==='calculs' && calc) calc.classList.remove('hidden');
+            else if (section==='guidelines' && guide) guide.classList.add('active');
+            else if (section==='medchat' && chat) chat.classList.add('active');
+        };
+
+        window.switchPage = function(page){
+            document.querySelectorAll('#sectionCalculs .page').forEach(p=>p.classList.remove('active'));
+            const el = document.getElementById('page-'+page);
+            if (el) el.classList.add('active');
+            if (page==='favorites') renderFavPage();
+            else if (page==='history') renderHistory();
+            else if (page==='home') updateHomeView();
+        };
+
+        window.navToTab = function(tab){
+            document.querySelectorAll('.mx-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+            if (tab==='guidelines'){ switchSection('guidelines'); return; }
+            if (tab==='medchat'){ switchSection('medchat'); return; }
+            switchSection('calculs');
+            switchPage(tab==='history' ? 'history' : 'home');
+        };
+
+        // ---------- Recherche ----------
+        window.mxSearch = function(q){
+            const box = document.getElementById('mxSearchResults'); if (!box) return;
+            if (!q.trim()){ box.classList.remove('show'); box.innerHTML=''; return; }
+            const nq = norm(q);
+            const f = CALCS.filter(c => norm(c.name+' '+c.short+' '+c.desc).includes(nq)).slice(0,12);
+            box.innerHTML = f.length ? f.map(c =>
+                `<div class="search-item" onclick="openCalc('${c.id}');mxCloseSearch()">
+                    <div class="mx-row-icon c-${sColor(c)}" style="width:30px;height:30px;font-size:15px"><i class="ti ${sIcon(c)}"></i></div>
+                    <div style="flex:1;min-width:0"><div class="mx-row-title" style="font-size:13px">${c.name}</div><div class="mx-row-sub">${catLabel(c.cat)} · ${c.short}</div></div>
+                </div>`
+            ).join('') : `<div class="search-item"><span class="mx-row-sub">Aucun résultat</span></div>`;
+            box.classList.add('show');
+        };
+        window.mxCloseSearch = function(){
+            const b = document.getElementById('mxSearchResults'); if (b){ b.classList.remove('show'); }
+            const i = document.getElementById('mxSearchInput'); if (i) i.value='';
+        };
+
+        // ---------- Init ----------
+        function initMx(){
+            const count = document.getElementById('mxCount'); if (count) count.textContent = CALCS.length;
+            // Avatar + service depuis les réglages utilisateur
+            try {
+                const av = document.getElementById('mxAvatar');
+                if (av && typeof userSettings==='object'){
+                    const parts = (userSettings.name||'GS').replace(/^Dr\.?\s*/i,'').trim().split(/\s+/);
+                    av.textContent = (parts[0]?.[0]||'G').toUpperCase() + (parts[1]?.[0]||parts[0]?.[1]||'S').toUpperCase();
+                    const sub = document.getElementById('mxBrandSub');
+                    if (sub && userSettings.service) sub.textContent = 'Gériatrie ' + userSettings.service;
+                }
+            } catch(e){}
+            renderChips();
+            renderAlpha();
+            updateHomeView();
+            const input = document.getElementById('mxSearchInput');
+            if (input) input.addEventListener('input', function(){ mxSearch(this.value); });
+            document.addEventListener('click', function(e){
+                if (!e.target.closest('#mxSearchContainer')) {
+                    const b = document.getElementById('mxSearchResults'); if (b) b.classList.remove('show');
+                }
+            });
+            // Raccourci ⌘K / Ctrl+K
+            document.addEventListener('keydown', function(e){
+                if ((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); const i=document.getElementById('mxSearchInput'); if(i) i.focus(); }
+            });
+        }
+        if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', initMx);
+        else initMx();
+    })();
+    </script>
 
     <!-- Supabase Auth — Scripts d'authentification -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
