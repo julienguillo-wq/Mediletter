@@ -1,3 +1,13 @@
+# Pipelines de données MedApp
+
+Deux pipelines alimentent l'app via des fichiers de données uniques consommés
+par des moteurs de rendu uniques, avec le même garde-fou `valide:false`.
+
+- **Scores** : `scrape_medicalcul.py` + `reformulate_geriatrie.py` → `data/scores.json`
+- **Guidelines** : `fetch_wikem.py` + `adapt_wikem.py` → `data/guidelines.json`
+
+---
+
 # Pipeline scores — medicalcul.free.fr → scores.json
 
 Extraction des scores/échelles médicales depuis `medicalcul.free.fr` vers un
@@ -46,3 +56,48 @@ est inacceptable : la validation humaine est obligatoire.
 - Dériver/valider `formule` depuis `_formule_source` (JS `f_Calculer`) par score.
 - Reformuler les catégories restantes (cardio, néphro, neuro, réa, pneumo, gastro…).
 - Brancher le moteur de rendu unique sur `scores.json` (n'afficher que `valide:true`).
+
+---
+
+# Pipeline guidelines — wikem.org → guidelines.json
+
+Extraction depuis WikEM (médecine d'urgence, **CC BY-SA**) via l'**API MediaWiki**
+(préférée au scraping HTML), traduction française et adaptation au contexte
+gériatrique / recos françaises, puis structuration au schéma app.
+
+## Étapes
+
+1. **Extraction** — `python fetch_wikem.py`
+   - API MediaWiki (`action=parse` wikitext+sections, `action=query` date de révision).
+   - Parse le wikitext en sections `{titre, niveau, type, contenu}` (détection
+     texte / etapes / tableau_poso).
+   - Sortie brute anglaise → `_raw/raw_wikem.json` (gitignoré).
+
+2. **Adaptation (IA)** — `python adapt_wikem.py`
+   - Traduction FR + adaptation gériatrique, restructuration au schéma, dérivation
+     des `red_flags[]`. Écrit `../data/guidelines.json`.
+
+## Schéma d'une guideline
+
+```json
+{
+  "id": "delirium", "titre": "...", "categorie": "geria",
+  "sources": [{ "nom": "WikEM", "licence": "CC BY-SA", "url": "..." }],
+  "date_maj": "2026-03-22", "temps_lecture": 6, "relu_par": "", "valide": false,
+  "red_flags": ["..."],
+  "sections": [{ "titre": "...", "type": "texte|etapes|tableau_poso", "contenu": [ ... ] }]
+}
+```
+
+## Garde-fous
+
+- **`valide: false` / `relu_par: ""`** : publication seulement après relecture
+  clinique du Dr Scattu (le badge « Relu par » reflète ce statut).
+- **Attribution WikEM (CC BY-SA) obligatoire** à l'affichage : badge source sur
+  chaque guideline + mention en pied de page de lecture.
+
+## Reste à faire
+
+- Adapter d'autres pages WikEM (syncope, hyponatrémie… déjà extraites en brut).
+- Brancher la vue lecture data-driven sur `guidelines.json` (étapes cochables,
+  tableaux de posologies), n'afficher que `valide:true`.
