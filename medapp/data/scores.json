@@ -11,6 +11,12 @@
       "SANS_FORMULE_IMPLEMENTEE": 95,
       "DOCUMENTATION": 83,
       "CALCULE_NON_VERIFIE": 1
+    },
+    "hub": {
+      "verifies": 229,
+      "total": 406,
+      "guidelines": 8,
+      "pct": 56.4
     }
   },
   "scores": [

@@ -63,6 +63,20 @@ def main():
         by_status[st] += 1
         grid[s["categorie"]][st] += 1
     data["meta"]["statuts"] = dict(by_status)
+
+    # Chiffres pour le hub d'accueil (dynamiques, dédoublonnés)
+    hist_all = json.load(open(HIST, encoding="utf-8")) if os.path.exists(HIST) else []
+    histo_ids = set(h["id"] for h in hist_all)
+    med_ids = set(s["id"] for s in data["scores"])
+    cv_shadowed = sum(1 for s in data["scores"] if s["statut"] == "CALCULE_VERIFIE" and s["id"] in histo_ids)
+    verifies = len(histo_ids) + (by_status.get("CALCULE_VERIFIE", 0) - cv_shadowed)
+    catalogue = len(med_ids - histo_ids) + len(histo_ids)
+    data["meta"]["hub"] = {
+        "verifies": verifies,
+        "total": catalogue,
+        "guidelines": 8,
+        "pct": round(verifies / catalogue * 100, 1) if catalogue else 0,
+    }
     json.dump(data, open(SCORES, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
     # Historiques (réintégrés CALCULE_VERIFIE)
