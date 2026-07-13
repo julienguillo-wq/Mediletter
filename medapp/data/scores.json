@@ -7,8 +7,8 @@
     "reformules": 12,
     "formules_verifiees": 124,
     "statuts": {
-      "CALCULE_VERIFIE": 194,
-      "SANS_FORMULE_IMPLEMENTEE": 97,
+      "CALCULE_VERIFIE": 196,
+      "SANS_FORMULE_IMPLEMENTEE": 95,
       "DOCUMENTATION": 83,
       "CALCULE_NON_VERIFIE": 1
     }
@@ -1291,8 +1291,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/afsr_endometriose.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "agecorrige",
@@ -16630,7 +16631,8 @@
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/globe.html",
       "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "statut": "SANS_FORMULE_IMPLEMENTEE",
+      "formule_native": true
     },
     {
       "id": "goldbpco",
@@ -18991,7 +18993,8 @@
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/hscore.html",
       "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "statut": "SANS_FORMULE_IMPLEMENTEE",
+      "formule_native": true
     },
     {
       "id": "hypotherclass",
@@ -33826,8 +33829,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/wallace.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "surfacecorpo",

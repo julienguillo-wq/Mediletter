@@ -138,6 +138,17 @@
     vhtvauthey: { out: 'Resultat', fn: v => (1267.28 * Math.sqrt(v.vT * v.vP / 3600)) - 794.41 },
     uti_d: { out: 'Resultat', fn: v => Math.round((-3.3 + 0.7 * v.vItem1 + 0.18 * v.vItem2 + 1.3 * v.vItem3 + 0.6 * v.vItem4 + 1.9 * v.vItem5 + 1.1 * v.vItem6 + 0.6 * v.vItem7) * 100) / 100 },
     asdas: { out: 'Resultat', fn: v => { const r = v.vUseCRP ? (0.121 * v.vItem1 + 0.058 * v.vDuree + 0.110 * v.vItem3 + 0.073 * v.vItem4 + 0.579 * Math.log(v.vCRP + 1)) : (0.079 * v.vItem1 + 0.069 * v.vDuree + 0.113 * v.vItem3 + 0.086 * v.vItem4 + 0.293 * Math.sqrt(v.vVS + 1)); return Math.round(r * 100) / 100; } },
+    // ---- Général (lot C8) ----
+    wallace: { out: 'Resultat', fn: v => 9 * (v.vTete + v.vThorax + v.vAbdo + v.vDosH + v.vDosB + v.vBrasD + v.vBrasG + v.vCuisseD + v.vCuisseG + v.vJambeD + v.vJambeG) + (v.vOGE ? 1 : 0) },
+    afsr_endometriose: {
+      out: 'Resultat',
+      fn: v => {
+        const mx = (a, b) => Math.max(v[a], v[b]);
+        return mx('vItemPS', 'vItemPP') + mx('vItemODS', 'vItemODP') + mx('vItemOGS', 'vItemOGP')
+          + mx('vItemAODS', 'vItemAODP') + mx('vItemAOGS', 'vItemAOGP')
+          + mx('vItemATDS', 'vItemATDP') + mx('vItemATGS', 'vItemATGP') + v.vItemDoug;
+      },
+    },
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = F;
   if (typeof window !== 'undefined') window.MEDAPP_FORMULAS = F;
