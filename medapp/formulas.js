@@ -94,6 +94,23 @@
     pesi: { out: 'Resultat', fn: v => v.vAge + 10 * v.vItem0 + 30 * v.vItem1 + 10 * v.vItem2 + 10 * v.vItem3 + 20 * v.vItem4 + 30 * v.vItem5 + 20 * v.vItem6 + 20 * v.vItem7 + 60 * v.vItem8 + 20 * v.vItem9 },
     crbu65: { out: 'ResCRBU', fn: v => v.vItem0 + v.vItem1 + v.vItem2 + v.vItem3 + v.vItem4 }, // CRB-65 (avec âge)
     nihss: { out: 'Resultat', fn: v => Object.values(v).reduce((a, b) => a + (Number(b) || 0), 0) },
+    // ---- Général (lot C5) ----
+    bmi: { out: 'Resultat', fn: v => v.vPoids / Math.pow(v.vTaille / 100, 2) },
+    surfacecorpo: { out: 'Resultat', fn: v => { const P = v.vPoids * 1000, T = v.vTaille; return 0.0003207 * Math.pow(P, (0.7285 - (0.0188 * Math.log(P) / Math.log(10)))) * Math.pow(T, 0.3); } },
+    kcorrigee: { out: 'Resultat', fn: v => Math.round(10 * (v.vK - 6 * (7.4 - v.vPH))) / 10 },
+    homa_ir: { out: 'Resultat', fn: v => Math.round(100 * (v.vGly * v.vGlyUnit) * v.vInsu / 22.5) / 100 },
+    fib4: { out: 'Resultat', fn: v => Math.round((v.vAge * v.vASAT) / (v.vPlq * Math.sqrt(v.vALAT)) * 1000) / 1000 },
+    apri: { out: 'Resultat', fn: v => { let ref = v.vASATRef; if (ref < 1) ref = 40; return (v.vASAT * 100 / ref) / v.vPlq; } },
+    corr_gb_pl: { out: 'Resultat', fn: v => Math.round(((v.vLeucoLCR * v.vLeucoLCRUnit) - (((v.vLeucoSNG * v.vLeucoSNGUnit) * (v.vHemaLCR * v.vHemaLCRUnit)) / ((v.vHemaSNG * v.vHemaSNGUnit) * 1000000))) * 10) / 10 },
+    harveybradshaw: { out: 'Resultat', fn: v => Math.floor(v.vNSel) + (v.vItem || 0) + v.vItem1 + v.vItem2 + v.vItem3 + v.vItemC0 + v.vItemC1 + v.vItemC2 + v.vItemC3 + v.vItemC4 + v.vItemC5 + v.vItemC6 + v.vItemC7 },
+    ranson: { out: 'Resultat', fn: v => Object.values(v).reduce((a, b) => a + (Number(b) || 0), 0) },
+    lille: { out: 'Resultat', fn: v => { const IR = (v.vCreat * v.vCrUnit) > 115 ? 1 : 0; const R = 3.19 - 0.101 * v.vAge + 0.147 * v.vAlb + 0.0165 * (v.vBili0 - v.vBili7) - 0.206 * IR - 0.0065 * v.vBili0 - 0.0096 * v.vTP; return Math.exp(-R) / (1 + Math.exp(-R)); } },
+    nafld: { out: 'Resultat', fn: v => { const BMI = v.vPoids / Math.pow(v.vTaille / 100, 2); const r = -1.675 + 0.037 * v.vAge + 0.094 * BMI + 1.13 * (v.vDiab ? 1 : 0) + 0.99 * v.vASAT / v.vALAT - 0.013 * v.vPlaq - 0.066 * v.vAlb; return Math.round(r * 1000) / 1000; } },
+    def_eaulibre: { out: 'Resultat', fn: v => v.vPoids * v.vItem1 * ((v.vNa / 140) - 1) },
+    albcrp: { out: 'Resultat', fn: v => v.vAlb + (v.vCRP / 25) },
+    trouanioniqueu: { out: 'Resultat', fn: v => v.vNa + v.vK - v.vCl },
+    mgap: { out: 'Resultat', fn: v => v.vGCS + v.vItem1 + v.vItem2 + v.vItem3 },
+    fructo_hba1c: { out: 'Resultat', fn: v => v.vFructo ? (0.017 * v.vSrc + 1.61) : ((v.vSrc - 1.61) / 0.017) },
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = F;
   if (typeof window !== 'undefined') window.MEDAPP_FORMULAS = F;

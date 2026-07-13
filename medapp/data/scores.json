@@ -7,8 +7,8 @@
     "reformules": 12,
     "formules_verifiees": 124,
     "statuts": {
-      "CALCULE_VERIFIE": 154,
-      "SANS_FORMULE_IMPLEMENTEE": 137,
+      "CALCULE_VERIFIE": 170,
+      "SANS_FORMULE_IMPLEMENTEE": 121,
       "DOCUMENTATION": 83,
       "CALCULE_NON_VERIFIE": 1
     }
@@ -1731,8 +1731,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/albcrp.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "ohwidmark",
@@ -3231,8 +3232,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/apri.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "aquitaintvp",
@@ -5482,8 +5484,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/bmi.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "depistbpco",
@@ -10239,8 +10242,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/corr_gb_pl.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "corticoides",
@@ -11372,8 +11376,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/def_eaulibre.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "deficitfer",
@@ -14551,8 +14556,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/fib4.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "figomyome",
@@ -15569,8 +15575,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/fructo_hba1c.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "g8quest",
@@ -17060,8 +17067,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/harveybradshaw.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "haq",
@@ -18422,8 +18430,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/homa_ir.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "hope",
@@ -21488,8 +21497,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/kcorrigee.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "karnofsky",
@@ -22841,8 +22851,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/lille.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "maccabe",
@@ -24278,8 +24289,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/mgap.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "mms",
@@ -25163,8 +25175,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/nafld.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "nacorrigee",
@@ -31309,8 +31322,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/ranson.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "rbilialb",
@@ -33818,8 +33832,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/surfacecorpo.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "surfacecorpoped",
@@ -34511,8 +34526,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/trouanioniqueu.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "truelovewitts",
