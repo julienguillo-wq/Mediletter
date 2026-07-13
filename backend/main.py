@@ -2067,13 +2067,17 @@ def _verify_supabase_email(token):
     if not token:
         return None
     url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
-    anon = os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY") or os.getenv("SUPABASE_ANON_KEY")
-    if not url or not anon:
+    # apikey pour /auth/v1/user : anon si dispo, sinon service_role (le token
+    # utilisateur reste dans Authorization et identifie l'utilisateur).
+    apikey = (os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+              or os.getenv("SUPABASE_ANON_KEY")
+              or os.getenv("SUPABASE_SERVICE_ROLE_KEY"))
+    if not url or not apikey:
         return None
     import urllib.request
     req = urllib.request.Request(
         url.rstrip("/") + "/auth/v1/user",
-        headers={"Authorization": f"Bearer {token}", "apikey": anon},
+        headers={"Authorization": f"Bearer {token}", "apikey": apikey},
     )
     try:
         with urllib.request.urlopen(req, timeout=10) as r:
