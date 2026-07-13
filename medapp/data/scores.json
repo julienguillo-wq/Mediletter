@@ -7,8 +7,8 @@
     "reformules": 12,
     "formules_verifiees": 124,
     "statuts": {
-      "CALCULE_VERIFIE": 182,
-      "SANS_FORMULE_IMPLEMENTEE": 109,
+      "CALCULE_VERIFIE": 194,
+      "SANS_FORMULE_IMPLEMENTEE": 97,
       "DOCUMENTATION": 83,
       "CALCULE_NON_VERIFIE": 1
     }
@@ -1355,8 +1355,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/agegest_hu.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "aggir_calc",
@@ -3543,8 +3544,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/asdas.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "act12",
@@ -4148,8 +4150,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/basdai.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "basfi",
@@ -4215,8 +4218,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/basfi.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "baumgarten",
@@ -5969,8 +5973,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/brest.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "rempbruleadulte",
@@ -10362,8 +10367,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/corticoides.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "crbu65",
@@ -18395,8 +18401,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/hoen.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "homa_ir",
@@ -23532,8 +23539,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/malinas.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "mallampati",
@@ -27117,8 +27125,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/opioides_equiv.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "osmoplasma",
@@ -33867,8 +33876,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/surfacecorpoped.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "surfvalvediam",
@@ -36169,8 +36179,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/uti_d.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "valeursbio",
@@ -36733,8 +36744,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/vhtvauthey.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "wang",

@@ -124,6 +124,20 @@
     packyear: { out: 'Resultat', fn: v => { const fm = [1 / 20, 4 / 20, 2 / 20, 4 / 20, 2.5 / 20, 2 / 175, 2 / 7, 0.1786]; return Math.round(v.vConso * v.vAnnees * fm[v.vTabac] * 10) / 10; } },
     pasi: { out: 'Resultat', fn: v => 0.1 * (v.vItem1a + v.vItem1b + v.vItem1c) * v.vItem1d + 0.2 * (v.vItem2a + v.vItem2b + v.vItem2c) * v.vItem2d + 0.3 * (v.vItem3a + v.vItem3b + v.vItem3c) * v.vItem3d + 0.4 * (v.vItem4a + v.vItem4b + v.vItem4c) * v.vItem4d },
     absi: { out: 'Resultat', fn: v => { let r = v.vFemme ? 1 : 0; r += v.vAge + v.vSurface + (v.vDeg3 ? 1 : 0); const K = v.vBP1 + v.vBP2 + v.vBP3 + v.vBP4; if (K > 1) r += 1; return r; } },
+    // ---- Général (lot C7) ----
+    basdai: { out: 'Resultat', fn: v => (v.vItem1 + v.vItem2 + v.vItem3 + v.vItem4 + (v.vItem5 + v.vDuree) / 2) / 5 },
+    basfi: { out: 'Resultat', fn: v => { let r = 0; for (let i = 1; i <= 10; i++) r += v['vItem' + i]; return r / 10; } },
+    // cases binaires × valeurs source (1,2,1,1,2,-2,1,2,1,1,1)
+    brest: { out: 'Resultat', fn: v => 2 + v.vItem1 + 2 * v.vItem2 + v.vItem3 + v.vItem4 + 2 * v.vItem5 - 2 * v.vItem6 + v.vItem7 + 2 * v.vItem8 + v.vItem9 + v.vItem10 + v.vItem11 },
+    corticoides: { out: 'Resultat', fn: v => (v.vDose / v.vFrom) * v.vTo },
+    hoen: { out: 'Resultat', fn: v => { const l = (32.13 * 0.0001 * v.lcrpoly) + (2.365 * v.lcrprot) + (0.6143 * v.glycemie * v.vGlyUnit) + (0.2086 * v.gbsang) - 11; return Math.round((1 / (1 + Math.exp(-l))) * 10000) / 10000; } },
+    malinas: { out: 'Resultat', fn: v => { let r = 0; for (let i = 1; i < 6; i++) r += v['vItem' + i]; return r; } },
+    opioides_equiv: { out: 'Resultat', fn: v => v.vDose * v.vItemS / v.vItemD },
+    surfacecorpoped: { out: 'Resultat', fn: v => v.vPoids > 40 ? NaN : (4 * v.vPoids + 7) / (v.vPoids + 90) },
+    agegest_hu: { out: 'Resultat', fn: v => { if (v.vHauteur < 12 || v.vHauteur > 32) return NaN; return v.vHauteur <= 28 ? v.vHauteur + 4 : 32 + (v.vHauteur - 28) * 2; } },
+    vhtvauthey: { out: 'Resultat', fn: v => (1267.28 * Math.sqrt(v.vT * v.vP / 3600)) - 794.41 },
+    uti_d: { out: 'Resultat', fn: v => Math.round((-3.3 + 0.7 * v.vItem1 + 0.18 * v.vItem2 + 1.3 * v.vItem3 + 0.6 * v.vItem4 + 1.9 * v.vItem5 + 1.1 * v.vItem6 + 0.6 * v.vItem7) * 100) / 100 },
+    asdas: { out: 'Resultat', fn: v => { const r = v.vUseCRP ? (0.121 * v.vItem1 + 0.058 * v.vDuree + 0.110 * v.vItem3 + 0.073 * v.vItem4 + 0.579 * Math.log(v.vCRP + 1)) : (0.079 * v.vItem1 + 0.069 * v.vDuree + 0.113 * v.vItem3 + 0.086 * v.vItem4 + 0.293 * Math.sqrt(v.vVS + 1)); return Math.round(r * 100) / 100; } },
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = F;
   if (typeof window !== 'undefined') window.MEDAPP_FORMULAS = F;
