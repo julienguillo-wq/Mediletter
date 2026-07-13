@@ -87,6 +87,13 @@
     diurese_horaire: { out: 'Resultat', fn: v => (v.vDiur / v.vPoids) / (v.vDurH + v.vDurM / 60) },
     osmourine: { out: 'Resultat', fn: v => 2 * v.vNa + 2 * v.vK + v.vGly * v.vGlyUnit + v.vUree * v.vUreeUnit },
     idx_excretion_uree: { out: 'Resultat', fn: v => Math.round(1000 * (v.vUree * v.vUreeUnit) * (v.vDiurese * v.vDiureseUnit) / v.vPoids) / 1000 },
+    // ---- Pneumo + Neuro (lot C4) ----
+    pafio2: { out: 'Resultat', fn: v => v.vPaO2 * v.vPaUnit * 100 / v.vFiO2 },
+    winter: { out: 'Resultat', fn: v => v.vHCO3 * 1.5 + 8 },
+    // cases = binaire (1/0) ; les points PESI sont codés ici (valeurs source 10,30,10,10,20,30,20,20,60,20)
+    pesi: { out: 'Resultat', fn: v => v.vAge + 10 * v.vItem0 + 30 * v.vItem1 + 10 * v.vItem2 + 10 * v.vItem3 + 20 * v.vItem4 + 30 * v.vItem5 + 20 * v.vItem6 + 20 * v.vItem7 + 60 * v.vItem8 + 20 * v.vItem9 },
+    crbu65: { out: 'ResCRBU', fn: v => v.vItem0 + v.vItem1 + v.vItem2 + v.vItem3 + v.vItem4 }, // CRB-65 (avec âge)
+    nihss: { out: 'Resultat', fn: v => Object.values(v).reduce((a, b) => a + (Number(b) || 0), 0) },
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = F;
   if (typeof window !== 'undefined') window.MEDAPP_FORMULAS = F;

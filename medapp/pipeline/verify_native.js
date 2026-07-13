@@ -64,8 +64,13 @@ function makeSandbox(inputs, vector) {
   const store = { Resultat: { value: '' } };
   const Form = new Proxy(store, { get: (t, p) => (typeof p === 'string' && !(p in t)) ? (t[p] = { value: '', checked: false }) : t[p] });
   for (const [n, vals] of Object.entries(inputs.radios)) {
-    byName[n] = vals.map(x => ({ value: String(x), checked: x === vector[n] }));
-    Form[n] = byName[n].find(e => e.checked) || byName[n][0];
+    // RadioNodeList : tableau indexable ([i].checked) ET .value = valeur cochée
+    const arr = vals.map(x => ({ value: String(x), checked: x === vector[n] }));
+    const checked = arr.find(e => e.checked);
+    arr.value = checked ? checked.value : '';
+    arr.checked = !!checked;
+    byName[n] = arr;
+    Form[n] = arr;
   }
   for (const [n, val] of Object.entries(inputs.checks)) { byName[n] = [{ value: String(val), checked: !!vector[n] }]; Form[n] = byName[n][0]; }
   for (const n of inputs.numbers) { Form[n] = { value: String(vector[n]) }; byName[n] = [{ value: String(vector[n]), checked: false }]; }

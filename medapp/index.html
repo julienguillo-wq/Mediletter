@@ -6402,7 +6402,7 @@ FORMAT :
                 const vals = {};
                 (s.items||[]).forEach((it,idx) => {
                     const raw = state['i'+idx];
-                    if (it.type==='case') vals[it.variable] = raw ? (parseFloat(it.valeur)||1) : 0;
+                    if (it.type==='case') vals[it.variable] = raw ? 1 : 0;  // binaire (poids gérés dans la formule)
                     else if (raw===undefined || raw==='') vals[it.variable] = undefined;
                     else vals[it.variable] = parseFloat(raw);
                 });

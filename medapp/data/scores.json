@@ -7,8 +7,8 @@
     "reformules": 12,
     "formules_verifiees": 124,
     "statuts": {
-      "CALCULE_VERIFIE": 149,
-      "SANS_FORMULE_IMPLEMENTEE": 142,
+      "CALCULE_VERIFIE": 154,
+      "SANS_FORMULE_IMPLEMENTEE": 137,
       "DOCUMENTATION": 83,
       "CALCULE_NON_VERIFIE": 1
     }
@@ -10402,8 +10402,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/crbu65.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "crusade",
@@ -26007,8 +26008,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/nihss.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "nijmegen_goutte",
@@ -30022,8 +30024,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/pesi.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "p_xbw",
@@ -31409,8 +31412,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/pafio2.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "rass",
@@ -37327,8 +37331,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/winter.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "wood",

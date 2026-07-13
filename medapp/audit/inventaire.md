@@ -7,9 +7,9 @@ Seuls les `CALCULE_VERIFIE` calculent ; les autres sont en mode documentation (i
 
 | Statut | Nombre | Action |
 |---|---:|---|
-| `CALCULE_VERIFIE` | 149 | calcul actif (harnais passé) |
+| `CALCULE_VERIFIE` | 154 | calcul actif (harnais passé) |
 | `CALCULE_NON_VERIFIE` | 1 | calcul DÉSACTIVÉ → doc + source, requalif. phase C |
-| `SANS_FORMULE_IMPLEMENTEE` | 142 | calcul DÉSACTIVÉ → doc + source, à implémenter phase C |
+| `SANS_FORMULE_IMPLEMENTEE` | 137 | calcul DÉSACTIVÉ → doc + source, à implémenter phase C |
 | `DOCUMENTATION` | 83 | sans formule (classification/abaque), hors périmètre |
 | **Total** | **375** | |
 
@@ -21,14 +21,14 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 |---|---|---|---|---|---|---|
 | Gériatrie | 6 | 0 | 5 | 1 | 19 | 12 |
 | Cardio | 21 | 0 | 10 | 8 | 5 | 39 |
-| Neuro | 22 | 0 | 4 | 7 | 1 | 33 |
+| Neuro | 23 | 0 | 3 | 7 | 1 | 33 |
 | Réa | 13 | 0 | 3 | 6 | 4 | 22 |
-| Pneumo | 8 | 0 | 10 | 4 | 2 | 22 |
+| Pneumo | 12 | 0 | 6 | 4 | 2 | 22 |
 | Néphro | 12 | 0 | 6 | 3 | 6 | 21 |
 | Gastro | 0 | 0 | 0 | 0 | 4 | 0 |
 | Pédiatrie | 7 | 0 | 5 | 0 | 2 | 12 |
 | Général | 60 | 1 | 99 | 54 | 4 | 214 |
-| **Total** | 149 | 1 | 142 | 83 | 47 | 375 |
+| **Total** | 154 | 1 | 137 | 83 | 47 | 375 |
 
 ## Détail par catégorie
 
@@ -48,8 +48,8 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 
 ### Neuro
 
-- **CALCULE_VERIFIE** (22) : abcd2, anxietehamilton, barthel, bdi13beck, bits, bref, depressionhamilton, epds, epworth, four, glasgow, glasgowped, glasgowped2, ich_neuro, irls, liege, macnairsimpl, neurodn4, scoff, sisbeck, stess, updrs
-- **SANS_FORMULE_IMPLEMENTEE** (4) : hadanxdep, nihss, pdq39, pss
+- **CALCULE_VERIFIE** (23) : abcd2, anxietehamilton, barthel, bdi13beck, bits, bref, depressionhamilton, epds, epworth, four, glasgow, glasgowped, glasgowped2, ich_neuro, irls, liege, macnairsimpl, neurodn4, nihss, scoff, sisbeck, stess, updrs
+- **SANS_FORMULE_IMPLEMENTEE** (3) : hadanxdep, pdq39, pss
 - **DOCUMENTATION** (7) : edssech, fssfatigue, hoehn_yahr, mrcmuscforce, rankin, schwab_england, tcmasters
 - **Historiques CALCULE_VERIFIE** (1) : canadian
 
@@ -62,8 +62,8 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 
 ### Pneumo
 
-- **CALCULE_VERIFIE** (8) : act12, depistbpco, genevemodifie, hestia, nijmegen_hyperventil, percep, smartcop, wellsep
-- **SANS_FORMULE_IMPLEMENTEE** (10) : crbu65, fine, gdsinter, gradaao2, idsaats07, pafio2, peakflow, peakflowped, pesi, winter
+- **CALCULE_VERIFIE** (12) : act12, crbu65, depistbpco, genevemodifie, hestia, nijmegen_hyperventil, pafio2, percep, pesi, smartcop, wellsep, winter
+- **SANS_FORMULE_IMPLEMENTEE** (6) : fine, gdsinter, gradaao2, idsaats07, peakflow, peakflowped
 - **DOCUMENTATION** (4) : gold2017, goldbpco, mmrc, sadoul
 - **Historiques CALCULE_VERIFIE** (2) : curb65, fine
 
