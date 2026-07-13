@@ -333,9 +333,10 @@
 
 </main>
 
-<!-- Supabase (lecture de session pour la salutation ; le hub reste public) -->
+<!-- Supabase — session + protection du hub (auth-guard). Fallback 'Bonsoir' conservé pour les sessions expirées avant redirection. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="./js/supabase-config.js"></script>
+<script src="./js/auth-guard.js"></script>
 <script>
 (function () {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
