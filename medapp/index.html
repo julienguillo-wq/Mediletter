@@ -2334,6 +2334,37 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
     .mx-toc-item.active { color:var(--mx-accent); font-weight:600; border-left-color:var(--mx-accent); background:var(--mx-accent-bg); }
     .mx-read-content { padding-left:26px; max-width:760px; }
 }
+
+/* =====================================================================
+   INTÉGRATION scores.json — pastilles de statut + calculateur data-driven
+   ===================================================================== */
+.mx-status { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:600; padding:2px 7px; border-radius:5px; white-space:nowrap; }
+.mx-status i { font-size:12px; }
+.mx-status.ok { color:var(--mx-green); background:var(--mx-green-bg); }
+.mx-status.warn { color:var(--mx-amber); background:var(--mx-amber-bg); }
+.mx-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.mx-dot.ok { background:var(--mx-green); }
+.mx-dot.warn { background:var(--mx-amber); }
+.mx-row .mx-dot, .mx-fav-top .mx-dot { margin-left:6px; }
+
+/* Calculateur dynamique (réutilise .calc-page/.form-card/.result-card) */
+.mx-dyn-warn { display:flex; align-items:flex-start; gap:8px; background:var(--mx-amber-bg); color:var(--mx-amber); border:1px solid #EBD8B0; border-radius:12px; padding:11px 13px; font-size:13px; margin-bottom:16px; }
+.mx-dyn-warn i { font-size:16px; margin-top:1px; }
+.mx-dyn-item { padding:12px 0; border-bottom:1px solid var(--mx-border); }
+.mx-dyn-item:last-child { border-bottom:none; }
+.mx-dyn-q { font-size:14px; font-weight:600; color:var(--mx-text-primary); margin-bottom:8px; }
+.mx-dyn-opt { display:flex; align-items:center; gap:10px; padding:9px 11px; border:1px solid var(--mx-border); border-radius:10px; background:var(--mx-surface-1); cursor:pointer; margin-bottom:6px; font-size:13px; color:var(--mx-text-secondary); }
+.mx-dyn-opt:last-child { margin-bottom:0; }
+.mx-dyn-opt.sel { border-color:var(--mx-accent); background:var(--mx-accent-bg); color:var(--mx-text-primary); font-weight:500; }
+.mx-dyn-opt .v { margin-left:auto; font-size:12px; color:var(--mx-text-muted); }
+.mx-dyn-num { width:100%; background:var(--mx-surface-1); border:1px solid var(--mx-border); border-radius:10px; padding:11px 13px; font:inherit; color:var(--mx-text-primary); }
+.mx-dyn-num:focus { outline:none; border-color:var(--mx-accent); box-shadow:0 0 0 3px var(--mx-accent-bg); }
+.mx-dyn-ref { font-size:12px; color:var(--mx-text-muted); margin-top:14px; line-height:1.5; }
+.mx-dyn-ref a { color:var(--mx-accent); }
+.mx-validate { display:flex; align-items:center; gap:7px; width:100%; justify-content:center; background:var(--mx-green); color:#fff; border:none; border-radius:10px; padding:12px; font:inherit; font-weight:600; font-size:14px; cursor:pointer; margin-top:16px; }
+.mx-validate.done { background:var(--mx-green-bg); color:var(--mx-green); cursor:default; }
+.mx-validate i { font-size:17px; }
+.mx-ref-only { text-align:center; color:var(--mx-text-muted); font-size:13px; padding:8px 0 4px; }
     </style>
 <script defer="" data-domain="giulia-tu-es-la-plus-jolie.tiiny.site" src="https://analytics.tiiny.site/js/plausible.js"></script><meta property="og:url" content="https://giulia-tu-es-la-plus-jolie.tiiny.site/" data-id="th-modified"><meta property="og:type" content="website" data-id="th-modified"></head>
 <body class="mx">
@@ -6253,6 +6284,192 @@ FORMAT :
         }
         if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', initMx);
         else initMx();
+    })();
+    </script>
+
+    <!-- ============================================================
+         INTÉGRATION scores.json (phase 5) — moteur de rendu data-driven,
+         pastilles de statut, calculateur générique, validation partagée.
+         ============================================================ -->
+    <script>
+    (function(){
+        const VALIDATOR_EMAIL = 'giulia.scattu@gmail.com';
+        const API_VALID = '/medapp/validations';
+        let SCORES_BY_ID = {};
+        let validated = new Set();
+        let currentUserEmail = null;
+
+        const norm2 = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+        const catLabel2 = c => (window.CAT_META && window.CAT_META[c] ? window.CAT_META[c].label : c);
+        const scoreIcon = s => (window.CAT_META && window.CAT_META[s.categorie] ? window.CAT_META[s.categorie].icon : 'ti-calculator');
+        const scoreColor = s => (window.CAT_META && window.CAT_META[s.categorie] ? window.CAT_META[s.categorie].color : 'general');
+        const isValidated = id => validated.has(id);
+        const statusOf = s => (s.formule_verifiee || isValidated(s.id)) ? 'ok' : 'warn';
+        const dotHTML = s => `<span class="mx-dot ${statusOf(s)}" title="${statusOf(s)==='ok'?'Formule vérifiée':'À vérifier'}"></span>`;
+
+        // --- Chargement des validations partagées (backend, fallback localStorage) ---
+        async function loadValidations(){
+            try {
+                const r = await fetch(API_VALID, {cache:'no-store'});
+                if (r.ok){ const d = await r.json(); (d.score_ids||[]).forEach(id=>validated.add(id)); return; }
+            } catch(e){}
+            try { (JSON.parse(localStorage.getItem('medapp-validations')||'[]')).forEach(id=>validated.add(id)); } catch(e){}
+        }
+        function persistLocal(){ try { localStorage.setItem('medapp-validations', JSON.stringify([...validated])); } catch(e){} }
+
+        async function getToken(){
+            try { if (typeof getSession==='function'){ const {session}=await getSession(); return session?.access_token||null; } } catch(e){}
+            return null;
+        }
+        async function validateScore(id){
+            validated.add(id); persistLocal();
+            const token = await getToken();
+            try {
+                await fetch('/medapp/validate', {method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({item_type:'score', item_id:id, token})});
+            } catch(e){}
+        }
+
+        // --- Chargement de scores.json et remplacement du catalogue ---
+        async function loadScores(){
+            let data;
+            try { const r = await fetch('./data/scores.json', {cache:'no-store'}); data = await r.json(); }
+            catch(e){ console.warn('[medapp] scores.json indisponible', e); return false; }
+            const scores = (data && data.scores) || [];
+            if (!scores.length) return false;
+            SCORES_BY_ID = {};
+            const mapped = scores.map(s => {
+                SCORES_BY_ID[s.id] = s;
+                return {
+                    id: s.id, name: s.nom, short: s.specialite_source || catLabel2(s.categorie),
+                    cat: s.categorie, desc: s.description || s.specialite_source || catLabel2(s.categorie),
+                };
+            });
+            if (typeof CALCS !== 'undefined' && Array.isArray(CALCS)) {
+                CALCS.length = 0; mapped.forEach(m => CALCS.push(m));
+            }
+            return true;
+        }
+
+        // --- Overrides de rendu avec pastilles ---
+        function rowHTML(c){
+            const s = SCORES_BY_ID[c.id];
+            return `<div class="mx-row" onclick="openCalc('${c.id}')">
+                <div class="mx-row-icon c-${scoreColor(s||{})}"><i class="ti ${scoreIcon(s||{})}"></i></div>
+                <div class="mx-row-body"><div class="mx-row-title">${c.name}</div>
+                    <div class="mx-row-sub">${catLabel2(c.cat)} · ${c.desc||''}</div></div>
+                ${s?dotHTML(s):''}
+                <i class="ti ti-chevron-right mx-row-chevron"></i>
+            </div>`;
+        }
+        window.renderCalcList = function(){
+            const list = document.getElementById('calcList'); if (!list) return;
+            const letter = window.mxCurrentLetter;
+            const f = CALCS.filter(c => (currentCat==='all'||c.cat===currentCat) &&
+                (!letter || norm2(c.name).trim().charAt(0).toUpperCase()===letter));
+            list.innerHTML = f.length ? f.map(rowHTML).join('') : `<div class="mx-empty"><i class="ti ti-mood-empty"></i>Aucun score</div>`;
+        };
+        window.renderFavorites = function(){
+            const grid = document.getElementById('favGrid'); if (!grid) return;
+            const favs = (typeof favorites!=='undefined'?favorites:[]).map(id=>CALCS.find(c=>c.id===id)).filter(Boolean).slice(0,6);
+            grid.innerHTML = favs.length ? favs.map(c => { const s=SCORES_BY_ID[c.id];
+                return `<div class="fav-card" onclick="openCalc('${c.id}')">
+                    <div class="mx-fav-top"><i class="ti ${scoreIcon(s||{})} ic-${scoreColor(s||{})}"></i>${s?dotHTML(s):'<i class="ti ti-star mx-fav-star"></i>'}</div>
+                    <div class="mx-fav-title">${c.name}</div><div class="mx-fav-sub">${c.short||''}</div></div>`;
+            }).join('') : `<div class="mx-empty" style="grid-column:1/-1"><i class="ti ti-star"></i>Aucun favori</div>`;
+        };
+
+        // --- Calculateur générique (fiche dynamique) ---
+        function computeResult(s, state){
+            let sum = 0, used = 0;
+            (s.items||[]).forEach((it,idx) => {
+                if (it.type==='choix'){ const v=state['i'+idx]; if (v!==undefined){ sum+=parseFloat(v)||0; used++; } }
+                else if (it.type==='case'){ if (state['i'+idx]){ sum+=parseFloat(it.valeur)||0; used++; } }
+            });
+            return {sum, used};
+        }
+        function interpFor(s, val){
+            for (const b of (s.interpretation||[])){
+                const lo = (b.min==null?-Infinity:b.min), hi = (b.max==null?Infinity:b.max);
+                if (val>=lo && val<=hi) return b;
+            }
+            return null;
+        }
+        function itemHTML(it, idx, state){
+            if (it.type==='choix'){
+                return `<div class="mx-dyn-item"><div class="mx-dyn-q">${it.label||('Item '+(idx+1))}</div>` +
+                    (it.options||[]).map((o,j)=>`<div class="mx-dyn-opt ${String(state['i'+idx])===String(o.valeur)?'sel':''}" data-i="${idx}" data-v="${o.valeur}"><span>${o.label||o.valeur}</span><span class="v">${o.valeur}</span></div>`).join('') + `</div>`;
+            }
+            if (it.type==='case'){
+                return `<div class="mx-dyn-item"><div class="mx-dyn-opt ${state['i'+idx]?'sel':''}" data-i="${idx}" data-toggle="1"><span>${it.label||('Critère '+(idx+1))}</span><span class="v">+${it.valeur}</span></div></div>`;
+            }
+            if (it.type==='nombre'){
+                return `<div class="mx-dyn-item"><div class="mx-dyn-q">${it.label||it.variable}</div><input class="mx-dyn-num" type="number" inputmode="decimal" data-i="${idx}" placeholder="Valeur"></div>`;
+            }
+            if (it.type==='liste'){
+                return `<div class="mx-dyn-item"><div class="mx-dyn-q">${it.label||it.variable}</div>` +
+                    (it.options||[]).map((o,j)=>`<div class="mx-dyn-opt ${String(state['i'+idx])===String(o.valeur)?'sel':''}" data-i="${idx}" data-v="${o.valeur}"><span>${o.label||o.valeur}</span><span class="v">${o.valeur}</span></div>`).join('') + `</div>`;
+            }
+            return '';
+        }
+        function renderDyn(id){
+            const s = SCORES_BY_ID[id]; if (!s) return;
+            let page = document.getElementById('mx-dyn');
+            if (!page){ page = document.createElement('div'); page.id='mx-dyn'; page.className='calc-page'; document.body.appendChild(page); }
+            const st = page._state = page._state || {};
+            const ok = statusOf(s)==='ok';
+            const hasForm = (s.items||[]).some(it => it.type==='choix'||it.type==='case'||it.type==='nombre'||it.type==='liste');
+            const canValidate = currentUserEmail===VALIDATOR_EMAIL && !ok;
+            const {sum, used} = computeResult(s, st);
+            const band = interpFor(s, sum);
+            const sev = band && band.severite ? band.severite : 'normal';
+            const statusBadge = ok ? `<span class="mx-status ok"><i class="ti ti-rosette-discount-check"></i>Vérifié</span>`
+                                   : `<span class="mx-status warn"><i class="ti ti-alert-triangle"></i>À vérifier</span>`;
+            page.innerHTML = `
+                <div class="calc-header">
+                    <button class="btn-back" onclick="closeDyn()"><i class="ti ti-arrow-left"></i></button>
+                    <div class="calc-header-info"><div class="calc-header-title">${s.nom}</div>
+                        <div class="calc-header-sub">${catLabel2(s.categorie)}${s.specialite_source?(' · '+s.specialite_source):''}</div></div>
+                    ${statusBadge}
+                </div>
+                <div class="calc-body">
+                    ${!ok ? `<div class="mx-dyn-warn"><i class="ti ti-alert-triangle"></i><span>Formule non vérifiée automatiquement. Résultat indicatif — à confirmer sur la source avant usage clinique.</span></div>`:''}
+                    ${hasForm ? `<div class="form-card">${(s.items||[]).map((it,i)=>itemHTML(it,i,st)).join('')}</div>
+                    <div class="result-card has-result ${sev==='danger'?'danger':''}" style="margin-top:16px">
+                        <div class="result-label">Résultat${used?'':' — sélectionnez'}</div>
+                        <div class="result-value">${used?sum:'—'}</div>
+                        ${band?`<div class="result-interp show ${sev}">${band.texte||''}</div>`:''}
+                    </div>` : `<div class="mx-ref-only"><i class="ti ti-file-text" style="font-size:22px;display:block;margin-bottom:6px;opacity:.5"></i>Fiche de référence (pas de calcul).</div>`}
+                    ${s.reference?`<div class="mx-dyn-ref">Réf. : ${s.reference}</div>`:''}
+                    <div class="mx-dyn-ref">Source : <a href="${s.source_url}" target="_blank" rel="noopener">medicalcul.free.fr</a></div>
+                    ${canValidate?`<button class="mx-validate" onclick="doValidate('${s.id}')"><i class="ti ti-check"></i>Valider cette fiche</button>`:''}
+                    ${(!ok && isValidated(s.id))?`<div class="mx-status ok" style="margin-top:12px"><i class="ti ti-rosette-discount-check"></i>Relu</div>`:''}
+                </div>`;
+            page.querySelectorAll('.mx-dyn-opt').forEach(el => el.addEventListener('click', function(){
+                const i = this.dataset.i;
+                if (this.dataset.toggle){ st['i'+i] = !st['i'+i]; }
+                else { st['i'+i] = this.dataset.v; }
+                renderDyn(id);
+            }));
+            page.querySelectorAll('.mx-dyn-num').forEach(el => el.addEventListener('input', function(){ st['i'+this.dataset.i]=this.value; }));
+            page.classList.add('active');
+            document.body.style.overflow='hidden';
+        }
+        window.openCalc = function(id){ if (SCORES_BY_ID[id]) renderDyn(id); };
+        window.closeDyn = function(){ const p=document.getElementById('mx-dyn'); if(p){p.classList.remove('active'); p._state={};} document.body.style.overflow=''; };
+        window.doValidate = async function(id){ await validateScore(id); const s=SCORES_BY_ID[id]; renderDyn(id); if(typeof renderCalcList==='function') renderCalcList(); if(typeof renderFavorites==='function') renderFavorites(); };
+
+        async function init(){
+            try { if (typeof getUser==='function'){ const {user}=await getUser(); currentUserEmail = user?.email||null; } } catch(e){}
+            const okScores = await loadScores();
+            await loadValidations();
+            if (okScores){
+                const cnt = document.getElementById('mxCount'); if (cnt) cnt.textContent = CALCS.length;
+                ['renderChips','renderAlpha','updateHomeView','renderFavorites','renderRecents'].forEach(fn => { try { if (typeof window[fn]==='function') window[fn](); } catch(e){} });
+            }
+        }
+        if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
     })();
     </script>
 
