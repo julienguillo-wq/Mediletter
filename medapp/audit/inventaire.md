@@ -7,9 +7,9 @@ Seuls les `CALCULE_VERIFIE` calculent ; les autres sont en mode documentation (i
 
 | Statut | Nombre | Action |
 |---|---:|---|
-| `CALCULE_VERIFIE` | 124 | calcul actif (harnais passé) |
+| `CALCULE_VERIFIE` | 130 | calcul actif (harnais passé) |
 | `CALCULE_NON_VERIFIE` | 1 | calcul DÉSACTIVÉ → doc + source, requalif. phase C |
-| `SANS_FORMULE_IMPLEMENTEE` | 167 | calcul DÉSACTIVÉ → doc + source, à implémenter phase C |
+| `SANS_FORMULE_IMPLEMENTEE` | 161 | calcul DÉSACTIVÉ → doc + source, à implémenter phase C |
 | `DOCUMENTATION` | 83 | sans formule (classification/abaque), hors périmètre |
 | **Total** | **375** | |
 
@@ -22,13 +22,13 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 | Gériatrie | 6 | 0 | 5 | 1 | 19 | 12 |
 | Cardio | 11 | 0 | 20 | 8 | 5 | 39 |
 | Neuro | 22 | 0 | 4 | 7 | 1 | 33 |
-| Réa | 7 | 0 | 9 | 6 | 4 | 22 |
+| Réa | 13 | 0 | 3 | 6 | 4 | 22 |
 | Pneumo | 8 | 0 | 10 | 4 | 2 | 22 |
 | Néphro | 3 | 0 | 15 | 3 | 6 | 21 |
 | Gastro | 0 | 0 | 0 | 0 | 4 | 0 |
 | Pédiatrie | 7 | 0 | 5 | 0 | 2 | 12 |
 | Général | 60 | 1 | 99 | 54 | 4 | 214 |
-| **Total** | 124 | 1 | 167 | 83 | 47 | 375 |
+| **Total** | 130 | 1 | 161 | 83 | 47 | 375 |
 
 ## Détail par catégorie
 
@@ -55,8 +55,8 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 
 ### Réa
 
-- **CALCULE_VERIFIE** (7) : ariscat, caprini05, igs2, lee, macocha, qsofa, sofa
-- **SANS_FORMULE_IMPLEMENTEE** (9) : aldrete, apache2, apfel, cavo2, deltapp, gastvol_perlas, hope, roxindex, volventiladulte
+- **CALCULE_VERIFIE** (13) : aldrete, apache2, apfel, ariscat, caprini05, deltapp, hope, igs2, lee, macocha, qsofa, roxindex, sofa
+- **SANS_FORMULE_IMPLEMENTEE** (3) : cavo2, gastvol_perlas, volventiladulte
 - **DOCUMENTATION** (6) : asa, cormack, mallampati, ramsay, rass, rudkin
 - **Historiques CALCULE_VERIFIE** (4) : glasgow, news, qsofa, sofa
 

@@ -55,7 +55,10 @@ def main():
     by_status = Counter()
     grid = defaultdict(lambda: Counter())  # grid[cat][statut]
     for s in data["scores"]:
-        st = statut_for(report.get(s["id"], {"verifiee": s.get("formule_verifiee", False), "counts": None, "raison": ""}))
+        if s.get("formule_verifiee"):
+            st = "CALCULE_VERIFIE"   # additif vérifié OU formule native validée au harnais
+        else:
+            st = statut_for(report.get(s["id"], {"verifiee": False, "counts": None, "raison": ""}))
         s["statut"] = st
         by_status[st] += 1
         grid[s["categorie"]][st] += 1

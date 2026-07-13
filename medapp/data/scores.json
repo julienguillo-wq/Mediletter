@@ -7,8 +7,8 @@
     "reformules": 12,
     "formules_verifiees": 124,
     "statuts": {
-      "CALCULE_VERIFIE": 124,
-      "SANS_FORMULE_IMPLEMENTEE": 167,
+      "CALCULE_VERIFIE": 130,
+      "SANS_FORMULE_IMPLEMENTEE": 161,
       "DOCUMENTATION": 83,
       "CALCULE_NON_VERIFIE": 1
     }
@@ -1914,8 +1914,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/aldrete.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "algoplus",
@@ -2953,8 +2954,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/apache2.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "apfel",
@@ -2994,8 +2996,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/apfel.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "apgar",
@@ -11494,8 +11497,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/deltapp.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "depenergie",
@@ -18484,8 +18488,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/hope.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "hadanxdep",
@@ -31792,8 +31797,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/roxindex.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "rudkin",

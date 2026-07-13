@@ -6287,6 +6287,8 @@ FORMAT :
     })();
     </script>
 
+    <!-- Formules natives vérifiées (phase C) -->
+    <script src="formulas.js"></script>
     <!-- ============================================================
          INTÉGRATION scores.json (phase 5) — moteur de rendu data-driven,
          pastilles de statut, calculateur générique, validation partagée.
@@ -6394,6 +6396,23 @@ FORMAT :
 
         // --- Calculateur générique (fiche dynamique) ---
         function computeResult(s, state){
+            const F = window.MEDAPP_FORMULAS && window.MEDAPP_FORMULAS[s.id];
+            if (F){
+                // Formule native vérifiée : calcul par nom de variable
+                const vals = {};
+                (s.items||[]).forEach((it,idx) => {
+                    const raw = state['i'+idx];
+                    if (it.type==='case') vals[it.variable] = raw ? (parseFloat(it.valeur)||1) : 0;
+                    else if (raw===undefined || raw==='') vals[it.variable] = undefined;
+                    else vals[it.variable] = parseFloat(raw);
+                });
+                // requis : nombres/listes/radios renseignés
+                const missing = (s.items||[]).some(it => it.type!=='case' && (vals[it.variable]===undefined || isNaN(vals[it.variable])));
+                if (missing) return {sum:null, used:0};
+                let r; try { r = F.fn(vals); } catch(e){ r = NaN; }
+                if (r===undefined || r===null || isNaN(r)) return {sum:null, used:0};
+                return {sum: Math.round(r*100)/100, used:1};
+            }
             let sum = 0, used = 0;
             (s.items||[]).forEach((it,idx) => {
                 if (it.type==='choix'){ const v=state['i'+idx]; if (v!==undefined){ sum+=parseFloat(v)||0; used++; } }
