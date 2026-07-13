@@ -7,8 +7,8 @@
     "reformules": 12,
     "formules_verifiees": 124,
     "statuts": {
-      "CALCULE_VERIFIE": 170,
-      "SANS_FORMULE_IMPLEMENTEE": 121,
+      "CALCULE_VERIFIE": 182,
+      "SANS_FORMULE_IMPLEMENTEE": 109,
       "DOCUMENTATION": 83,
       "CALCULE_NON_VERIFIE": 1
     }
@@ -215,8 +215,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/n4tscore.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "adiva",
@@ -631,8 +632,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/absi.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "adlkatz",
@@ -1704,8 +1706,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/albi.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "albcrp",
@@ -10856,8 +10859,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/das28.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "dasi",
@@ -12426,8 +12430,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/dlqi.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "neurodn4",
@@ -13754,8 +13759,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/epices.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "epworth",
@@ -18304,8 +18310,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/higham.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "hlh2004",
@@ -23984,8 +23991,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/meds.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "meld",
@@ -26904,8 +26912,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/nrs2002.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "nyha",
@@ -27456,8 +27465,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/packyear.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "parc",
@@ -28168,8 +28178,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/pasi.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "pdq39",
@@ -32242,8 +32253,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/sdai.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "sepsis3",

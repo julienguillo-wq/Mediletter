@@ -111,6 +111,19 @@
     trouanioniqueu: { out: 'Resultat', fn: v => v.vNa + v.vK - v.vCl },
     mgap: { out: 'Resultat', fn: v => v.vGCS + v.vItem1 + v.vItem2 + v.vItem3 },
     fructo_hba1c: { out: 'Resultat', fn: v => v.vFructo ? (0.017 * v.vSrc + 1.61) : ((v.vSrc - 1.61) / 0.017) },
+    // ---- Général (lot C6) ----
+    albi: { out: 'Resultat', fn: v => Math.round(((Math.log10(v.vBili * v.vBiliUnit) * 0.66) + ((v.vAlb * v.vAlbUnit) * -0.085)) * 100) / 100 },
+    das28: { out: 'Resultat', fn: v => { let r = 0.56 * Math.sqrt(v.vNAD) + 0.28 * Math.sqrt(v.vNAG) + 0.014 * v.vEGP; r += v.vVS ? (0.7 * Math.log(v.vVSCRP)) : (0.36 * Math.log(v.vVSCRP + 1) + 0.96); return r; } },
+    dlqi: { out: 'Resultat', fn: v => { let r = v.vItem7a; if (r === 0) r = v.vItem7b; for (let i = 1; i < 11; i++) if (i !== 7) r += v['vItem' + i]; return r; } },
+    epices: { out: 'Resultat', fn: v => { let r = 75.14; for (let i = 1; i < 12; i++) r += v['vItem' + i]; return r; } },
+    higham: { out: 'Resultat', fn: v => v.vVar1 + 5 * v.vVar2 + 10 * v.vVar3 + 20 * v.vVar4 + v.vVarC1 + 5 * v.vVarC2 },
+    n4tscore: { out: 'Resultat', fn: v => Object.values(v).reduce((a, b) => a + (Number(b) || 0), 0) },
+    nrs2002: { out: 'Resultat', fn: v => { const e1 = v.vItemA1 + v.vItemA2 + v.vItemA3 + v.vItemA4; return e1 > 0 ? (v.vItemB1 + v.vItemB2 + v.vItemB3) : 0; } },
+    meds: { out: 'Resultat', fn: v => 6 * v.vItemMT + 3 * (v.vItemFR + v.vItemCS + v.vItemPlq + v.vItemGB + v.vItemAge) + 2 * (v.vItemPN + v.vItemMDR + v.vItemFS) },
+    sdai: { out: 'Resultat', fn: v => (v.vNAD > 28 || v.vNAG > 28) ? NaN : (v.vNAD + v.vNAG + v.vEGP + v.vEGM + v.vCRP / 10) },
+    packyear: { out: 'Resultat', fn: v => { const fm = [1 / 20, 4 / 20, 2 / 20, 4 / 20, 2.5 / 20, 2 / 175, 2 / 7, 0.1786]; return Math.round(v.vConso * v.vAnnees * fm[v.vTabac] * 10) / 10; } },
+    pasi: { out: 'Resultat', fn: v => 0.1 * (v.vItem1a + v.vItem1b + v.vItem1c) * v.vItem1d + 0.2 * (v.vItem2a + v.vItem2b + v.vItem2c) * v.vItem2d + 0.3 * (v.vItem3a + v.vItem3b + v.vItem3c) * v.vItem3d + 0.4 * (v.vItem4a + v.vItem4b + v.vItem4c) * v.vItem4d },
+    absi: { out: 'Resultat', fn: v => { let r = v.vFemme ? 1 : 0; r += v.vAge + v.vSurface + (v.vDeg3 ? 1 : 0); const K = v.vBP1 + v.vBP2 + v.vBP3 + v.vBP4; if (K > 1) r += 1; return r; } },
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = F;
   if (typeof window !== 'undefined') window.MEDAPP_FORMULAS = F;

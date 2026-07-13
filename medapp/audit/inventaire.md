@@ -7,9 +7,9 @@ Seuls les `CALCULE_VERIFIE` calculent ; les autres sont en mode documentation (i
 
 | Statut | Nombre | Action |
 |---|---:|---|
-| `CALCULE_VERIFIE` | 170 | calcul actif (harnais passé) |
+| `CALCULE_VERIFIE` | 182 | calcul actif (harnais passé) |
 | `CALCULE_NON_VERIFIE` | 1 | calcul DÉSACTIVÉ → doc + source, requalif. phase C |
-| `SANS_FORMULE_IMPLEMENTEE` | 121 | calcul DÉSACTIVÉ → doc + source, à implémenter phase C |
+| `SANS_FORMULE_IMPLEMENTEE` | 109 | calcul DÉSACTIVÉ → doc + source, à implémenter phase C |
 | `DOCUMENTATION` | 83 | sans formule (classification/abaque), hors périmètre |
 | **Total** | **375** | |
 
@@ -27,8 +27,8 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 | Néphro | 12 | 0 | 6 | 3 | 6 | 21 |
 | Gastro | 0 | 0 | 0 | 0 | 4 | 0 |
 | Pédiatrie | 7 | 0 | 5 | 0 | 2 | 12 |
-| Général | 76 | 1 | 83 | 54 | 4 | 214 |
-| **Total** | 170 | 1 | 121 | 83 | 47 | 375 |
+| Général | 88 | 1 | 71 | 54 | 4 | 214 |
+| **Total** | 182 | 1 | 109 | 83 | 47 | 375 |
 
 ## Détail par catégorie
 
@@ -86,8 +86,8 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 
 ### Général
 
-- **CALCULE_VERIFIE** (76) : abc_transfu, adiva, albcrp, alvarado, apgarchir, apri, balthazarmodif, baumgarten, bisap, bishop, blamey, blatchford, bmi, braden, call, cash, charlson, childpugh, ciwaar, convergencespp, corr_gb_pl, csrs, dakar, def_eaulibre, diva, ebs, eisinger, elift, fagerstrom, fernandez, fhscore, fib4, findrisc, firstquest, fructo_hba1c, fumincen_diag, g8quest, girerdobsth, harveybradshaw, homa_ir, isis, isth_civd, kcorrigee, khorana, lequesne_genou, lequesne_hanche, lichtiger, lille, macisaac, mannheim, manning, mascc, mgap, myasthenic_garche, nafld, news, news2, nijmegen_goutte, norton, padoue, pasapp, pomi, pr_acreular, prematspia, presev, ptikhellaf, puqe, ranson, skene, spia, spondylo_amor, surfacecorpo, tripcast, trouanioniqueu, wast, westley
+- **CALCULE_VERIFIE** (88) : abc_transfu, absi, adiva, albcrp, albi, alvarado, apgarchir, apri, balthazarmodif, baumgarten, bisap, bishop, blamey, blatchford, bmi, braden, call, cash, charlson, childpugh, ciwaar, convergencespp, corr_gb_pl, csrs, dakar, das28, def_eaulibre, diva, dlqi, ebs, eisinger, elift, epices, fagerstrom, fernandez, fhscore, fib4, findrisc, firstquest, fructo_hba1c, fumincen_diag, g8quest, girerdobsth, harveybradshaw, higham, homa_ir, isis, isth_civd, kcorrigee, khorana, lequesne_genou, lequesne_hanche, lichtiger, lille, macisaac, mannheim, manning, mascc, meds, mgap, myasthenic_garche, n4tscore, nafld, news, news2, nijmegen_goutte, norton, nrs2002, packyear, padoue, pasapp, pasi, pomi, pr_acreular, prematspia, presev, ptikhellaf, puqe, ranson, sdai, skene, spia, spondylo_amor, surfacecorpo, tripcast, trouanioniqueu, wast, westley
 - **CALCULE_NON_VERIFIE** (1) : conversions
-- **SANS_FORMULE_IMPLEMENTEE** (83) : absi, adroguemadias, afc_colo, afsr_endometriose, agegest_hu, albi, anatnomen, asdas, autono2, basdai, basfi, berlinsas, brest, bvaswg, cacorrigee, calcium_grio, calgrossesse, corticoides, cushman, das28, datationlcc, debdrog, debdrogpt, debperf, debpse, debtransfu, def_sodium, deficitfer, depenergie, dlqi, epices, figotropho, friedewald, globe, haq, hba1c2gpm, higham, hoen, hscore, hypotherm_vitals, imrie, issrtstriss, lundbrowder, maddrey, malinas, masse_maigre, meds, meld, mercuriali, mgpliscut_durnin, mnanut, mwd6, n4tscore, nacorrigee, nrs2002, ohwidmark, opioides_equiv, osmoplasma, p_xbw, packyear, parc, pasi, pertsgaccept, poidstheoric, rempbruleadulte, rempbruleenfant, rendplq, rissc, rockall, ruffierdickson, sdai, shockidx, stopbang, surfacecorpoped, toronto, trouanioniquep, uti_d, vhtvauthey, vo2maxth, voltransfucgr, wallace, wifi, wpi_sss
+- **SANS_FORMULE_IMPLEMENTEE** (71) : adroguemadias, afc_colo, afsr_endometriose, agegest_hu, anatnomen, asdas, autono2, basdai, basfi, berlinsas, brest, bvaswg, cacorrigee, calcium_grio, calgrossesse, corticoides, cushman, datationlcc, debdrog, debdrogpt, debperf, debpse, debtransfu, def_sodium, deficitfer, depenergie, figotropho, friedewald, globe, haq, hba1c2gpm, hoen, hscore, hypotherm_vitals, imrie, issrtstriss, lundbrowder, maddrey, malinas, masse_maigre, meld, mercuriali, mgpliscut_durnin, mnanut, mwd6, nacorrigee, ohwidmark, opioides_equiv, osmoplasma, p_xbw, parc, pertsgaccept, poidstheoric, rempbruleadulte, rempbruleenfant, rendplq, rissc, rockall, ruffierdickson, shockidx, stopbang, surfacecorpoped, toronto, trouanioniquep, uti_d, vhtvauthey, vo2maxth, voltransfucgr, wallace, wifi, wpi_sss
 - **DOCUMENTATION** (54) : altemeier, annarbor, antidotes, balthazar, bangui, binet, cage_deta, cauchoix, ccmu, ch_maldeclobl, duree, ecog, eva_adulte, eva_enfant, figomyome, forrest, french, garden, gemsa, gradetraum, gustilo, haps, hlh2004, house, hypotherclass, jonesraa, karnofsky, lagrange_rigault, landry, lefort, maccabe, moore_rate, nicerenut, omssida, ottawacephalee, ottawacheville, ottawagenou, palugrav, qc_maldeclobl, ringmessmer, safe_marche_ryan, salter, schemdent, sepsis3, spondperiph_asas, spondylo_asas, spondylo_essg, sris, stadenvip, tn_maldeclobl, tnm, truelovewitts, valeursbio, vittel
 - **Historiques CALCULE_VERIFIE** (4) : dose, imc, poids, sc
