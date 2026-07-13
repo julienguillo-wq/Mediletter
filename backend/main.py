@@ -34,6 +34,19 @@ def verify_admin_key(x_admin_key: str = Header(...)):
     return True
 
 
+def require_user(authorization: str = Header(None)):
+    """Vérifie le JWT Supabase du header Authorization: Bearer <token>.
+    Retourne l'email de l'utilisateur authentifié, sinon 401.
+    (_verify_supabase_email est défini plus bas — résolu à l'exécution.)"""
+    token = None
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1].strip()
+    email = _verify_supabase_email(token) if token else None
+    if not email:
+        raise HTTPException(status_code=401, detail="Authentification requise")
+    return email
+
+
 # Client Supabase (service role pour bypass RLS)
 supabase_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
@@ -712,7 +725,8 @@ async def admin_corrections(auth: bool = Depends(verify_admin_key)):
 
 
 @app.post("/log-corrections-v2")
-async def log_corrections_v2(request: LogCorrectionV2Request):
+async def log_corrections_v2(request: LogCorrectionV2Request, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Enregistre les corrections enrichies avec contexte complet.
     Stocke dans Supabase si disponible, sinon fallback fichier JSON.
@@ -1037,7 +1051,8 @@ async def admin_vdr_logs(auth: bool = Depends(verify_admin_key)):
 
 
 @app.post("/analyser", response_model=AnalyserResponse)
-async def analyser(request: AnalyserRequest):
+async def analyser(request: AnalyserRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Étape 1 : Analyse et extraction des données.
     - Reçoit les textes et fichiers du frontend
@@ -1151,7 +1166,8 @@ async def analyser(request: AnalyserRequest):
 # ==============================================================================
 
 @app.post("/generer-section", response_model=GenererSectionResponse)
-async def generer_section(request: GenererSectionRequest):
+async def generer_section(request: GenererSectionRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Génère UNE SEULE section pour un problème donné.
     Permet la parallélisation côté frontend.
@@ -1238,7 +1254,8 @@ async def generer_section(request: GenererSectionRequest):
 
 
 @app.post("/generer-section-stream")
-async def generer_section_stream(request: GenererSectionRequest):
+async def generer_section_stream(request: GenererSectionRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Génère UNE SEULE section en streaming SSE.
     Le texte est envoyé token par token au frontend.
@@ -1334,7 +1351,8 @@ async def generer_section_stream(request: GenererSectionRequest):
 
 
 @app.post("/regenerer-section", response_model=GenererSectionResponse)
-async def regenerer_section(request: RegenerationSectionRequest):
+async def regenerer_section(request: RegenerationSectionRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Régénère une section avec une instruction de modification.
     """
@@ -1426,7 +1444,8 @@ IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Co
 
 
 @app.post("/assembler", response_model=AssemblerResponse)
-async def assembler(request: AssemblerRequest):
+async def assembler(request: AssemblerRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Assemble les sections validées en une lettre finale.
     Concaténation Python pure — aucun appel LLM.
@@ -1455,7 +1474,8 @@ async def assembler(request: AssemblerRequest):
 
 
 @app.post("/assembler-stream")
-async def assembler_stream(request: AssemblerRequest):
+async def assembler_stream(request: AssemblerRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Assemble les sections validées en une lettre finale, en streaming SSE.
     Concaténation Python pure — un seul event SSE pour compatibilité frontend.
@@ -1681,7 +1701,8 @@ VDR_PROMPTS = {
 
 
 @app.post("/analyser-entree")
-async def analyser_entree(request: AnalyserEntreeRequest):
+async def analyser_entree(request: AnalyserEntreeRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Étape 1 VDR : Classification + extraction JSON depuis transcription vocale.
     """
@@ -1800,7 +1821,8 @@ async def analyser_entree(request: AnalyserEntreeRequest):
 
 
 @app.post("/generer-entree")
-async def generer_entree(request: GenererEntreeRequest):
+async def generer_entree(request: GenererEntreeRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Étape 2 VDR : Rédaction de la lettre à partir du JSON structuré + type de chablon.
     """
@@ -1855,7 +1877,8 @@ async def generer_entree(request: GenererEntreeRequest):
 # ==============================================================================
 
 @app.post("/medentry-uga/generer")
-async def medentry_uga_generer(request: MedEntryUGARequest):
+async def medentry_uga_generer(request: MedEntryUGARequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Génère un bilan d'entrée gériatrique.
     Remplace l'appel direct à l'API Anthropic depuis uga.html.
@@ -2093,7 +2116,8 @@ class RechercheProblemeRequest(BaseModel):
 
 
 @app.post("/api/recherche-probleme")
-async def recherche_probleme(request: RechercheProblemeRequest):
+async def recherche_probleme(request: RechercheProblemeRequest, _auth_email: str = Depends(require_user)):
+    request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Génère une section MediLetter pour un seul problème.
     Réutilise PROMPT_SECTIONS_BASE + TEMPLATES de gériatrie.
