@@ -2014,6 +2014,72 @@ async def list_sessions(auth: bool = Depends(verify_admin_key)):
 
 
 # ==============================================================================
+# MedApp — validations partagées (outil de relecture Dr Scattu)
+# ==============================================================================
+VALIDATOR_EMAILS = {"giulia.scattu@gmail.com"}
+VALIDATIONS_FILE = LOGS_DIR / "medapp_validations.json"
+
+
+class MedappValidateRequest(BaseModel):
+    item_type: str = "score"   # "score" | "guideline"
+    item_id: str
+    token: Optional[str] = None
+
+
+def _medapp_load():
+    ensure_logs_dir()
+    try:
+        return json.loads(VALIDATIONS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {"scores": [], "guidelines": []}
+
+
+def _medapp_save(v):
+    ensure_logs_dir()
+    VALIDATIONS_FILE.write_text(json.dumps(v, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _verify_supabase_email(token):
+    """Email de l'utilisateur si le token Supabase est valide, sinon None (vérif via /auth/v1/user)."""
+    if not token:
+        return None
+    url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+    anon = os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY") or os.getenv("SUPABASE_ANON_KEY")
+    if not url or not anon:
+        return None
+    import urllib.request
+    req = urllib.request.Request(
+        url.rstrip("/") + "/auth/v1/user",
+        headers={"Authorization": f"Bearer {token}", "apikey": anon},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return json.loads(r.read().decode("utf-8")).get("email")
+    except Exception as e:
+        print(f"[medapp] verify token err: {e}")
+        return None
+
+
+@app.get("/medapp/validations")
+async def medapp_validations():
+    v = _medapp_load()
+    return {"score_ids": v.get("scores", []), "guideline_ids": v.get("guidelines", [])}
+
+
+@app.post("/medapp/validate")
+async def medapp_validate(req: MedappValidateRequest):
+    email = _verify_supabase_email(req.token)
+    if email not in VALIDATOR_EMAILS:
+        raise HTTPException(status_code=403, detail="Validation réservée au médecin référent")
+    v = _medapp_load()
+    key = "scores" if req.item_type == "score" else "guidelines"
+    if req.item_id not in v.get(key, []):
+        v.setdefault(key, []).append(req.item_id)
+        _medapp_save(v)
+    return {"status": "ok", "validated_by": email}
+
+
+# ==============================================================================
 # Recherche de Problème — Génération section unique (réutilise PROMPT_SECTIONS)
 # ==============================================================================
 
