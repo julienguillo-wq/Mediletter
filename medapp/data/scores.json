@@ -7,8 +7,8 @@
     "reformules": 12,
     "formules_verifiees": 124,
     "statuts": {
-      "CALCULE_VERIFIE": 130,
-      "SANS_FORMULE_IMPLEMENTEE": 161,
+      "CALCULE_VERIFIE": 149,
+      "SANS_FORMULE_IMPLEMENTEE": 142,
       "DOCUMENTATION": 83,
       "CALCULE_NON_VERIFIE": 1
     }
@@ -7573,8 +7573,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/cha2ds2va.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "cha2ds2vasc",
@@ -7638,8 +7639,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/cha2ds2vasc.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "chads2",
@@ -7685,8 +7687,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/chads2.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "charlson",
@@ -7870,8 +7873,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/chevillebrasidx.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "childpugh",
@@ -9027,8 +9031,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/cockcroft.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "mdrdsimp",
@@ -9165,8 +9170,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/uvsurp.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "schwartz",
@@ -9242,8 +9248,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/schwartz.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "cavo2",
@@ -12041,8 +12048,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/diurese_horaire.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "diva",
@@ -13503,8 +13511,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/stesmith3v.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "stesmith4v",
@@ -13540,8 +13549,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/stesmith4v.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "stadenvip",
@@ -14134,8 +14144,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/idx_excretion_uree.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "fagerstrom",
@@ -15304,8 +15315,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/fractexcret_au.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "fractexcret_na",
@@ -15341,8 +15353,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/fractexcret_na.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "fractexcret_uree",
@@ -15378,8 +15391,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/fractexcret_uree.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "fract_rein",
@@ -17841,8 +17855,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/hasbled.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "hba1c2gpm",
@@ -27207,8 +27222,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/osmourine.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "ottawacephalee",
@@ -30699,8 +30715,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/pam.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "ptikhellaf",
@@ -34061,8 +34078,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/timinst.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "tnm",
@@ -36420,8 +36438,9 @@
       "valide": false,
       "reformule": false,
       "source_url": "http://medicalcul.free.fr/villalta.html",
-      "formule_verifiee": false,
-      "statut": "SANS_FORMULE_IMPLEMENTEE"
+      "formule_verifiee": true,
+      "statut": "CALCULE_VERIFIE",
+      "formule_native": true
     },
     {
       "id": "vittel",

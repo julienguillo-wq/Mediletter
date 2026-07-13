@@ -7,9 +7,9 @@ Seuls les `CALCULE_VERIFIE` calculent ; les autres sont en mode documentation (i
 
 | Statut | Nombre | Action |
 |---|---:|---|
-| `CALCULE_VERIFIE` | 130 | calcul actif (harnais passé) |
+| `CALCULE_VERIFIE` | 149 | calcul actif (harnais passé) |
 | `CALCULE_NON_VERIFIE` | 1 | calcul DÉSACTIVÉ → doc + source, requalif. phase C |
-| `SANS_FORMULE_IMPLEMENTEE` | 161 | calcul DÉSACTIVÉ → doc + source, à implémenter phase C |
+| `SANS_FORMULE_IMPLEMENTEE` | 142 | calcul DÉSACTIVÉ → doc + source, à implémenter phase C |
 | `DOCUMENTATION` | 83 | sans formule (classification/abaque), hors périmètre |
 | **Total** | **375** | |
 
@@ -20,15 +20,15 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 | Catégorie | Verifie | Non Verifie | Sans Formule Implementee | Documentation | Histor. | Total |
 |---|---|---|---|---|---|---|
 | Gériatrie | 6 | 0 | 5 | 1 | 19 | 12 |
-| Cardio | 11 | 0 | 20 | 8 | 5 | 39 |
+| Cardio | 21 | 0 | 10 | 8 | 5 | 39 |
 | Neuro | 22 | 0 | 4 | 7 | 1 | 33 |
 | Réa | 13 | 0 | 3 | 6 | 4 | 22 |
 | Pneumo | 8 | 0 | 10 | 4 | 2 | 22 |
-| Néphro | 3 | 0 | 15 | 3 | 6 | 21 |
+| Néphro | 12 | 0 | 6 | 3 | 6 | 21 |
 | Gastro | 0 | 0 | 0 | 0 | 4 | 0 |
 | Pédiatrie | 7 | 0 | 5 | 0 | 2 | 12 |
 | Général | 60 | 1 | 99 | 54 | 4 | 214 |
-| **Total** | 130 | 1 | 161 | 83 | 47 | 375 |
+| **Total** | 149 | 1 | 142 | 83 | 47 | 375 |
 
 ## Détail par catégorie
 
@@ -41,8 +41,8 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 
 ### Cardio
 
-- **CALCULE_VERIFIE** (11) : aquitaintvp, dapt, dasi, heart, hemorr2hages, herdoo2, riete, score4peps, standretvp, tvscore, wellstvp
-- **SANS_FORMULE_IMPLEMENTEE** (20) : cha2ds2va, cha2ds2vasc, chads2, chevillebrasidx, crusade, euroscore1log, framingham, grace, hasbled, indcornell, pam, precisedapt, qtcorrige, riskcvsc, riskcvsc2, stesmith3v, stesmith4v, surfvalvediam, timinst, villalta
+- **CALCULE_VERIFIE** (21) : aquitaintvp, cha2ds2va, cha2ds2vasc, chads2, chevillebrasidx, dapt, dasi, hasbled, heart, hemorr2hages, herdoo2, pam, riete, score4peps, standretvp, stesmith3v, stesmith4v, timinst, tvscore, villalta, wellstvp
+- **SANS_FORMULE_IMPLEMENTEE** (10) : crusade, euroscore1log, framingham, grace, indcornell, precisedapt, qtcorrige, riskcvsc, riskcvsc2, surfvalvediam
 - **DOCUMENTATION** (8) : cardiac_souffle, ccsangina, dissec_aorte, ehra_fa, killip, nyha, timicoro, timihemor
 - **Historiques CALCULE_VERIFIE** (5) : chads, hasbled, qtc, wellsep, wellstvp
 
@@ -69,8 +69,8 @@ Plus **47 calculateurs historiques** (app-native, formules codées : Cockcroft, 
 
 ### Néphro
 
-- **CALCULE_VERIFIE** (3) : iief5, ipss, stone
-- **SANS_FORMULE_IMPLEMENTEE** (15) : ckdepi2009, ckdepi2021, cockcroft, diurese_horaire, fractexcret_au, fractexcret_na, fractexcret_uree, idx_excretion_uree, ira_indices, kfre, mdrdsimp, osmourine, ratioprotucreatu, schwartz, uvsurp
+- **CALCULE_VERIFIE** (12) : cockcroft, diurese_horaire, fractexcret_au, fractexcret_na, fractexcret_uree, idx_excretion_uree, iief5, ipss, osmourine, schwartz, stone, uvsurp
+- **SANS_FORMULE_IMPLEMENTEE** (6) : ckdepi2009, ckdepi2021, ira_indices, kfre, mdrdsimp, ratioprotucreatu
 - **DOCUMENTATION** (3) : fract_rein, irastades, irstades
 - **Historiques CALCULE_VERIFIE** (6) : cacorr, cg, ckdepi, nacorr, osmo, ta
 
