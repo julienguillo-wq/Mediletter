@@ -138,7 +138,12 @@ def parse_score(page, html):
                 break
         return lab
 
-    radios, numeric = {}, []
+    def label_after(pos, span=300):
+        seg = html[pos:pos + span]
+        lm = re.search(r"<label[^>]*>(.*?)</label>", seg, re.S | re.I)
+        return clean(lm.group(1)) if lm else ""
+
+    radios, numeric, checks = {}, [], []
     for m in re.finditer(r"<input\b[^>]*>", html, re.I):
         tag = m.group(0)
         typ = (attr(tag, "type") or "").lower()
@@ -146,23 +151,39 @@ def parse_score(page, html):
         if not name:
             continue
         if typ == "radio":
-            val = attr(tag, "value") or ""
-            seg = html[m.end():m.end() + 300]
-            lm = re.search(r"<label[^>]*>(.*?)</label>", seg, re.S | re.I)
-            lab = clean(lm.group(1)) if lm else ""
             radios.setdefault(name, {"pos": m.start(), "options": []})["options"].append(
-                {"label": lab, "valeur": val})
+                {"label": label_after(m.end()), "valeur": attr(tag, "value") or ""})
+        elif typ == "checkbox":
+            lab = label_after(m.end()) or question_for(m.start())
+            checks.append({"pos": m.start(), "name": name, "label": lab, "valeur": attr(tag, "value") or "1"})
         elif typ == "number":
             before = html[max(0, m.start() - 260):m.start()]
-            chunks = [clean(c) for c in re.findall(r">([^<>]{2,70})<", before)]
-            chunks = [c for c in chunks if c]
+            chunks = [clean(c) for c in re.findall(r">([^<>]{2,70})<", before) if clean(c)]
             numeric.append({"pos": m.start(), "name": name, "label": chunks[-1] if chunks else name})
 
-    items = []
-    for name, d in sorted(radios.items(), key=lambda kv: kv[1]["pos"]):
-        items.append({"type": "choix", "variable": name, "label": question_for(d["pos"]), "options": d["options"]})
-    for n in sorted(numeric, key=lambda x: x["pos"]):
-        items.append({"type": "nombre", "variable": n["name"], "label": n["label"]})
+    # Selects (listes déroulantes)
+    selects = []
+    for m in re.finditer(r"<select\b[^>]*>(.*?)</select>", html, re.S | re.I):
+        nm = attr(m.group(0), "name")
+        if not nm:
+            continue
+        opts = [{"label": clean(o.group(2)), "valeur": o.group(1)}
+                for o in re.finditer(r'<option[^>]*value="([^"]*)"[^>]*>(.*?)</option>', m.group(1), re.S | re.I)]
+        before = html[max(0, m.start() - 260):m.start()]
+        chunks = [clean(c) for c in re.findall(r">([^<>]{2,70})<", before) if clean(c)]
+        lab = question_for(m.start()) or (chunks[-1] if chunks else nm)
+        selects.append({"pos": m.start(), "name": nm, "label": lab, "options": opts})
+
+    all_items = []
+    for name, d in radios.items():
+        all_items.append((d["pos"], {"type": "choix", "variable": name, "label": question_for(d["pos"]), "options": d["options"]}))
+    for c in checks:
+        all_items.append((c["pos"], {"type": "case", "variable": c["name"], "label": c["label"], "valeur": c["valeur"]}))
+    for n in numeric:
+        all_items.append((n["pos"], {"type": "nombre", "variable": n["name"], "label": n["label"]}))
+    for s in selects:
+        all_items.append((s["pos"], {"type": "liste", "variable": s["name"], "label": s["label"], "options": s["options"]}))
+    items = [it for _, it in sorted(all_items, key=lambda x: x[0])]
 
     interp = block_class(html, "score_inter")
     reference = block_class(html, "score_ref")
