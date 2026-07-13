@@ -2270,6 +2270,70 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
 }
 .mx-kbd-wrap { display:none; }
 .mx-alpha-grid { display:none; }
+
+/* =====================================================================
+   REFONTE UX 2026 — Guidelines (liste + vue lecture)
+   ===================================================================== */
+.mx .section-guidelines { padding:16px 0 90px; }
+.mx .guide-intro, .mx .guide-cat { display:none !important; }
+.mx-gpad { padding:0 18px; }
+.mx-gchips { display:flex; gap:8px; padding:0 18px 14px; overflow-x:auto; scrollbar-width:none; }
+.mx-gchips::-webkit-scrollbar { display:none; }
+.mx-gchips .mx-chip { flex-shrink:0; }
+.mx-glist { padding:0 18px; }
+.mx-gcat-head { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--mx-text-secondary); letter-spacing:.03em; margin:16px 0 8px; }
+.mx-gcat-head .n { font-weight:400; color:var(--mx-text-muted); }
+.mx-grow { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--mx-border); cursor:pointer; }
+.mx-grow:last-child { border-bottom:none; }
+.mx-grow-icon { width:38px; height:38px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:19px; }
+.mx-grow-body { flex:1; min-width:0; }
+.mx-grow-title { font-size:14px; font-weight:600; color:var(--mx-text-primary); }
+.mx-grow-meta { display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap; }
+.mx-badge { font-size:10px; font-weight:600; letter-spacing:.03em; padding:2px 7px; border-radius:5px; white-space:nowrap; }
+.badge-wikem { background:var(--mx-accent-bg); color:var(--mx-accent); }
+.badge-has { background:#EEEDFE; color:#3C3489; }
+.badge-sfgg { background:var(--mx-green-bg); color:var(--mx-green); }
+.mx-meta-txt { font-size:11px; color:var(--mx-text-muted); }
+.c-infec { background:var(--mx-green-bg); color:var(--mx-green); }
+.ic-infec { color:var(--mx-green); }
+
+/* Vue lecture — reskin du contenu existant */
+.mx .guide-page { background:var(--mx-surface-2); font-family:'Inter',sans-serif; }
+.mx .guide-hdr { background:var(--mx-surface-2); border-bottom:1px solid var(--mx-border); backdrop-filter:none; flex-wrap:wrap; }
+.mx .guide-hdr .btn-back { background:var(--mx-surface-2); border:1px solid var(--mx-border); color:var(--mx-text-secondary); border-radius:9px; box-shadow:none; }
+.mx .guide-hdr-title { font-weight:600; color:var(--mx-text-primary); }
+.mx .guide-hdr-sub { color:var(--mx-text-muted); }
+.mx .guide-body { background:var(--mx-surface-2); }
+.mx .g-card { background:var(--mx-surface-2); border:1px solid var(--mx-border); border-radius:14px; box-shadow:none; }
+.mx .g-card-hdr { font-weight:600; color:var(--mx-text-primary); background:transparent; border-bottom:1px solid var(--mx-border); }
+.mx .g-card-body p, .mx .g-list li { color:var(--mx-text-secondary); font-size:14px; }
+.mx .g-hl { background:var(--mx-amber-bg); color:var(--mx-amber); padding:1px 5px; border-radius:5px; font-weight:600; }
+.mx .g-alert { border-radius:12px; font-size:13px; }
+.mx .g-alert.danger { background:var(--mx-red-bg); color:#791F1F; border:1px solid var(--mx-red-border); }
+.mx .g-alert.warning { background:var(--mx-amber-bg); color:var(--mx-amber); border:1px solid #EBD8B0; }
+.mx .g-alert.info { background:var(--mx-accent-bg); color:var(--mx-accent); border:1px solid #C7DEF3; }
+.mx .g-alert.success { background:var(--mx-green-bg); color:var(--mx-green); border:1px solid #CFE3B6; }
+.mx .g-table { border:1px solid var(--mx-border); border-radius:10px; overflow:hidden; font-size:13px; }
+.mx .g-table th { background:var(--mx-surface-1); color:var(--mx-text-muted); font-size:11px; letter-spacing:.04em; border-bottom:1px solid var(--mx-border); }
+.mx .g-table td { border-bottom:1px solid var(--mx-border); color:var(--mx-text-secondary); }
+.mx .g-list li::before { color:var(--mx-accent); }
+/* Chrome lecture */
+.mx-read-actions { display:flex; gap:8px; margin-left:auto; }
+.mx-pill-btn { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--mx-text-secondary); border:1px solid var(--mx-border); border-radius:8px; padding:6px 12px; cursor:pointer; background:var(--mx-surface-2); }
+.mx-pill-btn.active { color:var(--mx-star); border-color:var(--mx-star); }
+.mx-gmeta { display:flex; gap:12px; flex-wrap:wrap; padding:12px 20px 0; }
+.mx-gmeta .mx-meta-txt { display:flex; align-items:center; gap:4px; font-size:12px; }
+.mx-relu { display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--mx-green); }
+.mx-disclaimer { margin:22px 0 8px; padding-top:14px; border-top:1px solid var(--mx-border); display:flex; align-items:flex-start; gap:6px; font-size:12px; color:var(--mx-amber); }
+.mx-toc { display:none; }
+@media (min-width:900px) {
+    .mx .guide-body { display:grid; grid-template-columns:210px minmax(0,1fr); gap:0; align-items:start; }
+    .mx-toc { display:block; position:sticky; top:12px; align-self:start; border-right:1px solid var(--mx-border); padding:4px 16px 4px 0; }
+    .mx-toc-title { font-size:11px; font-weight:600; letter-spacing:.06em; color:var(--mx-text-muted); margin-bottom:10px; }
+    .mx-toc-item { display:block; font-size:13px; color:var(--mx-text-secondary); padding:7px 10px; border-left:2px solid transparent; cursor:pointer; border-radius:0 8px 8px 0; }
+    .mx-toc-item.active { color:var(--mx-accent); font-weight:600; border-left-color:var(--mx-accent); background:var(--mx-accent-bg); }
+    .mx-read-content { padding-left:26px; max-width:760px; }
+}
     </style>
 <script defer="" data-domain="giulia-tu-es-la-plus-jolie.tiiny.site" src="https://analytics.tiiny.site/js/plausible.js"></script><meta property="og:url" content="https://giulia-tu-es-la-plus-jolie.tiiny.site/" data-id="th-modified"><meta property="og:type" content="website" data-id="th-modified"></head>
 <body class="mx">
@@ -2391,45 +2455,14 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
 
         
         <div class="section-guidelines" id="sectionGuidelines">
-            <div class="guide-intro">
-                📚 <strong>Guidelines Gériatrie</strong> — Protocoles de prise en charge des syndromes gériatriques les plus fréquents en UGA. Basés sur les recommandations HAS, SFGG et sociétés savantes.
-            </div>
-            
-            
-            <div class="guide-cat">
-                <div class="guide-cat-header" onclick="toggleGuideCat(this.parentElement)">
-                    <div class="guide-cat-icon">🧓</div>
-                    <div class="guide-cat-info">
-                        <div class="guide-cat-title">Syndromes Gériatriques</div>
-                        <div class="guide-cat-count">5 guidelines</div>
-                    </div>
-                    <span class="guide-cat-arrow">▼</span>
-                </div>
-                <div class="guide-cat-items">
-                    <div class="guide-item" onclick="openGuide('delirium')"><div class="guide-item-dot"></div><div class="guide-item-title">Confusion / Délirium</div><span class="guide-item-arrow">›</span></div>
-                    <div class="guide-item" onclick="openGuide('chutes')"><div class="guide-item-dot"></div><div class="guide-item-title">Chutes répétées</div><span class="guide-item-arrow">›</span></div>
-                    <div class="guide-item" onclick="openGuide('denutrition')"><div class="guide-item-dot"></div><div class="guide-item-title">Dénutrition</div><span class="guide-item-arrow">›</span></div>
-                    <div class="guide-item" onclick="openGuide('polymed')"><div class="guide-item-dot"></div><div class="guide-item-title">Polymédication / STOPP-START</div><span class="guide-item-arrow">›</span></div>
-                    <div class="guide-item" onclick="openGuide('fragilite')"><div class="guide-item-dot"></div><div class="guide-item-title">Fragilité / Sarcopénie</div><span class="guide-item-arrow">›</span></div>
-                    <div class="guide-item" onclick="openGuide('egs')"><div class="guide-item-dot"></div><div class="guide-item-title">Évaluation Gériatrique (EGS)</div><span class="guide-item-arrow">›</span></div>
-                    <div class="guide-item" onclick="openGuide('douleur')"><div class="guide-item-dot"></div><div class="guide-item-title">Douleur du sujet âgé</div><span class="guide-item-arrow">›</span></div>
+            <div class="mx-gpad">
+                <div class="mx-searchbar" style="margin-bottom:14px" onclick="document.getElementById('mxGuideSearch').focus()">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="mxGuideSearch" placeholder="Rechercher une guideline, un symptôme…" autocomplete="off">
                 </div>
             </div>
-
-            
-            <div class="guide-cat">
-                <div class="guide-cat-header" onclick="toggleGuideCat(this.parentElement)">
-                    <div class="guide-cat-icon">🦠</div>
-                    <div class="guide-cat-info">
-                        <div class="guide-cat-title">Infectiologie</div>
-                        <div class="guide-cat-count">1 guideline</div>
-                    </div>
-                    <span class="guide-cat-arrow">▼</span>
-                </div>
-                <div class="guide-cat-items">
-                    <div class="guide-item" onclick="openGuide('iu')"><div class="guide-item-dot"></div><div class="guide-item-title">Infection urinaire / Bactériurie</div><span class="guide-item-arrow">›</span></div>
-                </div>
-            </div>
+            <div class="mx-gchips" id="mxGuideChips"></div>
+            <div class="mx-glist" id="guidesList"></div>
         </div>
 
         
@@ -2453,10 +2486,10 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
         </div>
         <div class="guide-body">
-            <div class="g-alert danger">⚠️ <strong>Urgence diagnostique !</strong> Mortalité et déclin fonctionnel augmentés. Toujours chercher une cause.</div>
+            <div class="g-alert danger"><strong>Urgence diagnostique !</strong> Mortalité et déclin fonctionnel augmentés. Toujours chercher une cause.</div>
             
             <div class="g-card">
-                <div class="g-card-hdr">🔍 Diagnostic - Score CAM</div>
+                <div class="g-card-hdr">Diagnostic - Score CAM</div>
                 <div class="g-card-body">
                     <p><strong>Positif si critères 1 + 2 + (3 ou 4) :</strong></p>
                     <table class="g-table">
@@ -2470,7 +2503,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">🎯 Étiologies - Mnémotechnique DELIRIUM</div>
+                <div class="g-card-hdr">Étiologies - Mnémotechnique DELIRIUM</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li><strong>D</strong>rogues (BZD, anticholinergiques, opioïdes, corticoïdes)</li>
@@ -2486,7 +2519,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">🧪 Bilan minimum</div>
+                <div class="g-card-hdr">Bilan minimum</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li>NFS, CRP, ionogramme, urée, créatinine, glycémie</li>
@@ -2496,14 +2529,14 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                         <li>Bladder-scan systématique</li>
                         <li>TR si constipation suspectée</li>
                     </ul>
-                    <div class="g-alert info">🧠 <strong>TDM cérébral si :</strong> trauma crânien, signes focaux, anticoagulants, chute récente, céphalées inhabituelles</div>
+                    <div class="g-alert info"><strong>TDM cérébral si :</strong> trauma crânien, signes focaux, anticoagulants, chute récente, céphalées inhabituelles</div>
                 </div>
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">💊 Traitement</div>
+                <div class="g-card-hdr">Traitement</div>
                 <div class="g-card-body">
-                    <p><strong>1️⃣ Mesures non médicamenteuses (PRIORITAIRES) :</strong></p>
+                    <p><strong>1 Mesures non médicamenteuses (PRIORITAIRES) :</strong></p>
                     <ul class="g-list">
                         <li>Environnement calme, éclairage adapté jour/nuit</li>
                         <li>Repères temporels (horloge, calendrier)</li>
@@ -2512,13 +2545,13 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                         <li>Hydratation, mobilisation précoce</li>
                         <li>Éviter contention physique (aggrave l'agitation)</li>
                     </ul>
-                    <p><strong>2️⃣ Si agitation sévère mettant en danger :</strong></p>
+                    <p><strong>2 Si agitation sévère mettant en danger :</strong></p>
                     <ul class="g-list">
                         <li><span class="g-hl">Halopéridol 0.5-1 mg</span> PO ou IM</li>
                         <li>Max 5 mg/jour, durée minimale</li>
                         <li>Alternative : Rispéridone 0.25-0.5 mg</li>
                     </ul>
-                    <div class="g-alert danger">🚫 <strong>Contre-indications neuroleptiques :</strong> Maladie de Parkinson, démence à corps de Lewy, QT long</div>
+                    <div class="g-alert danger"><strong>Contre-indications neuroleptiques :</strong> Maladie de Parkinson, démence à corps de Lewy, QT long</div>
                 </div>
             </div>
         </div>
@@ -2534,10 +2567,10 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
         </div>
         <div class="guide-body">
-            <div class="g-alert warning">📊 <strong>Définition :</strong> ≥2 chutes en 12 mois. Incidence : 30% des &gt;65 ans, 50% des &gt;80 ans</div>
+            <div class="g-alert warning"><strong>Définition :</strong> ≥2 chutes en 12 mois. Incidence : 30% des &gt;65 ans, 50% des &gt;80 ans</div>
             
             <div class="g-card">
-                <div class="g-card-hdr">🚨 Signes de gravité</div>
+                <div class="g-card-hdr">Signes de gravité</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li>Impossibilité de se relever seul (station au sol prolongée)</li>
@@ -2551,7 +2584,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📋 Évaluation - Tests cliniques</div>
+                <div class="g-card-hdr">Évaluation - Tests cliniques</div>
                 <div class="g-card-body">
                     <table class="g-table">
                         <tbody><tr><th>Test</th><th>Seuil pathologique</th></tr>
@@ -2564,7 +2597,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">⚠️ Facteurs de risque majeurs</div>
+                <div class="g-card-hdr">Facteurs de risque majeurs</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li>Âge ≥80 ans</li>
@@ -2579,7 +2612,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">💊 Prise en charge</div>
+                <div class="g-card-hdr">Prise en charge</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li><strong>Révision médicamenteuse</strong> : arrêt/diminution psychotropes, antihypertenseurs si HTO</li>
@@ -2604,10 +2637,10 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
         </div>
         <div class="guide-body">
-            <div class="g-alert warning">📊 <strong>Prévalence :</strong> ~1 million de PA dénutries en France. 4-10% à domicile, 30-70% en institution</div>
+            <div class="g-alert warning"><strong>Prévalence :</strong> ~1 million de PA dénutries en France. 4-10% à domicile, 30-70% en institution</div>
             
             <div class="g-card">
-                <div class="g-card-hdr">🔍 Diagnostic HAS 2021 (≥70 ans)</div>
+                <div class="g-card-hdr">Diagnostic HAS 2021 (≥70 ans)</div>
                 <div class="g-card-body">
                     <p><strong>Dénutrition = 1 critère phénotypique + 1 critère étiologique</strong></p>
                     
@@ -2628,7 +2661,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📊 Sévérité</div>
+                <div class="g-card-hdr">Sévérité</div>
                 <div class="g-card-body">
                     <table class="g-table">
                         <tbody><tr><th>Critère</th><th>Modérée</th><th>Sévère</th></tr>
@@ -2637,12 +2670,12 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                         <tr><td><strong>Perte poids/6 mois</strong></td><td>10-15%</td><td>≥15%</td></tr>
                         <tr><td><strong>Albumine</strong></td><td>-</td><td>&lt;30 g/L</td></tr>
                     </tbody></table>
-                    <div class="g-alert info">ℹ️ <strong>Attention :</strong> L'albumine est un critère de SÉVÉRITÉ, pas de diagnostic !</div>
+                    <div class="g-alert info">ℹ <strong>Attention :</strong> L'albumine est un critère de SÉVÉRITÉ, pas de diagnostic !</div>
                 </div>
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📋 Dépistage - MNA-SF</div>
+                <div class="g-card-hdr">Dépistage - MNA-SF</div>
                 <div class="g-card-body">
                     <table class="g-table">
                         <tbody><tr><th>Score</th><th>Interprétation</th></tr>
@@ -2654,7 +2687,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">💊 Objectifs et traitement</div>
+                <div class="g-card-hdr">Objectifs et traitement</div>
                 <div class="g-card-body">
                     <p><strong>Objectifs nutritionnels :</strong></p>
                     <ul class="g-list">
@@ -2690,10 +2723,10 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
         </div>
         <div class="guide-body">
-            <div class="g-alert warning">📊 <strong>Polymédication :</strong> ≥5 médicaments/jour. 5-20% des hospitalisations des PA sont liées aux effets indésirables médicamenteux</div>
+            <div class="g-alert warning"><strong>Polymédication :</strong> ≥5 médicaments/jour. 5-20% des hospitalisations des PA sont liées aux effets indésirables médicamenteux</div>
             
             <div class="g-card">
-                <div class="g-card-hdr">🛑 STOPP - Médicaments à arrêter</div>
+                <div class="g-card-hdr">STOPP - Médicaments à arrêter</div>
                 <div class="g-card-body">
                     <p><strong>Psychotropes :</strong></p>
                     <ul class="g-list">
@@ -2730,7 +2763,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📋 Démarche de déprescription</div>
+                <div class="g-card-hdr">Démarche de déprescription</div>
                 <div class="g-card-body">
                     <p><strong>7 étapes :</strong></p>
                     <ul class="g-list">
@@ -2757,10 +2790,10 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
         </div>
         <div class="guide-body">
-            <div class="g-alert info">ℹ️ <strong>Concept clé :</strong> La fragilité est un syndrome potentiellement RÉVERSIBLE précédant la dépendance</div>
+            <div class="g-alert info">ℹ <strong>Concept clé :</strong> La fragilité est un syndrome potentiellement RÉVERSIBLE précédant la dépendance</div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📋 Critères de Fried</div>
+                <div class="g-card-hdr">Critères de Fried</div>
                 <div class="g-card-body">
                     <p><strong>Fragile si ≥3 critères / Pré-fragile si 1-2 critères</strong></p>
                     <table class="g-table">
@@ -2775,7 +2808,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">💪 Sarcopénie - EWGSOP2</div>
+                <div class="g-card-hdr">Sarcopénie - EWGSOP2</div>
                 <div class="g-card-body">
                     <p><strong>Algorithme diagnostique :</strong></p>
                     <ul class="g-list">
@@ -2788,7 +2821,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">💊 Prise en charge</div>
+                <div class="g-card-hdr">Prise en charge</div>
                 <div class="g-card-body">
                     <p><strong>Triade thérapeutique :</strong></p>
                     <ul class="g-list">
@@ -2812,10 +2845,10 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
         </div>
         <div class="guide-body">
-            <div class="g-alert danger">🚫 <strong>Règle d'or :</strong> Bactériurie asymptomatique = NE PAS TRAITER (sauf grossesse ou geste urologique)</div>
+            <div class="g-alert danger"><strong>Règle d'or :</strong> Bactériurie asymptomatique = NE PAS TRAITER (sauf grossesse ou geste urologique)</div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📊 Épidémiologie</div>
+                <div class="g-card-hdr">Épidémiologie</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li>1ère cause d'antibiothérapie inappropriée chez la PA</li>
@@ -2834,7 +2867,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                         <li>Chute isolée</li>
                         <li>Altération de l'état général non spécifique</li>
                     </ul>
-                    <div class="g-alert warning">⚠️ Une BU positive chez un PA confus ne suffit PAS à traiter !</div>
+                    <div class="g-alert warning">Une BU positive chez un PA confus ne suffit PAS à traiter !</div>
                 </div>
             </div>
             
@@ -2859,7 +2892,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">⚠️ Facteurs de complication</div>
+                <div class="g-card-hdr">Facteurs de complication</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li>Âge &gt;75 ans OU &gt;65 ans + ≥3 critères de Fried</li>
@@ -2871,7 +2904,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">💊 Antibiothérapie - Cystite à risque de complication</div>
+                <div class="g-card-hdr">Antibiothérapie - Cystite à risque de complication</div>
                 <div class="g-card-body">
                     <p><strong>Privilégier traitement différé selon antibiogramme</strong></p>
                     <table class="g-table">
@@ -2880,7 +2913,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                         <tr><td>2e</td><td>Pivmécillinam</td><td>400mg x2/j - 7 jours</td></tr>
                         <tr><td>3e</td><td>Nitrofurantoïne</td><td>100mg x3/j - 7 jours</td></tr>
                     </tbody></table>
-                    <div class="g-alert danger">🚫 <strong>Fluoroquinolones</strong> en dernier recours : risque tendinopathie, confusion, C. difficile</div>
+                    <div class="g-alert danger"><strong>Fluoroquinolones</strong> en dernier recours : risque tendinopathie, confusion, C. difficile</div>
                 </div>
             </div>
         </div>
@@ -2896,10 +2929,10 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
         </div>
         <div class="guide-body">
-            <div class="g-alert success">💡 L'EGS est une approche multidimensionnelle visant à évaluer les capacités et problèmes médicaux, psychosociaux et fonctionnels de la personne âgée.</div>
+            <div class="g-alert success">L'EGS est une approche multidimensionnelle visant à évaluer les capacités et problèmes médicaux, psychosociaux et fonctionnels de la personne âgée.</div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📋 Les 8 domaines de l'EGS</div>
+                <div class="g-card-hdr">Les 8 domaines de l'EGS</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li><strong>Autonomie :</strong> ADL, IADL</li>
@@ -2915,7 +2948,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">🎯 Indications de l'EGS</div>
+                <div class="g-card-hdr">Indications de l'EGS</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li>Patient ≥ 75 ans hospitalisé</li>
@@ -2931,7 +2964,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">⏱️ EGS rapide (screening)</div>
+                <div class="g-card-hdr">⏱ EGS rapide (screening)</div>
                 <div class="g-card-body">
                     <table class="g-table">
                         <tbody><tr><th>Domaine</th><th>Test rapide</th><th>Seuil</th></tr>
@@ -2945,7 +2978,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📊 Scores disponibles dans MedApp</div>
+                <div class="g-card-hdr">Scores disponibles dans MedApp</div>
                 <div class="g-card-body">
                     <p><strong>Autonomie :</strong> ADL (Katz), IADL (Lawton)</p>
                     <p><strong>Cognition :</strong> MMSE, Test horloge</p>
@@ -2955,7 +2988,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                     <p><strong>Comorbidités :</strong> Charlson</p>
                     <p><strong>Mobilité :</strong> Get Up &amp; Go, Tinetti</p>
                     <p><strong>Escarres :</strong> Braden, Norton</p>
-                    <div class="g-alert warning">💡 Tous ces scores sont calculables dans l'onglet "Calculs" → catégorie "Gériatrie"</div>
+                    <div class="g-alert warning">Tous ces scores sont calculables dans l'onglet "Calculs" → catégorie "Gériatrie"</div>
                 </div>
             </div>
         </div>
@@ -2971,10 +3004,10 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
         </div>
         <div class="guide-body">
-            <div class="g-alert danger">⚠️ La douleur est sous-évaluée et sous-traitée chez la personne âgée. 50-80% des PA en institution ont des douleurs chroniques.</div>
+            <div class="g-alert danger">La douleur est sous-évaluée et sous-traitée chez la personne âgée. 50-80% des PA en institution ont des douleurs chroniques.</div>
             
             <div class="g-card">
-                <div class="g-card-hdr">📊 Échelles d'évaluation</div>
+                <div class="g-card-hdr">Échelles d'évaluation</div>
                 <div class="g-card-body">
                     <p><strong>Patient communicant :</strong></p>
                     <ul class="g-list">
@@ -2992,12 +3025,12 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">💊 Paliers antalgiques adaptés</div>
+                <div class="g-card-hdr">Paliers antalgiques adaptés</div>
                 <div class="g-card-body">
                     <table class="g-table">
                         <tbody><tr><th>Palier</th><th>Molécule</th><th>Adaptation PA</th></tr>
                         <tr><td>I</td><td>Paracétamol</td><td>Max 3g/j si &gt; 75 ans</td></tr>
-                        <tr><td>I</td><td>AINS</td><td>⚠️ ÉVITER (IR, HTA, UGD)</td></tr>
+                        <tr><td>I</td><td>AINS</td><td> ÉVITER (IR, HTA, UGD)</td></tr>
                         <tr><td>II</td><td>Tramadol</td><td>Débuter 50mg, risque confusion</td></tr>
                         <tr><td>II</td><td>Codéine</td><td>Constipation ++, débuter faible</td></tr>
                         <tr><td>III</td><td>Morphine</td><td>Débuter 2.5-5mg/4h, titrer</td></tr>
@@ -3006,7 +3039,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             </div>
             
             <div class="g-card">
-                <div class="g-card-hdr">⚠️ Précautions spécifiques</div>
+                <div class="g-card-hdr">Précautions spécifiques</div>
                 <div class="g-card-body">
                     <ul class="g-list">
                         <li><strong>Fonction rénale :</strong> Adapter doses, éviter AINS</li>
@@ -3015,7 +3048,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                         <li><strong>Confusion :</strong> Opioïdes peuvent induire un délirium</li>
                         <li><strong>Constipation :</strong> Prévention systématique</li>
                     </ul>
-                    <div class="g-alert success">💡 Règle : "Start low, go slow" - Débuter bas, augmenter lentement</div>
+                    <div class="g-alert success">Règle : "Start low, go slow" - Débuter bas, augmenter lentement</div>
                 </div>
             </div>
         </div>
@@ -3025,18 +3058,18 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
     <div class="section-medchat" id="sectionMedchat">
         <div class="chat-container">
             <div class="chat-header">
-                <div class="chat-header-title">🤖 Assistant Clinique MedChat</div>
+                <div class="chat-header-title"> Assistant Clinique MedChat</div>
                 <div class="chat-header-subtitle">Spécialisé gériatrie • Guidelines HAS/SFGG • Scores cliniques</div>
             </div>
             
             <div class="chat-disclaimer">
-                <span class="chat-disclaimer-icon">⚠️</span>
+                <span class="chat-disclaimer-icon"></span>
                 <span>Cet assistant est une aide à la décision clinique. Il ne remplace pas le jugement médical. Vérifiez toujours les informations et adaptez-les au contexte du patient.</span>
             </div>
             
             <div class="chat-messages" id="chatMessages">
                 <div class="chat-message assistant">
-                    <div class="chat-avatar">🤖</div>
+                    <div class="chat-avatar"></div>
                     <div class="chat-bubble">
                         <p>Bonjour ! Je suis votre assistant clinique spécialisé en <strong>gériatrie</strong>.</p>
                         <p>Je peux vous aider avec :</p>
@@ -6082,6 +6115,110 @@ FORMAT :
             const i = document.getElementById('mxSearchInput'); if (i) i.value='';
         };
 
+        // ---------- Guidelines ----------
+        const GCAT = {
+            geria: { label:'Syndromes gériatriques', color:'geria', icon:'ti-user-heart' },
+            infec: { label:'Infectiologie',           color:'infec', icon:'ti-virus' }
+        };
+        const GUIDES = [
+            { id:'delirium',    titre:'Confusion aiguë / délirium', cat:'geria', icon:'ti-alert-triangle', sources:['HAS','SFGG'], read:6, maj:'mars 2026' },
+            { id:'chutes',      titre:'Chute de la personne âgée',  cat:'geria', icon:'ti-arrow-down',      sources:['SFGG'],       read:8, maj:'janv. 2026' },
+            { id:'denutrition', titre:'Dénutrition du sujet âgé',   cat:'geria', icon:'ti-scale',           sources:['HAS'],        read:5, maj:'déc. 2025' },
+            { id:'polymed',     titre:'Iatrogénie / STOPP-START',   cat:'geria', icon:'ti-pill',            sources:['SFGG'],       read:7, maj:'nov. 2025' },
+            { id:'fragilite',   titre:'Fragilité / Sarcopénie',     cat:'geria', icon:'ti-activity',        sources:['SFGG'],       read:5, maj:'oct. 2025' },
+            { id:'egs',         titre:'Évaluation gériatrique (EGS)',cat:'geria', icon:'ti-clipboard-list', sources:['SFGG'],       read:6, maj:'sept. 2025' },
+            { id:'douleur',     titre:'Douleur du sujet âgé',       cat:'geria', icon:'ti-mood-sad',        sources:['HAS'],        read:6, maj:'août 2025' },
+            { id:'iu',          titre:'Infection urinaire du sujet âgé', cat:'infec', icon:'ti-droplet',    sources:['WikEM','HAS'],read:7, maj:'févr. 2026' }
+        ];
+        window.GUIDES = GUIDES;
+        let gCat = 'all', gQuery = '';
+        const badgeCls = s => 'badge-' + s.toLowerCase();
+        const guideById = id => GUIDES.find(g => g.id===id);
+
+        window.renderGuideChips = function(){
+            const el = document.getElementById('mxGuideChips'); if (!el) return;
+            const cats = ['all', ...Object.keys(GCAT)];
+            el.innerHTML = cats.map(c =>
+                `<span class="mx-chip ${gCat===c?'active':''}" onclick="selectGuideCat('${c}')">${c==='all'?'Toutes':GCAT[c].label}</span>`
+            ).join('');
+        };
+        window.selectGuideCat = function(c){ gCat = c; renderGuideChips(); renderGuides(); };
+
+        window.renderGuides = function(){
+            const list = document.getElementById('guidesList'); if (!list) return;
+            const nq = norm(gQuery);
+            const items = GUIDES.filter(g =>
+                (gCat==='all' || g.cat===gCat) &&
+                (!nq || norm(g.titre+' '+GCAT[g.cat].label).includes(nq)));
+            if (!items.length){ list.innerHTML = `<div class="mx-empty"><i class="ti ti-mood-empty"></i>Aucune guideline</div>`; return; }
+            let html = '';
+            for (const cat of Object.keys(GCAT)){
+                const group = items.filter(g => g.cat===cat);
+                if (!group.length) continue;
+                html += `<div class="mx-gcat-head"><i class="ti ${GCAT[cat].icon} ic-${GCAT[cat].color}"></i>${GCAT[cat].label} <span class="n">· ${group.length}</span></div>`;
+                html += group.map(g => `<div class="mx-grow" onclick="openGuide('${g.id}')">
+                    <div class="mx-grow-icon c-${GCAT[g.cat].color}"><i class="ti ${g.icon}"></i></div>
+                    <div class="mx-grow-body">
+                        <div class="mx-grow-title">${g.titre}</div>
+                        <div class="mx-grow-meta">${g.sources.map(s=>`<span class="mx-badge ${badgeCls(s)}">${s}</span>`).join('')}<span class="mx-meta-txt">${g.read} min · MàJ ${g.maj}</span></div>
+                    </div>
+                    <i class="ti ti-chevron-right mx-row-chevron"></i>
+                </div>`).join('');
+            }
+            list.innerHTML = html;
+        };
+
+        // Enrichit la vue lecture d'une guideline (idempotent) : méta, Relu par,
+        // actions Favori/Imprimer, sommaire desktop, disclaimer + sources.
+        window.enhanceGuide = function(id){
+            const page = document.getElementById('guide-' + id);
+            if (!page || page.dataset.mxEnhanced) return;
+            const g = guideById(id);
+            const hdr = page.querySelector('.guide-hdr');
+            const body = page.querySelector('.guide-body');
+            if (!hdr || !body){ return; }
+            if (!hdr.querySelector('.mx-read-actions')){
+                const act = document.createElement('div');
+                act.className = 'mx-read-actions';
+                act.innerHTML = `<button class="mx-pill-btn" onclick="this.classList.toggle('active')"><i class="ti ti-star"></i>Favori</button>`
+                    + `<button class="mx-pill-btn" onclick="window.print()"><i class="ti ti-printer"></i>Imprimer</button>`;
+                hdr.appendChild(act);
+            }
+            if (g && !page.querySelector('.mx-gmeta')){
+                const meta = document.createElement('div');
+                meta.className = 'mx-gmeta';
+                meta.innerHTML = `<span class="mx-meta-txt"><i class="ti ti-clock"></i>Lecture ${g.read} min</span>`
+                    + `<span class="mx-meta-txt"><i class="ti ti-refresh"></i>MàJ ${g.maj}</span>`
+                    + `<span class="mx-relu"><i class="ti ti-user-check"></i>Relu par Dr Scattu</span>`;
+                hdr.insertAdjacentElement('afterend', meta);
+            }
+            const heads = [...body.querySelectorAll('.g-card-hdr')];
+            const content = document.createElement('div');
+            content.className = 'mx-read-content';
+            while (body.firstChild) content.appendChild(body.firstChild);
+            const toc = document.createElement('nav');
+            toc.className = 'mx-toc';
+            toc.innerHTML = `<div class="mx-toc-title">SOMMAIRE</div>` + heads.map((h,i) => {
+                if (!h.id) h.id = id + '-sec-' + i;
+                return `<span class="mx-toc-item" onclick="document.getElementById('${h.id}').scrollIntoView({behavior:'smooth',block:'start'})">${h.textContent.trim()}</span>`;
+            }).join('');
+            const foot = document.createElement('div');
+            foot.className = 'mx-disclaimer';
+            const src = g ? g.sources.join(' · ') : '';
+            foot.innerHTML = `<i class="ti ti-alert-circle"></i><span>Aide à la décision — ne remplace pas le jugement clinique.`
+                + (src ? ` Sources : ${src}${g.sources.includes('WikEM') ? ' (WikEM, CC BY-SA)' : ''}.` : '') + `</span>`;
+            content.appendChild(foot);
+            body.appendChild(toc);
+            body.appendChild(content);
+            page.dataset.mxEnhanced = '1';
+        };
+
+        window.openGuide = function(id){
+            enhanceGuide(id);
+            const page = document.getElementById('guide-' + id);
+            if (page){ page.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        };
+
         // ---------- Init ----------
         function initMx(){
             const count = document.getElementById('mxCount'); if (count) count.textContent = CALCS.length;
@@ -6098,6 +6235,10 @@ FORMAT :
             renderChips();
             renderAlpha();
             updateHomeView();
+            renderGuideChips();
+            renderGuides();
+            const gi = document.getElementById('mxGuideSearch');
+            if (gi) gi.addEventListener('input', function(){ gQuery = this.value; renderGuides(); });
             const input = document.getElementById('mxSearchInput');
             if (input) input.addEventListener('input', function(){ mxSearch(this.value); });
             document.addEventListener('click', function(e){
