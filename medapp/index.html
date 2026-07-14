@@ -2468,6 +2468,9 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
     .art-results ul { margin: 6px 0; padding-left: 20px; }
     .art-empty { text-align: center; color: var(--text-muted); padding: 30px 20px; }
     .art-empty i { font-size: 40px; color: var(--primary); opacity: .85; display: block; margin-bottom: 12px; }
+    .art-intro { margin-bottom: 12px; }
+    .art-intro-title { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+    .art-intro-sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
     </style>
 <script defer="" data-domain="giulia-tu-es-la-plus-jolie.tiiny.site" src="https://analytics.tiiny.site/js/plausible.js"></script><meta property="og:url" content="https://giulia-tu-es-la-plus-jolie.tiiny.site/" data-id="th-modified"><meta property="og:type" content="website" data-id="th-modified"></head>
 <body class="mx">
@@ -3228,17 +3231,16 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
         </div>
         <div class="art-container">
             <div class="art-scroll">
-                <div class="art-form">
-                    <label>Sujet de l'article / question de recherche</label>
-                    <textarea class="art-topic" id="artTopic" placeholder="Ex : prise en charge des patients qui consultent de façon répétée aux urgences"></textarea>
-                    <div class="art-suggest" id="artSuggest"></div>
-                    <button class="art-search-btn" id="artSearchBtn" onclick="articlesSearch()"><i class="ti ti-search"></i> Rechercher une vingtaine d'articles</button>
+                <div class="art-intro">
+                    <div class="art-intro-title">Consultations répétées aux urgences</div>
+                    <div class="art-intro-sub">20 articles scientifiques — résumé + lien source pour chacun.</div>
+                </div>
+                <div class="art-toolbar" id="artToolbar">
+                    <button onclick="articlesCopy()"><i class="ti ti-copy"></i> Copier tout</button>
+                    <button onclick="articlesMore()" id="artMoreBtn"><i class="ti ti-plus"></i> Charger plus</button>
+                    <button onclick="articlesRegenerate()" id="artRegenBtn"><i class="ti ti-refresh"></i> Régénérer</button>
                 </div>
                 <div class="art-status" id="artStatus"></div>
-                <div class="art-toolbar" id="artToolbar" style="display:none">
-                    <button onclick="articlesCopy()"><i class="ti ti-copy"></i> Copier tout</button>
-                    <button onclick="articlesMore()" id="artMoreBtn"><i class="ti ti-plus"></i> Charger plus d'articles</button>
-                </div>
                 <div class="art-results" id="artResults"></div>
             </div>
         </div>
@@ -5939,40 +5941,32 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
     }
     document.addEventListener('DOMContentLoaded', medchatInit);
 
-    // ========== ARTICLES MEDICAUX (revue de litterature sourcee) ==========
-    const ARTICLES_STORE = 'articles-last-v1';
-    const ARTICLES_SUGGEST = [
-        "Prise en charge des patients consultant de facon repetee aux urgences",
-        "Frequent users of emergency departments : interventions et case management",
-        "Facteurs associes aux consultations repetees aux urgences",
-    ];
-    let articlesBusy = false, articlesText = '', articlesTopic = '', articlesConsulted = [], articlesLoaded = false;
+    // ========== ARTICLES MEDICAUX (sujet fixe : consultations repetees aux urgences) ==========
+    const ARTICLES_STORE = 'articles-freqed-v1';
+    const ARTICLES_TOPIC = "Prise en charge des patients qui consultent de facon repetee aux urgences (frequent users of emergency departments / usagers frequents des urgences) : facteurs associes, interventions, case management, revues systematiques et meta-analyses.";
+    let articlesBusy = false, articlesText = '', articlesConsulted = [], articlesLoaded = false;
 
-    function articlesOpen() { const s = document.getElementById('sectionArticles'); if (s) s.classList.add('active'); articlesLoad(); }
-    function articlesClose() { const s = document.getElementById('sectionArticles'); if (s) s.classList.remove('active'); }
-    function articlesSave() { try { localStorage.setItem(ARTICLES_STORE, JSON.stringify({ topic: articlesTopic, text: articlesText, consulted: articlesConsulted })); } catch (e) {} }
-    function articlesUseSuggest(q) { const t = document.getElementById('artTopic'); if (t) { t.value = q; t.focus(); } }
+    function articlesOpen() {
+        const sec = document.getElementById('sectionArticles'); if (sec) sec.classList.add('active');
+        if (articlesLoaded) return;
+        articlesLoaded = true;
+        let saved = null; try { saved = JSON.parse(localStorage.getItem(ARTICLES_STORE)); } catch (e) {}
+        articlesText = (saved && saved.text) ? saved.text : (window.ARTICLES_BASELINE || '');
+        articlesConsulted = (saved && saved.consulted) ? saved.consulted : [];
+        articlesRender();
+        if (!articlesText) articlesRegenerate();
+    }
+    function articlesClose() { const sec = document.getElementById('sectionArticles'); if (sec) sec.classList.remove('active'); }
+    function articlesSave() { try { localStorage.setItem(ARTICLES_STORE, JSON.stringify({ text: articlesText, consulted: articlesConsulted })); } catch (e) {} }
+    function articlesRender() {
+        const res = document.getElementById('artResults'); if (!res) return;
+        res.innerHTML = articlesText ? medchatMarkdown(articlesText)
+            : '<div class="art-empty"><i class="ti ti-books"></i><p>Chargement des articles…</p></div>';
+    }
     function articlesStatus(msg, spinning, isError) {
         const el = document.getElementById('artStatus'); if (!el) return;
         el.style.color = isError ? 'var(--danger)' : '';
-        el.innerHTML = (spinning ? '<span class="spin"></span> ' : '') + medchatEscape(msg);
-    }
-    function articlesLoad() {
-        if (articlesLoaded) return; articlesLoaded = true;
-        const sb = document.getElementById('artSuggest');
-        if (sb) sb.innerHTML = ARTICLES_SUGGEST.map(function (q) {
-            return '<button class="art-chip" onclick="articlesUseSuggest(this.dataset.q)" data-q="' + medchatEscape(q) + '">' + medchatEscape(q) + '</button>';
-        }).join('');
-        let saved = null; try { saved = JSON.parse(localStorage.getItem(ARTICLES_STORE)); } catch (e) {}
-        const res = document.getElementById('artResults');
-        if (saved && saved.text) {
-            articlesTopic = saved.topic || ''; articlesText = saved.text || ''; articlesConsulted = saved.consulted || [];
-            const t = document.getElementById('artTopic'); if (t) t.value = articlesTopic;
-            if (res) res.innerHTML = medchatMarkdown(articlesText);
-            const tb = document.getElementById('artToolbar'); if (tb) tb.style.display = 'flex';
-        } else if (res) {
-            res.innerHTML = '<div class="art-empty"><i class="ti ti-books"></i><p>Saisissez un sujet et lancez la recherche.<br>Chaque article est resume avec son lien source.</p></div>';
-        }
+        el.innerHTML = msg ? ((spinning ? '<span class="spin"></span> ' : '') + medchatEscape(msg)) : '';
     }
     function articlesExcludeUrls() {
         const urls = (articlesText.match(/https?:\/\/[^\s)\]}>"]+/g) || []).map(function (u) { return u.replace(/[.,);]+$/, ''); });
@@ -5980,27 +5974,20 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
     }
     async function articlesRun(more) {
         if (articlesBusy) return;
-        const topicEl = document.getElementById('artTopic');
-        const topic = (topicEl.value || '').trim();
-        if (topic.length < 4) { articlesStatus('Precisez un sujet de recherche.', false, true); return; }
-        articlesBusy = true; articlesTopic = topic;
-        const btn = document.getElementById('artSearchBtn'); if (btn) btn.disabled = true;
-        const moreBtn = document.getElementById('artMoreBtn'); if (moreBtn) moreBtn.disabled = true;
-        articlesStatus('Recherche des articles en cours…', true);
+        articlesBusy = true;
+        ['artMoreBtn', 'artRegenBtn'].forEach(function (id) { var b = document.getElementById(id); if (b) b.disabled = true; });
+        articlesStatus(more ? "Recherche d'articles supplementaires…" : 'Generation de 20 articles en cours… (~2 min)', true);
         const res = document.getElementById('artResults');
-        if (!more) { articlesText = ''; articlesConsulted = []; if (res) res.innerHTML = ''; }
-        const appendMark = more && articlesText ? '\n\n' : '';
+        if (!more) { articlesConsulted = []; if (res) res.innerHTML = '<div class="art-empty"><i class="ti ti-loader-2"></i><p>Recherche dans la litterature scientifique…<br>Merci de patienter (~2 min).</p></div>'; }
+        const base = more ? articlesText : '';
+        const appendMark = more && base ? '\n\n' : '';
         let chunk = '';
         try {
             const token = await medchatToken();
             const headers = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = 'Bearer ' + token;
-            const resp = await fetch('/articles/search', { method: 'POST', headers: headers, body: JSON.stringify({ topic: topic, exclude: more ? articlesExcludeUrls() : [] }) });
-            if (!resp.ok) {
-                let d = ''; try { d = (await resp.json()).detail || ''; } catch (e) {}
-                if (resp.status === 401) d = 'Session expiree. Reconnectez-vous.';
-                throw new Error(d || ('Erreur ' + resp.status));
-            }
+            const resp = await fetch('/articles/search', { method: 'POST', headers: headers, body: JSON.stringify({ topic: ARTICLES_TOPIC, exclude: more ? articlesExcludeUrls() : [] }) });
+            if (!resp.ok) { let d = ''; try { d = (await resp.json()).detail || ''; } catch (e) {} if (resp.status === 401) d = 'Session expiree. Reconnectez-vous.'; throw new Error(d || ('Erreur ' + resp.status)); }
             const reader = resp.body.getReader(); const dec = new TextDecoder(); let buf = '';
             while (true) {
                 const c = await reader.read(); if (c.done) break;
@@ -6010,40 +5997,30 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                     const line = part.split('\n').find(function (l) { return l.indexOf('data:') === 0; });
                     if (!line) continue;
                     let evt; try { evt = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
-                    if (evt.type === 'searching') { articlesStatus('Recherche dans la litterature scientifique…', true); }
-                    else if (evt.type === 'text') {
-                        chunk += evt.content;
-                        if (res) res.innerHTML = medchatMarkdown(articlesText + appendMark + chunk) + '<span class="chat-cursor"></span>';
-                        const sc = document.querySelector('.art-scroll'); if (sc) sc.scrollTop = sc.scrollHeight;
-                    }
-                    else if (evt.type === 'error') { throw new Error(evt.message || 'Erreur pendant la recherche.'); }
-                    else if (evt.type === 'done') {
-                        articlesConsulted = (articlesConsulted || []).concat(evt.consulted || []);
-                        articlesStatus('≈ ' + (evt.articles || 0) + ' articles · ' + (evt.verified || 0) + ' liens verifies', false);
-                    }
+                    if (evt.type === 'searching') articlesStatus('Recherche dans la litterature scientifique…', true);
+                    else if (evt.type === 'text') { chunk += evt.content; if (res) res.innerHTML = medchatMarkdown(base + appendMark + chunk) + '<span class="chat-cursor"></span>'; const sc = document.querySelector('.art-scroll'); if (sc) sc.scrollTop = sc.scrollHeight; }
+                    else if (evt.type === 'error') throw new Error(evt.message || 'Erreur pendant la recherche.');
+                    else if (evt.type === 'done') { articlesConsulted = (articlesConsulted || []).concat(evt.consulted || []); articlesStatus('≈ ' + (evt.articles || 0) + ' articles · ' + (evt.verified || 0) + ' liens verifies', false); }
                 }
             }
-            articlesText = articlesText + appendMark + chunk;
-            if (res) res.innerHTML = medchatMarkdown(articlesText);
-            const tb = document.getElementById('artToolbar'); if (tb) tb.style.display = 'flex';
-            articlesSave();
+            articlesText = base + appendMark + chunk;
+            articlesRender(); articlesSave();
         } catch (err) {
             articlesStatus((err && err.message) || 'Une erreur est survenue.', false, true);
-            if (articlesText && res) res.innerHTML = medchatMarkdown(articlesText);
+            articlesRender();
         } finally {
             articlesBusy = false;
-            if (btn) btn.disabled = false;
-            if (moreBtn) moreBtn.disabled = false;
+            ['artMoreBtn', 'artRegenBtn'].forEach(function (id) { var b = document.getElementById(id); if (b) b.disabled = false; });
         }
     }
-    function articlesSearch() { articlesRun(false); }
+    function articlesRegenerate() { articlesRun(false); }
     function articlesMore() { articlesRun(true); }
     function articlesCopy() {
         const txt = articlesText || '';
         if (!txt) { articlesStatus('Rien a copier.', false, true); return; }
         function done() { articlesStatus('Copie dans le presse-papiers.', false); }
         function fail() { articlesStatus('Copie impossible.', false, true); }
-        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(done, fail); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, fail);
         else { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { fail(); } document.body.removeChild(ta); }
     }
 
@@ -6781,6 +6758,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
     </script>
 
     <!-- Supabase Auth — Scripts d'authentification -->
+    <script src="./data/articles_frequent_ed.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/auth-guard.js"></script>
