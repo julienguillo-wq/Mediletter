@@ -3880,17 +3880,8 @@ Une surveillance de la fonction rénale à 1 semaine est recommandée.</textarea
             document.getElementById('exportLetterBtn')?.addEventListener('click', exportLetter);
         });
 
-        // PWA Service Worker - force update
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(regs => {
-                regs.forEach(r => r.unregister());
-            }).then(() => {
-                return caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
-            }).then(() => {
-                navigator.serviceWorker.register('sw.js');
-            }).catch(() => {});
-        }
     </script>
+    <script src="/js/sw-register.js"></script>
 
     <style>
         /* ============================================

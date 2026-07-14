@@ -6081,39 +6081,6 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
     }
     
     // Service Worker for offline support (PWA)
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            // Create inline service worker for offline caching
-            const swCode = `
-                const CACHE_NAME = 'medapp-v9-cache';
-                const urlsToCache = ['/'];
-                
-                self.addEventListener('install', event => {
-                    event.waitUntil(
-                        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-                    );
-                });
-                
-                self.addEventListener('fetch', event => {
-                    event.respondWith(
-                        caches.match(event.request).then(response => {
-                            return response || fetch(event.request).then(fetchResponse => {
-                                return caches.open(CACHE_NAME).then(cache => {
-                                    if (event.request.url.startsWith('http')) {
-                                        cache.put(event.request, fetchResponse.clone());
-                                    }
-                                    return fetchResponse;
-                                });
-                            });
-                        }).catch(() => caches.match('/'))
-                    );
-                });
-            `;
-            const blob = new Blob([swCode], {type: 'application/javascript'});
-            const swUrl = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(swUrl).catch(() => {});
-        });
-    }
     
     // ========== THEME TOGGLE ==========
     function toggleTheme() {
@@ -6764,4 +6731,5 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/auth-guard.js"></script>
+<script src="/js/sw-register.js"></script>
 </body></html>
