@@ -2466,6 +2466,188 @@ async def medchat_stream(request: MedChatRequest, _auth_email: str = Depends(req
 
 
 # ==============================================================================
+# Articles médicaux — revue de littérature sourcée (recherche web scientifique)
+# ==============================================================================
+
+ARTICLES_MODEL = "claude-sonnet-4-6"
+ARTICLES_DOMAINS_FILE = Path(__file__).parent / "articles_domains.json"
+ARTICLES_USAGE_FILE = LOGS_DIR / "articles_usage.json"
+ARTICLES_LIMIT_USER = 12         # recherches / utilisateur / jour (lourdes)
+ARTICLES_LIMIT_GLOBAL = 80       # recherches / jour toutes utilisatrices
+_articles_lock = threading.Lock()
+
+ARTICLES_FALLBACK_DOMAINS = [
+    "pubmed.ncbi.nlm.nih.gov", "www.ncbi.nlm.nih.gov", "pmc.ncbi.nlm.nih.gov", "europepmc.org",
+    "semanticscholar.org", "cochranelibrary.com", "nejm.org", "thelancet.com", "jamanetwork.com",
+    "bmj.com", "annemergmed.com", "sciencedirect.com", "link.springer.com", "onlinelibrary.wiley.com",
+    "academic.oup.com", "biomedcentral.com", "has-sante.fr", "sfmu.org",
+]
+
+def articles_allowed_domains():
+    try:
+        data = json.loads(ARTICLES_DOMAINS_FILE.read_text(encoding="utf-8"))
+        domains = [d for d in data.get("allowed_domains", []) if isinstance(d, str) and d]
+        if domains:
+            return domains
+    except Exception:
+        pass
+    return ARTICLES_FALLBACK_DOMAINS
+
+ARTICLES_SYSTEM_PROMPT = """Tu es un assistant de recherche bibliographique médicale, destiné à des professionnels de santé qui rédigent un article scientifique. À partir d'un sujet, tu recherches dans la littérature scientifique — via l'outil de recherche web — des ARTICLES pertinents (études originales, revues systématiques, méta-analyses, recommandations).
+
+MÉTHODE :
+- Effectue PLUSIEURS recherches web ciblées (en français ET en anglais, avec des synonymes et termes MeSH) pour couvrir largement le sujet.
+- Vise une VINGTAINE d'articles (entre 15 et 25), classés du plus pertinent au moins pertinent.
+
+POUR CHAQUE ARTICLE, respecte EXACTEMENT ce format :
+
+### N. Titre de l'article
+*Auteurs (si connus) — Revue, année — type d'étude*
+
+Résumé de 3 à 6 phrases : objectif et population, méthode/design, principaux résultats chiffrés si disponibles, et pertinence pour le sujet. Mentionne le niveau de preuve quand c'est possible.
+
+Source : URL_EXACTE_DE_L_ARTICLE
+
+RÈGLES IMPÉRATIVES :
+- N'utilise QUE des URL réellement issues de tes recherches web. N'INVENTE JAMAIS une URL, un titre, un auteur ou un résultat. Dans le doute sur une référence, ne l'inclus pas.
+- Une ligne « Source : <url> » à la fin de CHAQUE résumé, avec l'URL réelle de l'article.
+- Privilégie les sources primaires (PubMed/PMC, EuropePMC), les revues systématiques et méta-analyses récentes.
+- Numérote les articles (1, 2, 3, …).
+- Réponds en français.
+- Commence par une courte phrase indiquant le nombre d'articles trouvés et la stratégie de recherche, puis liste les articles. Termine par une brève note sur les limites de cette recherche automatisée (elle ne remplace pas une revue systématique exhaustive)."""
+
+
+class ArticlesRequest(BaseModel):
+    topic: str
+    exclude: list = []          # URLs déjà listées (pour « charger plus »)
+
+
+def _daily_rate_check(usage_file, lock, email, user_limit, global_limit):
+    with lock:
+        try:
+            data = json.loads(usage_file.read_text(encoding="utf-8"))
+        except Exception:
+            data = {}
+        today = datetime.now().strftime("%Y-%m-%d")
+        if data.get("date") != today:
+            data = {"date": today, "global": 0, "users": {}}
+        users = data.setdefault("users", {})
+        if users.get(email, 0) >= user_limit:
+            return False, f"Quota quotidien atteint ({user_limit} recherches/jour). Réessayez demain."
+        if data.get("global", 0) >= global_limit:
+            return False, "Quota global quotidien atteint. Réessayez plus tard."
+        users[email] = users.get(email, 0) + 1
+        data["global"] = data.get("global", 0) + 1
+        try:
+            ensure_logs_dir()
+            usage_file.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+        return True, None
+
+
+@app.post("/articles/search")
+async def articles_search(request: ArticlesRequest, _auth_email: str = Depends(require_user)):
+    topic = (request.topic or "").strip()
+    if len(topic) < 4:
+        raise HTTPException(status_code=400, detail="Précisez un sujet de recherche.")
+    if len(topic) > 800:
+        raise HTTPException(status_code=400, detail="Sujet trop long.")
+
+    ok, limit_msg = _daily_rate_check(ARTICLES_USAGE_FILE, _articles_lock, _auth_email,
+                                      ARTICLES_LIMIT_USER, ARTICLES_LIMIT_GLOBAL)
+    if not ok:
+        raise HTTPException(status_code=429, detail=limit_msg)
+
+    user_msg = f"Sujet de recherche : {topic}"
+    exclude = [u for u in (request.exclude or []) if isinstance(u, str) and u.startswith("http")][:60]
+    if exclude:
+        user_msg += ("\n\nARTICLES DÉJÀ LISTÉS — NE PAS les reproposer, trouve d'AUTRES articles pertinents :\n"
+                     + "\n".join("- " + u for u in exclude))
+
+    tool = {
+        "type": "web_search_20250305",
+        "name": "web_search",
+        "max_uses": 12,
+        "allowed_domains": articles_allowed_domains(),
+    }
+
+    async def event_generator():
+        full_text = ""
+        input_tokens = output_tokens = 0
+        try:
+            api_start = time.time()
+            with client.messages.stream(
+                model=ARTICLES_MODEL,
+                max_tokens=8000,
+                system=[{"type": "text", "text": ARTICLES_SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
+                tools=[tool],
+                messages=[{"role": "user", "content": user_msg}],
+            ) as stream:
+                for event in stream:
+                    etype = getattr(event, "type", "")
+                    if etype == "content_block_start":
+                        cb = getattr(event, "content_block", None)
+                        if getattr(cb, "type", "") == "server_tool_use":
+                            yield f"data: {json.dumps({'type': 'searching'}, ensure_ascii=False)}\n\n"
+                    elif etype == "text":
+                        txt = getattr(event, "text", "")
+                        if txt:
+                            full_text += txt
+                            yield f"data: {json.dumps({'type': 'text', 'content': txt}, ensure_ascii=False)}\n\n"
+                final = stream.get_final_message()
+                input_tokens = final.usage.input_tokens
+                output_tokens = final.usage.output_tokens
+
+            # Sources réellement consultées (web search) + vérification des URL citées
+            consulted, hosts, seen = [], set(), set()
+            for block in final.content:
+                if getattr(block, "type", "") == "web_search_tool_result":
+                    for r in (getattr(block, "content", None) or []):
+                        if getattr(r, "type", "") == "web_search_result":
+                            u = getattr(r, "url", "") or ""
+                            if u and u not in seen:
+                                seen.add(u); consulted.append({"url": u, "title": getattr(r, "title", "") or u})
+                                try:
+                                    import urllib.parse as _up
+                                    h = _up.urlparse(u).hostname
+                                    if h: hosts.add(h)
+                                except Exception:
+                                    pass
+            import re as _re, urllib.parse as _up
+            cited = _re.findall(r'https?://[^\s)\]}>"]+', full_text)
+            cited = [c.rstrip('.,);') for c in cited]
+            uniq_cited = list(dict.fromkeys(cited))
+            def _ok(u):
+                try:
+                    h = _up.urlparse(u).hostname or ""
+                except Exception:
+                    return False
+                return any(h == d or h.endswith("." + d) for d in hosts)
+            verified = sum(1 for u in uniq_cited if _ok(u))
+
+            duration_ms = (time.time() - api_start) * 1000
+            cost_eur = calculate_cost(ARTICLES_MODEL, input_tokens, output_tokens)
+            yield ("data: " + json.dumps({
+                "type": "done", "articles": len(uniq_cited), "verified": verified,
+                "tokens_input": input_tokens, "tokens_output": output_tokens, "cost_eur": cost_eur,
+                "consulted": consulted[:60],
+            }, ensure_ascii=False) + "\n\n")
+            log_usage("/articles/search", ARTICLES_MODEL, input_tokens, output_tokens, cost_eur,
+                      success=True, user_email=_auth_email, duration_ms=duration_ms)
+        except Exception as e:
+            print(f"[articles] erreur: {type(e).__name__}: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Une erreur est survenue pendant la recherche. Veuillez réessayer.'}, ensure_ascii=False)}\n\n"
+            log_usage("/articles/search", ARTICLES_MODEL, 0, 0, 0, success=False, user_email=_auth_email)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
+    )
+
+
+# ==============================================================================
 # Lancement
 # ==============================================================================
 

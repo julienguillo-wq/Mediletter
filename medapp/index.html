@@ -2436,6 +2436,38 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
         .section-medchat { height: auto; }
         .chat-header-subtitle { display: none; }
     }
+
+    /* === Articles medicaux : overlay plein ecran (meme modele que MedChat) === */
+    .section-articles {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 1000; background: var(--bg-primary);
+        display: none; flex-direction: column;
+    }
+    .section-articles.active { display: flex; }
+    .art-container { flex: 1 1 auto; min-height: 0; width: 100%; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; }
+    .art-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 16px; padding-bottom: 28px; }
+    .art-form { background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+    .art-form label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .art-topic { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-family: inherit; font-size: 16px; resize: vertical; min-height: 70px; color: var(--text-primary); background: var(--bg-primary); }
+    .art-topic:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .art-suggest { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+    .art-chip { padding: 7px 11px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 16px; font-size: 11.5px; color: var(--text-secondary); cursor: pointer; font-family: inherit; text-align: left; }
+    .art-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .art-search-btn { width: 100%; padding: 13px; border: none; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .art-search-btn:disabled { opacity: .55; cursor: not-allowed; }
+    .art-status { font-size: 12.5px; color: var(--primary); font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 2px 2px 12px; min-height: 16px; }
+    .art-status .spin { width: 13px; height: 13px; border: 2px solid var(--primary-lighter); border-top-color: var(--primary); border-radius: 50%; animation: medchatSpin .7s linear infinite; }
+    .art-toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .art-toolbar button { padding: 8px 12px; border: 1px solid var(--border); background: var(--bg-secondary); border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .art-toolbar button:hover { border-color: var(--primary); color: var(--primary); }
+    .art-results { font-size: 14px; line-height: 1.6; color: var(--text-primary); min-width: 0; word-wrap: break-word; }
+    .art-results .md-h { display: block; color: var(--primary); font-size: 15px; font-weight: 700; margin: 18px 0 4px; }
+    .art-results a { color: var(--primary); text-decoration: underline; word-break: break-word; }
+    .art-results p { margin: 6px 0; }
+    .art-results em { color: var(--text-muted); font-style: italic; }
+    .art-results ul { margin: 6px 0; padding-left: 20px; }
+    .art-empty { text-align: center; color: var(--text-muted); padding: 30px 20px; }
+    .art-empty i { font-size: 40px; color: var(--primary); opacity: .85; display: block; margin-bottom: 12px; }
     </style>
 <script defer="" data-domain="giulia-tu-es-la-plus-jolie.tiiny.site" src="https://analytics.tiiny.site/js/plausible.js"></script><meta property="og:url" content="https://giulia-tu-es-la-plus-jolie.tiiny.site/" data-id="th-modified"><meta property="og:type" content="website" data-id="th-modified"></head>
 <body class="mx">
@@ -2573,6 +2605,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
             <button class="mx-tab" data-tab="guidelines" onclick="navToTab('guidelines')"><i class="ti ti-book"></i>Guidelines</button>
             <button class="mx-tab" data-tab="medchat" onclick="navToTab('medchat')"><i class="ti ti-message-circle"></i>MedChat</button>
             <button class="mx-tab" data-tab="history" onclick="navToTab('history')"><i class="ti ti-history"></i>Historique</button>
+            <button class="mx-tab" data-tab="articles" onclick="articlesOpen()"><i class="ti ti-file-search"></i>Articles</button>
         </nav>
     </div>
 
@@ -3179,6 +3212,34 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
                     <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()"><i class="ti ti-arrow-up"></i></button>
                 </div>
                 <div class="chat-warning"><i class="ti ti-shield-lock"></i> Ne saisissez aucune donnée patient identifiable.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-articles" id="sectionArticles">
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <button class="chat-back" onclick="articlesClose()" aria-label="Retour"><i class="ti ti-arrow-left"></i></button>
+                <div>
+                    <div class="chat-header-title"><i class="ti ti-file-search"></i> Articles médicaux</div>
+                    <div class="chat-header-subtitle">Revue de littérature sourcée</div>
+                </div>
+            </div>
+        </div>
+        <div class="art-container">
+            <div class="art-scroll">
+                <div class="art-form">
+                    <label>Sujet de l'article / question de recherche</label>
+                    <textarea class="art-topic" id="artTopic" placeholder="Ex : prise en charge des patients qui consultent de façon répétée aux urgences"></textarea>
+                    <div class="art-suggest" id="artSuggest"></div>
+                    <button class="art-search-btn" id="artSearchBtn" onclick="articlesSearch()"><i class="ti ti-search"></i> Rechercher une vingtaine d'articles</button>
+                </div>
+                <div class="art-status" id="artStatus"></div>
+                <div class="art-toolbar" id="artToolbar" style="display:none">
+                    <button onclick="articlesCopy()"><i class="ti ti-copy"></i> Copier tout</button>
+                    <button onclick="articlesMore()" id="artMoreBtn"><i class="ti ti-plus"></i> Charger plus d'articles</button>
+                </div>
+                <div class="art-results" id="artResults"></div>
             </div>
         </div>
     </div>
@@ -5678,6 +5739,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
         t = t.replace(/(^|[\s(])((?:https?:\/\/)[^\s)]+)(?=[\s).,]|$)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
         t = t.replace(/^#{1,6}\s?(.*)$/gm, '<strong class="md-h">$1</strong>');
         t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        t = t.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
         t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
         const lines = t.split('\n');
         let html = '', inUl = false;
@@ -5876,6 +5938,114 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
         });
     }
     document.addEventListener('DOMContentLoaded', medchatInit);
+
+    // ========== ARTICLES MEDICAUX (revue de litterature sourcee) ==========
+    const ARTICLES_STORE = 'articles-last-v1';
+    const ARTICLES_SUGGEST = [
+        "Prise en charge des patients consultant de facon repetee aux urgences",
+        "Frequent users of emergency departments : interventions et case management",
+        "Facteurs associes aux consultations repetees aux urgences",
+    ];
+    let articlesBusy = false, articlesText = '', articlesTopic = '', articlesConsulted = [], articlesLoaded = false;
+
+    function articlesOpen() { const s = document.getElementById('sectionArticles'); if (s) s.classList.add('active'); articlesLoad(); }
+    function articlesClose() { const s = document.getElementById('sectionArticles'); if (s) s.classList.remove('active'); }
+    function articlesSave() { try { localStorage.setItem(ARTICLES_STORE, JSON.stringify({ topic: articlesTopic, text: articlesText, consulted: articlesConsulted })); } catch (e) {} }
+    function articlesUseSuggest(q) { const t = document.getElementById('artTopic'); if (t) { t.value = q; t.focus(); } }
+    function articlesStatus(msg, spinning, isError) {
+        const el = document.getElementById('artStatus'); if (!el) return;
+        el.style.color = isError ? 'var(--danger)' : '';
+        el.innerHTML = (spinning ? '<span class="spin"></span> ' : '') + medchatEscape(msg);
+    }
+    function articlesLoad() {
+        if (articlesLoaded) return; articlesLoaded = true;
+        const sb = document.getElementById('artSuggest');
+        if (sb) sb.innerHTML = ARTICLES_SUGGEST.map(function (q) {
+            return '<button class="art-chip" onclick="articlesUseSuggest(this.dataset.q)" data-q="' + medchatEscape(q) + '">' + medchatEscape(q) + '</button>';
+        }).join('');
+        let saved = null; try { saved = JSON.parse(localStorage.getItem(ARTICLES_STORE)); } catch (e) {}
+        const res = document.getElementById('artResults');
+        if (saved && saved.text) {
+            articlesTopic = saved.topic || ''; articlesText = saved.text || ''; articlesConsulted = saved.consulted || [];
+            const t = document.getElementById('artTopic'); if (t) t.value = articlesTopic;
+            if (res) res.innerHTML = medchatMarkdown(articlesText);
+            const tb = document.getElementById('artToolbar'); if (tb) tb.style.display = 'flex';
+        } else if (res) {
+            res.innerHTML = '<div class="art-empty"><i class="ti ti-books"></i><p>Saisissez un sujet et lancez la recherche.<br>Chaque article est resume avec son lien source.</p></div>';
+        }
+    }
+    function articlesExcludeUrls() {
+        const urls = (articlesText.match(/https?:\/\/[^\s)\]}>"]+/g) || []).map(function (u) { return u.replace(/[.,);]+$/, ''); });
+        return Array.from(new Set(urls));
+    }
+    async function articlesRun(more) {
+        if (articlesBusy) return;
+        const topicEl = document.getElementById('artTopic');
+        const topic = (topicEl.value || '').trim();
+        if (topic.length < 4) { articlesStatus('Precisez un sujet de recherche.', false, true); return; }
+        articlesBusy = true; articlesTopic = topic;
+        const btn = document.getElementById('artSearchBtn'); if (btn) btn.disabled = true;
+        const moreBtn = document.getElementById('artMoreBtn'); if (moreBtn) moreBtn.disabled = true;
+        articlesStatus('Recherche des articles en cours…', true);
+        const res = document.getElementById('artResults');
+        if (!more) { articlesText = ''; articlesConsulted = []; if (res) res.innerHTML = ''; }
+        const appendMark = more && articlesText ? '\n\n' : '';
+        let chunk = '';
+        try {
+            const token = await medchatToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+            const resp = await fetch('/articles/search', { method: 'POST', headers: headers, body: JSON.stringify({ topic: topic, exclude: more ? articlesExcludeUrls() : [] }) });
+            if (!resp.ok) {
+                let d = ''; try { d = (await resp.json()).detail || ''; } catch (e) {}
+                if (resp.status === 401) d = 'Session expiree. Reconnectez-vous.';
+                throw new Error(d || ('Erreur ' + resp.status));
+            }
+            const reader = resp.body.getReader(); const dec = new TextDecoder(); let buf = '';
+            while (true) {
+                const c = await reader.read(); if (c.done) break;
+                buf += dec.decode(c.value, { stream: true });
+                const parts = buf.split('\n\n'); buf = parts.pop();
+                for (const part of parts) {
+                    const line = part.split('\n').find(function (l) { return l.indexOf('data:') === 0; });
+                    if (!line) continue;
+                    let evt; try { evt = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
+                    if (evt.type === 'searching') { articlesStatus('Recherche dans la litterature scientifique…', true); }
+                    else if (evt.type === 'text') {
+                        chunk += evt.content;
+                        if (res) res.innerHTML = medchatMarkdown(articlesText + appendMark + chunk) + '<span class="chat-cursor"></span>';
+                        const sc = document.querySelector('.art-scroll'); if (sc) sc.scrollTop = sc.scrollHeight;
+                    }
+                    else if (evt.type === 'error') { throw new Error(evt.message || 'Erreur pendant la recherche.'); }
+                    else if (evt.type === 'done') {
+                        articlesConsulted = (articlesConsulted || []).concat(evt.consulted || []);
+                        articlesStatus('≈ ' + (evt.articles || 0) + ' articles · ' + (evt.verified || 0) + ' liens verifies', false);
+                    }
+                }
+            }
+            articlesText = articlesText + appendMark + chunk;
+            if (res) res.innerHTML = medchatMarkdown(articlesText);
+            const tb = document.getElementById('artToolbar'); if (tb) tb.style.display = 'flex';
+            articlesSave();
+        } catch (err) {
+            articlesStatus((err && err.message) || 'Une erreur est survenue.', false, true);
+            if (articlesText && res) res.innerHTML = medchatMarkdown(articlesText);
+        } finally {
+            articlesBusy = false;
+            if (btn) btn.disabled = false;
+            if (moreBtn) moreBtn.disabled = false;
+        }
+    }
+    function articlesSearch() { articlesRun(false); }
+    function articlesMore() { articlesRun(true); }
+    function articlesCopy() {
+        const txt = articlesText || '';
+        if (!txt) { articlesStatus('Rien a copier.', false, true); return; }
+        function done() { articlesStatus('Copie dans le presse-papiers.', false); }
+        function fail() { articlesStatus('Copie impossible.', false, true); }
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(done, fail); }
+        else { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { fail(); } document.body.removeChild(ta); }
+    }
 
     // ========== INIT ==========
     document.addEventListener('DOMContentLoaded', function() {
