@@ -2426,7 +2426,7 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
         font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 4px 2px 0;
         display: flex; align-items: center; flex-shrink: 0; }
     .chat-back:hover { color: var(--primary); }
-    .chat-messages { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 16px; padding-bottom: 20px; }
+    .chat-messages { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 16px; padding-bottom: 20px; }
     .chat-input-container { position: static; z-index: auto; }
     /* Empeche le bloc sources (flex row large) de faire deborder la bulle -> texte coupe a droite */
     .chat-message { min-width: 0; }
@@ -2437,15 +2437,17 @@ body.mx { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; backg
         .chat-header-subtitle { display: none; }
     }
 
-    /* === Articles medicaux : overlay plein ecran (meme modele que MedChat) === */
+    /* === Articles medicaux : overlay qui defile lui-meme (meme modele que .calc-page, fiable iOS) === */
     .section-articles {
         position: fixed; top: 0; left: 0; right: 0; bottom: 0;
         z-index: 1000; background: var(--bg-primary);
-        display: none; flex-direction: column;
+        display: none;
+        overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
     }
-    .section-articles.active { display: flex; }
-    .art-container { flex: 1 1 auto; min-height: 0; width: 100%; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; }
-    .art-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 16px; padding-bottom: 28px; }
+    .section-articles.active { display: block; }
+    .section-articles .chat-header { position: sticky; top: 0; z-index: 3; }
+    .art-container { width: 100%; max-width: 900px; margin: 0 auto; }
+    .art-scroll { padding: 16px; padding-bottom: 40px; overflow-x: hidden; }
     .art-form { background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
     .art-form label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
     .art-topic { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-family: inherit; font-size: 16px; resize: vertical; min-height: 70px; color: var(--text-primary); background: var(--bg-primary); }
