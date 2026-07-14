@@ -1,0 +1,22 @@
+{
+  "_comment": "Liste blanche des sources médicales fiables autorisées pour la recherche web de MedChat. Éditable : ajouter/retirer des domaines ici (redémarrer le backend, ou c'est rechargé à chaque requête).",
+  "allowed_domains": [
+    "pubmed.ncbi.nlm.nih.gov",
+    "www.ncbi.nlm.nih.gov",
+    "has-sante.fr",
+    "sfmu.org",
+    "srlf.org",
+    "sfar.org",
+    "vidal.fr",
+    "ansm.sante.fr",
+    "escardio.org",
+    "uptodate.com",
+    "cochranelibrary.com",
+    "nejm.org",
+    "thelancet.com",
+    "jamanetwork.com",
+    "bmj.com",
+    "wikem.org",
+    "mdcalc.com"
+  ]
+}

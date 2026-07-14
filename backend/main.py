@@ -14,6 +14,7 @@ import os
 import json
 import asyncio
 import time
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
@@ -2289,6 +2290,178 @@ N'invente AUCUNE valeur. Ne liste QUE les problèmes qui respectent les critère
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no"
         }
+    )
+
+
+# ==============================================================================
+# MedChat — chat médical avec sources (recherche web restreinte à une liste blanche)
+# ==============================================================================
+
+MEDCHAT_MODEL = "claude-sonnet-4-6"
+MEDCHAT_DOMAINS_FILE = Path(__file__).parent / "medchat_domains.json"
+MEDCHAT_USAGE_FILE = LOGS_DIR / "medchat_usage.json"
+MEDCHAT_MAX_TURNS = 20          # tours utilisateur max par conversation
+MEDCHAT_LIMIT_USER = 30         # requêtes / utilisateur / jour
+MEDCHAT_LIMIT_GLOBAL = 200      # requêtes / jour toutes utilisatrices confondues
+_medchat_lock = threading.Lock()
+
+MEDCHAT_FALLBACK_DOMAINS = [
+    "pubmed.ncbi.nlm.nih.gov", "www.ncbi.nlm.nih.gov", "has-sante.fr", "sfmu.org",
+    "srlf.org", "sfar.org", "vidal.fr", "ansm.sante.fr", "escardio.org", "uptodate.com",
+    "cochranelibrary.com", "nejm.org", "thelancet.com", "jamanetwork.com", "bmj.com",
+    "wikem.org", "mdcalc.com",
+]
+
+def medchat_allowed_domains():
+    """Charge la liste blanche depuis medchat_domains.json (rechargée à chaque requête)."""
+    try:
+        data = json.loads(MEDCHAT_DOMAINS_FILE.read_text(encoding="utf-8"))
+        domains = [d for d in data.get("allowed_domains", []) if isinstance(d, str) and d]
+        if domains:
+            return domains
+    except Exception:
+        pass
+    return MEDCHAT_FALLBACK_DOMAINS
+
+MEDCHAT_SYSTEM_PROMPT = """Tu es MedChat, un assistant de connaissance médicale destiné à des professionnels de santé (médecins, internes, soignants). Tu n'es pas un chatbot qui « sait » : tu es un assistant qui CHERCHE puis CITE. Chaque affirmation médicale substantielle doit reposer sur une source que tu as consultée pendant la requête.
+
+RÈGLES IMPÉRATIVES :
+
+1. PÉRIMÈTRE. Tu ne réponds QU'À des questions médicales (physiopathologie, diagnostic, thérapeutique, posologies, recommandations, scores, examens, pharmacologie, prise en charge). Toute question hors sujet (météo, actualité générale, informatique, conversation, etc.) → refus poli en UNE phrase, sans rien ajouter d'autre.
+
+2. CHERCHER AVANT DE RÉPONDRE. Dès qu'une question porte sur une recommandation, une posologie, une conduite à tenir, une prise en charge, un seuil, ou une donnée susceptible d'avoir évolué, tu utilises SYSTÉMATIQUEMENT l'outil de recherche web avant de répondre. Ne réponds pas de mémoire sur ces sujets.
+
+3. CITER. Cite explicitement chaque source utilisée dans ta réponse (nom de la société savante, de la revue, ou de la recommandation). Si tu ne trouves aucune source fiable pour étayer un point, DIS-LE explicitement (« Je n'ai pas trouvé de source fiable sur ce point ») plutôt que de répondre de mémoire.
+
+4. NIVEAU DE PREUVE. Quand la source le précise, mentionne le niveau de preuve ou le grade de recommandation (ex. Grade A, Classe I, niveau de preuve élevé).
+
+5. CONTROVERSES. Si les sources divergent ou si le sujet est débattu, signale-le clairement au lieu de trancher artificiellement.
+
+6. PAS DE CAS PATIENT IDENTIFIABLE. Ne raisonne jamais sur un patient identifiable (nom, initiales, dossier précis). Si la question contient des données patient nominatives, recadre poliment vers une question de connaissance générale équivalente et réponds à celle-ci.
+
+7. LANGUE. Réponds dans la langue de la question (français par défaut).
+
+8. Termine TOUJOURS ta réponse par la ligne exacte, sur une ligne à part :
+Aide à la décision — ne remplace pas le jugement clinique."""
+
+
+class MedChatRequest(BaseModel):
+    messages: list  # historique complet [{role: "user"|"assistant", content: "..."}]
+
+
+def _medchat_today():
+    return datetime.now().strftime("%Y-%m-%d")
+
+def medchat_rate_check(email: str):
+    """Vérifie et incrémente les compteurs. Retourne (ok, message)."""
+    with _medchat_lock:
+        try:
+            data = json.loads(MEDCHAT_USAGE_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            data = {}
+        today = _medchat_today()
+        if data.get("date") != today:
+            data = {"date": today, "global": 0, "users": {}}
+        users = data.setdefault("users", {})
+        user_count = users.get(email, 0)
+        if user_count >= MEDCHAT_LIMIT_USER:
+            return False, f"Quota quotidien atteint ({MEDCHAT_LIMIT_USER} requêtes/jour). Réessayez demain."
+        if data.get("global", 0) >= MEDCHAT_LIMIT_GLOBAL:
+            return False, "Quota global quotidien de MedChat atteint. Réessayez plus tard."
+        users[email] = user_count + 1
+        data["global"] = data.get("global", 0) + 1
+        try:
+            ensure_logs_dir()
+            MEDCHAT_USAGE_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+        return True, None
+
+
+@app.post("/medchat/stream")
+async def medchat_stream(request: MedChatRequest, _auth_email: str = Depends(require_user)):
+    # Historique fourni par le client (backend stateless). Validation.
+    msgs = request.messages or []
+    clean = []
+    for m in msgs:
+        role = m.get("role") if isinstance(m, dict) else None
+        content = m.get("content") if isinstance(m, dict) else None
+        if role in ("user", "assistant") and isinstance(content, str) and content.strip():
+            clean.append({"role": role, "content": content})
+    if not clean or clean[-1]["role"] != "user":
+        raise HTTPException(status_code=400, detail="Message utilisateur manquant.")
+    user_turns = sum(1 for m in clean if m["role"] == "user")
+    if user_turns > MEDCHAT_MAX_TURNS:
+        raise HTTPException(status_code=400,
+                            detail=f"Conversation trop longue ({MEDCHAT_MAX_TURNS} tours max). Démarrez un nouveau fil.")
+
+    ok, limit_msg = medchat_rate_check(_auth_email)
+    if not ok:
+        raise HTTPException(status_code=429, detail=limit_msg)
+
+    tool = {
+        "type": "web_search_20250305",
+        "name": "web_search",
+        "max_uses": 5,
+        "allowed_domains": medchat_allowed_domains(),
+    }
+
+    async def event_generator():
+        full_text = ""
+        input_tokens = 0
+        output_tokens = 0
+        try:
+            api_start = time.time()
+            with client.messages.stream(
+                model=MEDCHAT_MODEL,
+                max_tokens=3000,
+                system=[{"type": "text", "text": MEDCHAT_SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
+                tools=[tool],
+                messages=clean,
+            ) as stream:
+                for event in stream:
+                    etype = getattr(event, "type", "")
+                    if etype == "content_block_start":
+                        cb = getattr(event, "content_block", None)
+                        if getattr(cb, "type", "") == "server_tool_use":
+                            yield f"data: {json.dumps({'type': 'searching'}, ensure_ascii=False)}\n\n"
+                    elif etype == "text":
+                        txt = getattr(event, "text", "")
+                        if txt:
+                            full_text += txt
+                            yield f"data: {json.dumps({'type': 'text', 'content': txt}, ensure_ascii=False)}\n\n"
+                final = stream.get_final_message()
+                input_tokens = final.usage.input_tokens
+                output_tokens = final.usage.output_tokens
+
+            # Sources consultées (déduplication par URL)
+            sources, seen = [], set()
+            for block in final.content:
+                if getattr(block, "type", "") == "web_search_tool_result":
+                    for r in (getattr(block, "content", None) or []):
+                        if getattr(r, "type", "") == "web_search_result":
+                            url = getattr(r, "url", "") or ""
+                            if url and url not in seen:
+                                seen.add(url)
+                                sources.append({"url": url, "title": (getattr(r, "title", "") or url)})
+            if sources:
+                yield f"data: {json.dumps({'type': 'sources', 'sources': sources}, ensure_ascii=False)}\n\n"
+
+            duration_ms = (time.time() - api_start) * 1000
+            cost_eur = calculate_cost(MEDCHAT_MODEL, input_tokens, output_tokens)
+            yield f"data: {json.dumps({'type': 'done', 'tokens_input': input_tokens, 'tokens_output': output_tokens, 'cost_eur': cost_eur}, ensure_ascii=False)}\n\n"
+            log_usage("/medchat/stream", MEDCHAT_MODEL, input_tokens, output_tokens, cost_eur,
+                      success=True, user_email=_auth_email, duration_ms=duration_ms)
+
+        except Exception as e:
+            print(f"[medchat] erreur: {type(e).__name__}: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Une erreur est survenue pendant la recherche. Veuillez réessayer.'}, ensure_ascii=False)}\n\n"
+            log_usage("/medchat/stream", MEDCHAT_MODEL, 0, 0, 0, success=False, user_email=_auth_email)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
     )
 
 
