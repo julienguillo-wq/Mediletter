@@ -87,9 +87,10 @@ app = FastAPI(
     version="2.1.0"
 )
 
+_cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "https://lettres.vannesexpress.com").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # À restreindre en production
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -119,6 +120,22 @@ executor = ThreadPoolExecutor(max_workers=10)
 LOGS_DIR = Path(__file__).parent / "logs"
 USAGE_FILE = LOGS_DIR / "usage.json"
 CORRECTIONS_FILE = LOGS_DIR / "corrections.json"
+
+# Quota quotidien partagé pour les endpoints de génération (anti-abus de coût Anthropic).
+# Généreux : ne gêne pas l'usage normal, borne un compte compromis / une boucle.
+GENERATION_USAGE_FILE = LOGS_DIR / "generation_usage.json"
+GENERATION_LIMIT_USER = int(os.getenv("GENERATION_LIMIT_USER", "500"))
+GENERATION_LIMIT_GLOBAL = int(os.getenv("GENERATION_LIMIT_GLOBAL", "3000"))
+_generation_lock = threading.Lock()
+
+def require_generation_quota(authorization: str = Header(None)):
+    """require_user + quota quotidien partagé (_daily_rate_check est défini plus bas, résolu à l'exécution)."""
+    email = require_user(authorization)
+    ok, msg = _daily_rate_check(GENERATION_USAGE_FILE, _generation_lock, email,
+                                GENERATION_LIMIT_USER, GENERATION_LIMIT_GLOBAL)
+    if not ok:
+        raise HTTPException(status_code=429, detail=msg)
+    return email
 
 def ensure_logs_dir():
     """Crée le répertoire logs s'il n'existe pas."""
@@ -659,7 +676,7 @@ async def admin_stats(auth: bool = Depends(verify_admin_key)):
 
 
 @app.post("/log-corrections")
-async def log_corrections(request: LogCorrectionRequest):
+async def log_corrections(request: LogCorrectionRequest, _auth: str = Depends(require_user)):
     """
     Enregistre les corrections apportées par l'utilisateur.
     Permet de suivre les différences entre le texte généré et le texte validé.
@@ -699,7 +716,7 @@ async def log_corrections(request: LogCorrectionRequest):
         return {"status": "logged", "has_changes": has_changes}
     except Exception as e:
         print(f"Erreur logging correction: {e}")
-        raise HTTPException(status_code=500, detail=f"Erreur logging: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur logging.")
 
 
 @app.get("/admin/corrections")
@@ -1052,7 +1069,7 @@ async def admin_vdr_logs(auth: bool = Depends(verify_admin_key)):
 
 
 @app.post("/analyser", response_model=AnalyserResponse)
-async def analyser(request: AnalyserRequest, _auth_email: str = Depends(require_user)):
+async def analyser(request: AnalyserRequest, _auth_email: str = Depends(require_generation_quota)):
     request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Étape 1 : Analyse et extraction des données.
@@ -1157,9 +1174,9 @@ async def analyser(request: AnalyserRequest, _auth_email: str = Depends(require_
     except anthropic.APIError as e:
         # Logger l'échec
         log_usage("/analyser", MODELS["ultra_haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False, session_id=request.session_id, user_email=request.user_email)
-        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur API Claude.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur.")
 
 
 # ==============================================================================
@@ -1167,7 +1184,7 @@ async def analyser(request: AnalyserRequest, _auth_email: str = Depends(require_
 # ==============================================================================
 
 @app.post("/generer-section", response_model=GenererSectionResponse)
-async def generer_section(request: GenererSectionRequest, _auth_email: str = Depends(require_user)):
+async def generer_section(request: GenererSectionRequest, _auth_email: str = Depends(require_generation_quota)):
     request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Génère UNE SEULE section pour un problème donné.
@@ -1249,13 +1266,13 @@ async def generer_section(request: GenererSectionRequest, _auth_email: str = Dep
 
     except anthropic.APIError as e:
         log_usage("/generer-section", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=request.user_email)
-        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur API Claude.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur.")
 
 
 @app.post("/generer-section-stream")
-async def generer_section_stream(request: GenererSectionRequest, _auth_email: str = Depends(require_user)):
+async def generer_section_stream(request: GenererSectionRequest, _auth_email: str = Depends(require_generation_quota)):
     request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Génère UNE SEULE section en streaming SSE.
@@ -1337,7 +1354,7 @@ async def generer_section_stream(request: GenererSectionRequest, _auth_email: st
             log_usage("/generer-section-stream", model_used, input_tokens, output_tokens, cost_eur, 0, 0, success=True, session_id=request.session_id, user_email=request.user_email, duration_ms=duration_ms)
 
         except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Une erreur est survenue.'}, ensure_ascii=False)}\n\n"
             log_usage("/generer-section-stream", model_used, 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=request.user_email)
 
     return StreamingResponse(
@@ -1352,7 +1369,7 @@ async def generer_section_stream(request: GenererSectionRequest, _auth_email: st
 
 
 @app.post("/regenerer-section", response_model=GenererSectionResponse)
-async def regenerer_section(request: RegenerationSectionRequest, _auth_email: str = Depends(require_user)):
+async def regenerer_section(request: RegenerationSectionRequest, _auth_email: str = Depends(require_generation_quota)):
     request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Régénère une section avec une instruction de modification.
@@ -1439,9 +1456,9 @@ IMPORTANT: Régénère cette section en intégrant l'instruction du médecin. Co
         )
 
     except anthropic.APIError as e:
-        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur API Claude.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur.")
 
 
 @app.post("/assembler", response_model=AssemblerResponse)
@@ -1504,7 +1521,7 @@ async def assembler_stream(request: AssemblerRequest, _auth_email: str = Depends
             log_usage("/assembler-stream", "python-concat", 0, 0, 0, 0, 0, success=True, session_id=request.session_id, user_email=user_email, duration_ms=duration_ms)
 
         except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Une erreur est survenue.'}, ensure_ascii=False)}\n\n"
             log_usage("/assembler-stream", "python-concat", 0, 0, 0, 0, 0, success=False, session_id=request.session_id, user_email=user_email)
 
     return StreamingResponse(
@@ -1702,7 +1719,7 @@ VDR_PROMPTS = {
 
 
 @app.post("/analyser-entree")
-async def analyser_entree(request: AnalyserEntreeRequest, _auth_email: str = Depends(require_user)):
+async def analyser_entree(request: AnalyserEntreeRequest, _auth_email: str = Depends(require_generation_quota)):
     request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Étape 1 VDR : Classification + extraction JSON depuis transcription vocale.
@@ -1796,7 +1813,7 @@ async def analyser_entree(request: AnalyserEntreeRequest, _auth_email: str = Dep
             donnees = json.loads(cleaned)
         except json.JSONDecodeError as e:
             print(f"[/analyser-entree] Erreur parsing JSON. Réponse brute:\n{raw_json[:2000]}")
-            raise HTTPException(status_code=500, detail=f"Erreur parsing JSON de l'extraction: {str(e)}")
+            print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur parsing JSON de l'extraction.")
 
         type_lettre = donnees.get("type_lettre", donnees.get("type", "MI")).upper()
         if type_lettre not in VDR_PROMPTS:
@@ -1816,13 +1833,13 @@ async def analyser_entree(request: AnalyserEntreeRequest, _auth_email: str = Dep
 
     except anthropic.APIError as e:
         log_usage("/analyser-entree", MODELS["haute_qualite"], 0, 0, 0, images_count, pdfs_count, success=False, user_email=request.user_email)
-        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur API Claude.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur.")
 
 
 @app.post("/generer-entree")
-async def generer_entree(request: GenererEntreeRequest, _auth_email: str = Depends(require_user)):
+async def generer_entree(request: GenererEntreeRequest, _auth_email: str = Depends(require_generation_quota)):
     request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Étape 2 VDR : Rédaction de la lettre à partir du JSON structuré + type de chablon.
@@ -1868,9 +1885,9 @@ async def generer_entree(request: GenererEntreeRequest, _auth_email: str = Depen
 
     except anthropic.APIError as e:
         log_usage("/generer-entree", MODELS["haute_qualite"], 0, 0, 0, 0, 0, success=False, user_email=request.user_email)
-        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur API Claude.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur.")
 
 
 # ==============================================================================
@@ -1878,7 +1895,7 @@ async def generer_entree(request: GenererEntreeRequest, _auth_email: str = Depen
 # ==============================================================================
 
 @app.post("/medentry-uga/generer")
-async def medentry_uga_generer(request: MedEntryUGARequest, _auth_email: str = Depends(require_user)):
+async def medentry_uga_generer(request: MedEntryUGARequest, _auth_email: str = Depends(require_generation_quota)):
     request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Génère un bilan d'entrée gériatrique.
@@ -2013,10 +2030,10 @@ async def medentry_uga_generer(request: MedEntryUGARequest, _auth_email: str = D
 
     except anthropic.APIError as e:
         log_usage("/medentry-uga/generer", model_used, 0, 0, 0, 0, 0, success=False, user_email=request.user_email)
-        raise HTTPException(status_code=500, detail=f"Erreur API Claude: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur API Claude.")
     except Exception as e:
         log_usage("/medentry-uga/generer", model_used, 0, 0, 0, 0, 0, success=False, user_email=request.user_email)
-        raise HTTPException(status_code=500, detail=f"Erreur génération: {str(e)}")
+        print(f"[err] {e}"); raise HTTPException(status_code=500, detail="Erreur génération.")
 
 
 @app.delete("/session/{session_id}")
@@ -2121,7 +2138,7 @@ class RechercheProblemeRequest(BaseModel):
 
 
 @app.post("/api/recherche-probleme")
-async def recherche_probleme(request: RechercheProblemeRequest, _auth_email: str = Depends(require_user)):
+async def recherche_probleme(request: RechercheProblemeRequest, _auth_email: str = Depends(require_generation_quota)):
     request.user_email = _auth_email  # email déduit du JWT, jamais du body
     """
     Génère une section MediLetter pour un seul problème.
@@ -2279,7 +2296,7 @@ N'invente AUCUNE valeur. Ne liste QUE les problèmes qui respectent les critère
             yield f"data: {json.dumps({'type': 'done', 'full_text': full_text, 'tokens_input': input_tokens, 'tokens_output': output_tokens, 'cost_eur': cost_eur}, ensure_ascii=False)}\n\n"
 
         except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Une erreur est survenue.'}, ensure_ascii=False)}\n\n"
             log_usage("/api/recherche-probleme", model_used, 0, 0, 0, success=False, user_email=request.user_email)
 
     return StreamingResponse(
